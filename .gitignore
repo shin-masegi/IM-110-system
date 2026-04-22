@@ -1,0 +1,17 @@
+# Claude Code local state
+.claude/cache/
+.claude/sessions/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*~
+
+# Generated Word docs (keep md as source of truth; regenerate docx as needed)
+*.docx
+!docs/templates/*.docx
