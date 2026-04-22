@@ -44,19 +44,26 @@ description: デバッグログのインボックスを読み、仕様書やCLAU
 ```
 デバッグログ取り込み開始
 未処理エントリ: N 件
-  - 2026-04-15-o2-zero-reading.md
-  - 2026-04-18-comm-timeout.md
+  - 2026-04-15-mcp3424-drift.md
+  - 2026-04-18-ms-autosend-jitter.md
   ...
 ```
 
 各エントリ処理時:
 
 ```
-[1/N] 2026-04-15-o2-zero-reading.md
+[1/N] 2026-04-15-mcp3424-drift.md
   確定した知見:
     - (箇条書き)
   反映先案:
-    - docs/protocol-rs232c.md §4 タイミング: GET_O2 タイムアウト 500ms → 1000ms
-    - ../IM-110_Probe/CLAUDE.md: 起動時のゲイン初期化ルール追記
+    - docs/protocol-rs232c.md §4 タイミング: MS 自律送信周期に ±50ms のジッタ実測 → 注記追加
+    - ../IM-110_Probe/CLAUDE.md §6: ADC 移動平均の推奨値を実測値で更新
   反映しますか? (y / n / e=編集)
 ```
+
+## サンプルエントリの扱い
+
+`docs/debug-log/2026-04-22-sample-entry.md` は動作確認用のサンプルで、本文に「反映不要、
+`_processed/` に移動するだけでよい」と明記されている。このコマンドで未処理一覧として
+検出されたら、**反映先案として「サンプル — 移動のみ」と表示し、ユーザー承認後に `_processed/`
+に移動** する（front matter の `status` 更新は不要、サンプルなのでそのまま移動）。
