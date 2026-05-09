@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"name": "IM-110-system",
+			"path": "."
+		},
+		{
+			"name": "IM-110",
+			"path": "../IM-110"
+		},
+		{
+			"name": "IM-110_Probe",
+			"path": "../IM-110_Probe"
+		}
+	]
+}
