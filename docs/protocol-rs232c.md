@@ -338,6 +338,41 @@ SADC,0000 に戻す:          1.234,    -0.567,   2.100,    3.456,    5.678,    
 - **マイグレーション**（既存校正済み機）: 本体が全 21 式の `WCF` ＋ 3 mode の `WCS` を送ってから `WCFC` する。
 - `WCFC` 前に電源断しても flash は前の内容のまま（RAM 像のみ更新のため）。commit 成功で確定。
 
+##### 3.2.6.1 vault ver2 拡張（調整機能 対応、未実装）
+
+基板調整モード（ADBOAD）の調整機能（`adjust-mode-design.md`）で作る係数を保持するため vault を **ver2** に拡張する。
+ver1（`CF`/`CS` のみ）に対し、以下の**行種とコマンドを追加**する。`CFV` の `<ver>` が `2` を返す。
+
+**vault ver2 が per-eq / per-mode に追加保持する係数**:
+
+| 種別 | 単位 | 内容 |
+|---|---|---|
+| `Mode_CF`（相関式係数） | per-eq | 吸光度→FABSS の多項式（最大6次=7係数）。機上最小二乗で作成 |
+| 機差補正 | per-eq | 工場で基準器に合わせる1点比例の倍率（1係数）。現場スパン校正 `SP` とは別 |
+| ADZR（ゼロ） | per-mode | 受光ADZR / RefADZR（2係数）。相関式非依存の単一ゼロ |
+| 温度補正 | per-mode | Ref による受光の温度補正係数（枠7）。TR は SS を参照（TR は送らない） |
+
+**読み出し（`RCF` 応答に ver2 で追加される行）**:
+```
+← CM,<mode>,<eq>,<f0>..<f6>\r\n    相関式係数 Mode_CF (per-eq, 7 float)
+← CK,<mode>,<eq>,<gain>\r\n         機差補正 倍率 (per-eq, 1 float)
+← CZ,<mode>,<adzr_juko>,<adzr_ref>\r\n   ゼロ ADZR (per-mode, 2 float。MLSS/SS のみ)
+← CT,<mode>,<f0>..<f6>\r\n          温度補正 (per-mode, 7 float。MLSS/SS のみ)
+```
+（既存 `CF`/`CS` に加えて出力。行順は実装依存だが `OK\r\n` で終端。先頭文字は全て `C`＝応答行で §3.4 と排他。）
+
+**書き戻し**（本体→プローブ、いずれも `OK`/`NG`。確定は既存 `WCFC`）:
+```
+→ WCM,<mode>,<eq>,<f0>..<f6>\r\n   Mode_CF を RAM 像へ (per-eq)
+→ WCK,<mode>,<eq>,<gain>\r\n        機差補正を RAM 像へ (per-eq)
+→ WCZ,<mode>,<adzr_juko>,<adzr_ref>\r\n   ADZR を RAM 像へ (per-mode)
+→ WCT,<mode>,<f0>..<f6>\r\n         温度補正を RAM 像へ (per-mode)
+```
+
+- `<mode>` `<eq>` `<float>` の書式は §3.2.6 本体と同じ（0=MLSS/1=SS/2=TR、eq=No.、float=`%.9g`）。
+- **移行**: プローブが ver1 flash を読んだら、`CF`/`CS`(既存)を引き継ぎ、ver2 新フィールドは初期値(0/未校正)。
+  本体は `CFV` の ver で判定。詳細レイアウトは `adjust-mode-design.md` §5 H。
+
 ### 3.3 自律送信（`MS` 有効時の周期送信）
 
 - トリガ:
