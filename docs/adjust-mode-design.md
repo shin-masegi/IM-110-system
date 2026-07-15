@@ -7,6 +7,43 @@
 
 ---
 
+## ★ 次セッション引き継ぎ (2026-07-14 時点)
+
+### 完了済み（push 済）
+- **補正式①②③**: MLSS/SS 共通式 `I(0)=ZR+(ref−refZR)·B` / `ABS=log10(I(0)/(Y0−ADZR))`（FABS_SPAN廃止、器差→kiza）。MLSS/SS 1次演算式=1次直線（No.1-20 等間隔グラデ、No.11=従来黒No.5、No.21-30 初期=No.1傾き）。透視度=累乗式 `cm=a·ABS^b`。digit-mV は式不要（A/DCのmVをそのまま）。→ 本体 IM_110.c、詳細は本doc §5 E'/補正式-2/3。
+- **vault ver2**（プローブ=真実源）: eq_coef_t{cf,modecf,kiza}×MLSS/SS No.21-30・TR + mode_coef_t{setval,adzr,tempc}×3。RCF の CM/CK/CZ/CT、書込 WCM/WCK/WCZ/WCT。プローブ Ver.0.16。本体は Probe_ReadVault でパース→staging→Apply_Vault_To_Live で live 反映。
+- **算出コア**（機上、ホスト検証済）: `adj_fit_poly`（最小二乗多項式）/`adj_fit_power`（累乗）/`adj_calc_tempc`（B傾き+refZR）/`adj_calc_kiza`（1点比例）/`adj_led_duty_step`（duty×1750/max）。
+- **校正フロー**（MLSS/SS/透視度）: ゼロ/2点/3点 後スパン校正→EEPROM→vault書戻し。Meas_Mode ディスパッチ（`Calib_*_Current`）。SS/TR は相関式No.廃止→内部 No.21(=20)固定、モード選択画面スキップ。
+- LED duty 初期値 0.36（プローブ LED_OUT_INI）。
+
+### これから（合意した順序）
+**A（シリアル調整インターフェース）を先に実装 → A で実機検証 → B（ADBOAD LCD 画面群）を実装。**
+検証順は FUP（プローブUART書換）→ vault → 調整/校正。
+
+### なぜ A を先に（判断根拠 2026-07-14）
+- **ADBOAD の入口が無効化中**（main.c ~264、PC4_nTEST を誤起動対策でコメントアウト）。LCD 画面を作っても入口再有効化が別途必要。
+- 既存 ADBOAD は ID-200T の DO/水温レガシー（adj_range/calc6,7/now_range）。IM-110 用6画面は実質新規。
+- 一方 **LinkSerial.c に PC 直結コマンド基盤あり**（PON/MIGV/REP/WEP/P:/VR…、CN2/BLE 到達可）。算出コア+vault書込を直接叩ける。PC ログで I(0)/ABS/FABSS/係数まで観測でき検証精度も上がる。
+
+### A: シリアル調整インターフェース 設計スケッチ（LinkSerial.c に追加。実装時に精査）
+新品プローブ前提。各コマンドは本体経由でプローブ vault へ書く（Probe_WriteVault* + 最後に WCFC 相当で確定）。
+- **生値表示**: `AMV` → `ADC_mV[0..5]` と現モードの ABS/FABSS/最終値を1行出力（安定判定付きで繰返し）。
+- **LED duty**: `ALD,<duty>` 設定（プローブ `SP,<duty>`）／`ALDA` 空中 Ch0-3 最大→1750mV 自動（`adj_led_duty_step` を反復、±30mV 収束）→ `WPP` 保存。
+- **ADZR 取得**: 遮光状態で `AZR` → 受光ADZR=ADC_mV[受光]、RefADZR=ADC_mV[Ref] を取得 → vault CZ（mode別）。
+- **Ref 温度係数**: 5/20/35℃ 清水で `ATC,<temp>` 各点キャプチャ（ref,受光）→ 3点揃ったら `adj_calc_tempc` で B+refZR → vault CT（tempc[0]=B）/CZ（adzr[1]=refZR）。MLSS/SS の2セット、TR は SS 参照。
+- **Mode_CF 回帰**: 各溶液で `AMC,<基準器mgL>` キャプチャ（現ABS, mgL）、揃ったら `AMCF,<次数>`（MLSS白=4次/黒=1次/SS=1次）で `adj_fit_poly` → vault CM。透視度は `AMCP`（`adj_fit_power` → a,b を TR modecf[0],[1]）。
+- **機差補正**: 基準器に対し `AKZ,<基準器mgL>` → `adj_calc_kiza`（現FABSS使用、kiza=0状態で）→ vault CK。
+- **確定**: 各書込後 or 明示コマンドで WCFC（プローブ flash 確定）。
+- 実装は既存 MIGV（LinkSerial.c、Probe_* 呼ぶ）と `Probe_WriteVaultModeCF/Kiza/ADZR/TempC`＋`Probe_CommitVault` を流用。生値は本体 RAM の `ADC_mV[]`/`MLSS_ABSS`/`*_FABSS` を読むだけ。
+
+### B: ADBOAD LCD 画面群（A の後）
+6画面（LED duty/ADZR取得/Ref温度係数/Mode_CF回帰/機差補正/生mV表示）を Adjust.c に新規。旧 DO 画面（LOWRANGE0等/WAT05C等/CALTEMP）を置換（design B）。**入口 PC4_nTEST の再有効化＋誤起動対策**を併せて設計。A のコマンドロジック（キャプチャ→算出→vault）を画面から呼ぶ形に再利用。
+
+### 残（検証フェーズ）
+ver2 の EEPROM キャッシュ（プローブ切断フォールバック）、後校正パスの温度補正（履歴に Ref 記録追加）、T6-01 に透視度 mV→cm 別係数があれば差替、メニュー一覧の相関式選択テキスト完全非表示（cosmetic）、x中心化・R²チェック。
+
+---
+
 ## 0. 進め方
 
 - 論点（§4）を上から 1 つずつ相談 → 決めたら §5 決定ログに追記。
