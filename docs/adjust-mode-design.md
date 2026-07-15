@@ -20,6 +20,56 @@
 **A（シリアル調整インターフェース）を先に実装 → A で実機検証 → B（ADBOAD LCD 画面群）を実装。**
 検証順は FUP（プローブUART書換）→ vault → 調整/校正。
 
+#### A: シリアル調整インターフェース — 実装済（2026-07-15, 未push, 本体ビルドOK）
+LinkSerial.c に `Handle_Adjust_CMD()` を追加（先頭 'A' を委譲、未該当は既存 AD/AAS/ATP へフォールスルー）。
+実処理は IM_110.c のオーケストレーション層 `Adj_*`（捕捉は `ADC_mV_ave` を読み MS 稼働前提、フィット/書込は
+staging `*_Vault_*` 更新→`Apply_Vault_To_Live`→プローブ RAM 像へ WCM/WCK/WCZ/WCT を MS 一時停止で送出、
+flash 確定は AWC=WCFC）。**プローブ FW 変更なし**（SP/MD/WPP/WCx は既存）。protocol 変更なし（新コマンドは本体↔PC）。
+
+コマンド（現 Meas_Mode に対して動作）:
+| cmd | 動作 | 応答例 |
+|---|---|---|
+| `AMV` | 生値表示: 受光/Ref mV, ABS, FABSS, 最終値 | `AMV,0,J:1750.0,R:1700.0,ABS:0.012,F:5.0,V:5.0` |
+| `AMODE,<0/1/2>` | 測定モード切替（MLSS/SS/TR）。**シリアルのみで調整可**（ボタン不要） | OK/NG |
+| `AEQ,<21-30>` | MLSS 相関式 No. 選択（SS/TR は No.21固定で非対象） | OK/NG |
+| `ALD,<duty>` | LED duty 揮発設定（プローブ SP） | OK/NG |
+| `ALDA,<start>` | 空中 Ch0-3 最大→1750±30 自動収束+WPP保存（MD一発測定で同期反復） | `ALDA,OK,duty:0.35,max:1748.2,it:3` |
+| `AZR` | 遮光で**受光ダーク adzr[0]のみ**捕捉→CZ（MLSS/SS。TR非対象） | OK/NG |
+| `ATC,<temp>` | 温度点捕捉（5/20/35℃ 最近傍スロット、MLSS/SS） | OK/NG |
+| `ATCF` | 温度3点フィット→B(tempc[0])/refZR(adzr[1])→CT/CZ | OK/NG |
+| `AMC,<mgL>` | Mode_CF 点捕捉（x=現ABS, y=基準器mgL/cm） | OK/NG |
+| `AMD` | 捕捉点ダンプ（デバッグ: (ABS, 基準器) ペア一覧） | `AMD,0,ABS:0.012,Y:100`…`AMD,END,6` |
+| `AMCF,<次数>` | 多項式フィット→CM（MLSS/SS）、**R²併記** | `AMCF,OK,R2:0.9998` / NG |
+| `AMCP` | 累乗フィット→CM a,b（透視度）、**R²併記** | `AMCP,OK,R2:0.997` / NG |
+| `AKZ,<mgL>` | 機差補正 1点比例（kiza=0中立でFABSS取得）→CK | OK/NG |
+| `AWC` | プローブ RAM 像→flash 確定（WCFC） | OK/NG |
+| `AMR` | 捕捉バッファ（Mode_CF/温度）リセット | OK |
+| `AST` | ステータス: mode/eq/捕捉点数/温度捕捉フラグ | `AST,mode:0,eq:20,cf_pts:2,tc:0x3` |
+
+**回帰の数値安定化 + フィット品質（2026-07-16, 未push, ホスト検証済）**: `adj_fit_poly` に **x スケーリング**
+（`x'=x/max|x|` で解き `a_k=b_k/s^k` で厳密に生単項式基底へ戻す。単純スケールゆえ逆変換に近似なし）を追加し
+4次 Vandermonde の悪条件を緩和。`adj_r2_poly`/`adj_r2_power`（決定係数 R²）を追加し AMCF/AMCP で即座に
+フィット妥当性を返す。ホスト検証: 4次厳密復元 誤差1e-6・R²=1、大 x(50) 相対誤差7e-8、2点1次厳密、
+ノイズ有 R²<1。→ design §5 F の「x中心化スケーリング・R²チェック」残は**解消**（中心化は単純スケールで代替、
+逆変換の近似リスクを排除）。
+
+**設計精査での修正点（重要）**: 元スケッチは AZR で「受光ADZR + RefADZR」の2値を CZ へ書く想定だったが、
+補正式 E' 再定義で **`adzr[1]=refZR`＝20℃清水 Ref（温度補正基準）** であり遮光ダークではない。よって
+**AZR は受光ダーク `adzr[0]` のみ更新し `adzr[1]` は既存値を保持**、`adzr[1]=refZR` は **ATCF（温度校正）が設定**する。
+両者とも WCZ を送るが相手のフィールドを保持する。
+
+**実機デバッグ ハーネス（2026-07-16, `tools/adjust-debug/`）**: 実機確認時に Claude が OpenOCD/GDB とシリアル
+(A コマンド) の両方を駆動して計算式をデバッグする。`openocd_l452.cfg`（ST-Link+STM32L4）/`adj.gdb`（観測マクロ
+`adcs`/`mlssv`/`ssv`/`trv`/`caps` + `armfit` で fit/adjust ブレーク + `stepmlss` でホットパス1サイクル捕捉）/
+`adjctl.py`（依存なしシリアル、115200 8N1、A コマンド送受）/`README.md`（手順1–9→A コマンド列の運用表）。
+接続=ST-Link→CN1, USB-シリアル→CN2, プローブ→CN4。
+
+**A の残（実機検証で確認）**: ①ALDA の開始 duty は操作者引数（本体はプローブ現 duty を保持しないため。
+RPP パースは未実装）。②WPP 応答は `"Parameters saved..."`（OK でない）ため best-effort 判定。
+③TR の受光ダーク（[4]）は vault CZ 対象外＝スパン校正のゼロ段で扱う前提。④ATCF は ZR（清水受光_20）を
+設定しない（ゼロ/清水校正が MLSS_ZR/SS_ZR を持つ前提）。⑤機上ブロッキング中は main ループ非稼働ゆえ
+ALDA は MD 一発測定で同期取得（AMV/AMC 等の非ブロッキング捕捉は MS ストリーム＋main ループ稼働が前提）。
+
 ### なぜ A を先に（判断根拠 2026-07-14）
 - **ADBOAD の入口が無効化中**（main.c ~264、PC4_nTEST を誤起動対策でコメントアウト）。LCD 画面を作っても入口再有効化が別途必要。
 - 既存 ADBOAD は ID-200T の DO/水温レガシー（adj_range/calc6,7/now_range）。IM-110 用6画面は実質新規。
@@ -40,7 +90,8 @@
 6画面（LED duty/ADZR取得/Ref温度係数/Mode_CF回帰/機差補正/生mV表示）を Adjust.c に新規。旧 DO 画面（LOWRANGE0等/WAT05C等/CALTEMP）を置換（design B）。**入口 PC4_nTEST の再有効化＋誤起動対策**を併せて設計。A のコマンドロジック（キャプチャ→算出→vault）を画面から呼ぶ形に再利用。
 
 ### 残（検証フェーズ）
-ver2 の EEPROM キャッシュ（プローブ切断フォールバック）、後校正パスの温度補正（履歴に Ref 記録追加）、T6-01 に透視度 mV→cm 別係数があれば差替、メニュー一覧の相関式選択テキスト完全非表示（cosmetic）、x中心化・R²チェック。
+ver2 の EEPROM キャッシュ（プローブ切断フォールバック）、後校正パスの温度補正（履歴に Ref 記録追加）、T6-01 に透視度 mV→cm 別係数があれば差替、メニュー一覧の相関式選択テキスト完全非表示（cosmetic）。~~x中心化・R²チェック~~→**2026-07-16 実装済**（x スケーリング＋R²、上記 A 節参照）。
+**B（ADBOAD LCD 6画面＋PC4_nTEST 入口再有効化）は実機セッションで配線**（画面レイアウト/ボタン/誤起動対策は実機依存。計算パイプラインは A で全駆動可のためデバッグは A＋デバッガで先行）。
 
 ---
 
