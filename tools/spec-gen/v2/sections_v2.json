@@ -1,0 +1,438 @@
+{
+  "meta": {
+    "title": "IM-110 プログラム仕様書",
+    "source": "IM-110/Core/Src/Display.c",
+    "sections": 43,
+    "functions_covered": 83,
+    "functions_uncovered": []
+  },
+  "sections": [
+    {
+      "id": "S01",
+      "num": "5.1",
+      "title": "起動画面",
+      "functions": [
+        "disp_STRTDSP",
+        "disp_STRTDSP2"
+      ],
+      "note": "電源ON直後のロゴ/バージョン表示と操作説明表示。表示要素と遷移をコードから読む。"
+    },
+    {
+      "id": "S02",
+      "num": "5.2",
+      "title": "測定メニュー",
+      "functions": [
+        "disp_M_MENU"
+      ],
+      "note": "測定項目の選択メニュー。"
+    },
+    {
+      "id": "S03",
+      "num": "5.3",
+      "title": "モード切替",
+      "functions": [
+        "disp_M_CHANGE"
+      ],
+      "note": "測定/ロガー等のモード切替画面。"
+    },
+    {
+      "id": "S04",
+      "num": "5.4",
+      "title": "測定モード設定",
+      "functions": [
+        "disp_MEASMODE"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S05",
+      "num": "5.5",
+      "title": "MLSS測定画面（待機・測定中）",
+      "functions": [
+        "disp_MLSS_Meas_2",
+        "disp_MLSS_Meas_3"
+      ],
+      "note": "測定待機と測定中。表示値・水温・BTアイコン・点滅の有無をコードから読む。"
+    },
+    {
+      "id": "S06",
+      "num": "5.6",
+      "title": "MLSS測定完了画面",
+      "functions": [
+        "disp_MLSS_Meas_4"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S07",
+      "num": "5.7",
+      "title": "測定レンジ表示",
+      "functions": [
+        "disp_RANGE1",
+        "disp_RANGE2"
+      ],
+      "note": "op_mode/range_mv 引数からレンジ表示の切替を読む。"
+    },
+    {
+      "id": "S08",
+      "num": "5.8",
+      "title": "水温表示",
+      "functions": [
+        "disp_WAT1",
+        "disp_WAT2"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S09",
+      "num": "5.9",
+      "title": "界面閾値設定",
+      "functions": [
+        "disp_Depth_Setting"
+      ],
+      "note": "界面測定の閾値設定画面。"
+    },
+    {
+      "id": "S10",
+      "num": "6.1",
+      "title": "校正メニュー",
+      "functions": [
+        "disp_C_MENU"
+      ],
+      "note": "calmode 引数で校正対象が変わる点を読む。"
+    },
+    {
+      "id": "S11",
+      "num": "6.2",
+      "title": "校正設定",
+      "functions": [
+        "disp_CAL_SETTING"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S12",
+      "num": "6.3",
+      "title": "補正設定",
+      "functions": [
+        "disp_Corr_setting",
+        "disp_Corr_setting_30"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S13",
+      "num": "6.4",
+      "title": "MLSSゼロ校正",
+      "functions": [
+        "disp_MLSS_ZCal_2",
+        "disp_MLSS_ZCal_3"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S14",
+      "num": "6.5",
+      "title": "MLSS中間校正",
+      "functions": [
+        "disp_MLSS_MCal_2",
+        "disp_MLSS_MCal_3"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S15",
+      "num": "6.6",
+      "title": "MLSSスパン校正",
+      "functions": [
+        "disp_MLSS_SCal_1",
+        "disp_MLSS_SCal_2",
+        "disp_MLSS_SCal_3"
+      ],
+      "note": "校正値入力(SCal_1)→校正中(SCal_2)→完了(SCal_3)の流れを読む。"
+    },
+    {
+      "id": "S16",
+      "num": "6.7",
+      "title": "AD校正",
+      "functions": [
+        "disp_ADCAL1",
+        "disp_ADCAL2",
+        "disp_ADCAL3"
+      ],
+      "note": "基板調整のAD校正。fdo/ddo/temp 引数の意味をコードから読む。"
+    },
+    {
+      "id": "S17",
+      "num": "6.8",
+      "title": "自動校正完了",
+      "functions": [
+        "disp_AUTOCAL_COMP"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S18",
+      "num": "6.9",
+      "title": "校正リセット",
+      "functions": [
+        "disp_C_RESET"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S19",
+      "num": "6.10",
+      "title": "後校正 記録選択",
+      "functions": [
+        "disp_CAL_HSEL"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S20",
+      "num": "6.11",
+      "title": "校正履歴表示",
+      "functions": [
+        "disp_DISPCAL"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S21",
+      "num": "5.10",
+      "title": "測定履歴表示",
+      "functions": [
+        "disp_DISPHIS"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S22",
+      "num": "7.1",
+      "title": "設定メニュー",
+      "functions": [
+        "disp_S_MENU"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S23",
+      "num": "7.2",
+      "title": "自動校正設定",
+      "functions": [
+        "disp_ACALSET"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S24",
+      "num": "7.3",
+      "title": "淡水/海水設定",
+      "functions": [
+        "disp_TANSUI"
+      ],
+      "note": "IM-110に実在する画面。コードの表示・選択を読む。"
+    },
+    {
+      "id": "S25",
+      "num": "7.4",
+      "title": "アプリDL先表示",
+      "functions": [
+        "disp_APPDL"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S26",
+      "num": "7.5",
+      "title": "時刻設定（入口）",
+      "functions": [
+        "disp_SETTIME"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S27",
+      "num": "7.6",
+      "title": "年設定",
+      "functions": [
+        "disp_SETYEAR"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S28",
+      "num": "7.7",
+      "title": "月日設定",
+      "functions": [
+        "disp_SETDAYS"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S29",
+      "num": "7.8",
+      "title": "時分設定",
+      "functions": [
+        "disp_SETHOUR"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S30",
+      "num": "7.9",
+      "title": "水温校正",
+      "functions": [
+        "disp_CALTEMP"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S31",
+      "num": "7.10",
+      "title": "初期化",
+      "functions": [
+        "disp_RESET"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S32",
+      "num": "7.11",
+      "title": "BT初期化",
+      "functions": [
+        "disp_BT_RESET"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S33",
+      "num": "7.12",
+      "title": "QRコード表示",
+      "functions": [
+        "disp_QR"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S34",
+      "num": "8.1",
+      "title": "基板調整：プログラムVer表示",
+      "functions": [
+        "disp_PRGVER"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S35",
+      "num": "8.2",
+      "title": "基板調整：EEPROM確認",
+      "functions": [
+        "disp_EEP1",
+        "disp_EEP2",
+        "disp_EEP3"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S36",
+      "num": "8.3",
+      "title": "基板調整：電池電圧確認",
+      "functions": [
+        "disp_BATVOL"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S37",
+      "num": "9.1",
+      "title": "ガイダンス表示",
+      "functions": [
+        "disp_GUIDE1",
+        "disp_GUIDE2",
+        "disp_GUIDE3",
+        "disp_GUIDE4",
+        "disp_GUIDE5"
+      ],
+      "note": "5種のガイダンス画面。各々の表示内容をコードから読む。"
+    },
+    {
+      "id": "S38",
+      "num": "10.1",
+      "title": "エラー表示（共通）",
+      "functions": [
+        "disp_ERROR"
+      ],
+      "note": "err_num 引数でエラー種別が変わる共通表示。"
+    },
+    {
+      "id": "S39",
+      "num": "10.2",
+      "title": "エラー画面 1〜9",
+      "functions": [
+        "disp_ERROR1_1",
+        "disp_ERROR1_2",
+        "disp_ERROR2_1",
+        "disp_ERROR2_2",
+        "disp_ERROR3_1",
+        "disp_ERROR3_2",
+        "disp_ERROR4_1",
+        "disp_ERROR4_2",
+        "disp_ERROR5_1",
+        "disp_ERROR5_2",
+        "disp_ERROR6_1",
+        "disp_ERROR6_2",
+        "disp_ERROR7_1",
+        "disp_ERROR7_2",
+        "disp_ERROR8_1",
+        "disp_ERROR8_2",
+        "disp_ERROR9_1",
+        "disp_ERROR9_2"
+      ],
+      "note": "エラー1〜9それぞれの1画面目/2画面目。各エラーの表示内容と処置手順をコードから読む。"
+    },
+    {
+      "id": "S40",
+      "num": "10.3",
+      "title": "エラー画面 17/19",
+      "functions": [
+        "disp_ERROR17_1",
+        "disp_ERROR17_2",
+        "disp_ERROR19_1",
+        "disp_ERROR19_2"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S41",
+      "num": "11.1",
+      "title": "省電力測定中画面",
+      "functions": [
+        "disp_ECOMODE"
+      ],
+      "note": ""
+    },
+    {
+      "id": "S42",
+      "num": "11.2",
+      "title": "ロガー測定画面",
+      "functions": [
+        "disp_LOG1",
+        "disp_LOG3",
+        "disp_LOG4",
+        "disp_LOG5"
+      ],
+      "note": "ロガー測定の待機/測定中/完了/履歴。ID-200T由来の機能。"
+    },
+    {
+      "id": "S43",
+      "num": "11.3",
+      "title": "ロガー履歴表示",
+      "functions": [
+        "disp_DISPLOG"
+      ],
+      "note": ""
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{"id": "A04", "num": "5.1", "title": "起動画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 72, "gen_prompt_tok": 16383, "gen_sec": 45.7, "review_model": "mistralprism:24b", "review_tok": 170, "review_sec": 28.5}
+{"id": "B04", "num": "5", "title": "RS-232Cコマンド仕様", "section": "B", "gen_model": "devstral:24b", "gen_tok": 934, "gen_prompt_tok": 2197, "gen_sec": 58.5, "review_model": "mistralprism:24b", "review_tok": 960, "review_sec": 65.1}
+{"stage": "review", "id": "A04", "num": "5.1", "title": "起動画面", "section": "A", "review_model": "mistralprism:24b", "review_tok": 174, "review_sec": 9.4}
+{"stage": "review", "id": "B04", "num": "5", "title": "RS-232Cコマンド仕様", "section": "B", "review_model": "mistralprism:24b", "review_tok": 1039, "review_sec": 39.7}
+{"stage": "gen", "id": "A00", "num": "1", "title": "はじめに", "section": "A", "gen_model": "devstral:24b", "gen_tok": 88, "gen_prompt_tok": 16383, "gen_sec": 51.1}
+{"stage": "gen", "id": "A01", "num": "2", "title": "シナリオ", "section": "A", "gen_model": "devstral:24b", "gen_tok": 798, "gen_prompt_tok": 16383, "gen_sec": 73.0}
+{"stage": "gen", "id": "A02", "num": "3", "title": "対象外", "section": "A", "gen_model": "devstral:24b", "gen_tok": 58, "gen_prompt_tok": 16383, "gen_sec": 42.5}
+{"stage": "gen", "id": "A03", "num": "4", "title": "概略・システム構成", "section": "A", "gen_model": "devstral:24b", "gen_tok": 448, "gen_prompt_tok": 16383, "gen_sec": 59.3}
+{"stage": "gen", "id": "A05", "num": "5.2", "title": "測定メニュー・モード選択", "section": "A", "gen_model": "devstral:24b", "gen_tok": 691, "gen_prompt_tok": 16383, "gen_sec": 70.2}
+{"stage": "gen", "id": "A06", "num": "5.3", "title": "MLSS測定画面（待機・測定中・完了）", "section": "A", "gen_model": "devstral:24b", "gen_tok": 372, "gen_prompt_tok": 16383, "gen_sec": 56.7}
+{"stage": "gen", "id": "A07", "num": "5.4", "title": "SS測定画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 170, "gen_prompt_tok": 16383, "gen_sec": 48.2}
+{"stage": "gen", "id": "A08", "num": "5.5", "title": "透視度測定画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 126, "gen_prompt_tok": 16383, "gen_sec": 45.9}
+{"stage": "gen", "id": "A09", "num": "5.6", "title": "界面測定画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 188, "gen_prompt_tok": 16383, "gen_sec": 48.0}
+{"stage": "gen", "id": "A10", "num": "5.7", "title": "測定履歴表示画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 160, "gen_prompt_tok": 16383, "gen_sec": 46.2}
+{"stage": "gen", "id": "A11", "num": "6.1", "title": "校正機能 概要", "section": "A", "gen_model": "devstral:24b", "gen_tok": 241, "gen_prompt_tok": 16383, "gen_sec": 49.5}
+{"stage": "gen", "id": "A12", "num": "6.2", "title": "MLSS校正", "section": "A", "gen_model": "devstral:24b", "gen_tok": 732, "gen_prompt_tok": 16383, "gen_sec": 70.2}
+{"stage": "gen", "id": "A13", "num": "6.3", "title": "SS校正", "section": "A", "gen_model": "devstral:24b", "gen_tok": 823, "gen_prompt_tok": 16383, "gen_sec": 74.1}
+{"stage": "gen", "id": "A14", "num": "6.4", "title": "透視度校正", "section": "A", "gen_model": "devstral:24b", "gen_tok": 2381, "gen_prompt_tok": 16383, "gen_sec": 138.9}
+{"stage": "gen", "id": "A15", "num": "6.5", "title": "校正リセット", "section": "A", "gen_model": "devstral:24b", "gen_tok": 213, "gen_prompt_tok": 16383, "gen_sec": 47.8}
+{"stage": "gen", "id": "A16", "num": "7.1", "title": "設定メニュー", "section": "A", "gen_model": "devstral:24b", "gen_tok": 350, "gen_prompt_tok": 16383, "gen_sec": 53.1}
+{"stage": "gen", "id": "A17", "num": "7.2", "title": "時刻設定", "section": "A", "gen_model": "devstral:24b", "gen_tok": 457, "gen_prompt_tok": 16383, "gen_sec": 57.3}
+{"stage": "gen", "id": "A18", "num": "7.3", "title": "初期化", "section": "A", "gen_model": "devstral:24b", "gen_tok": 335, "gen_prompt_tok": 16383, "gen_sec": 52.2}
+{"stage": "gen", "id": "A19", "num": "7.4", "title": "製品情報", "section": "A", "gen_model": "devstral:24b", "gen_tok": 76, "gen_prompt_tok": 16383, "gen_sec": 41.6}
+{"stage": "gen", "id": "A20", "num": "8", "title": "BLE通信（Readerとの通信）", "section": "A", "gen_model": "devstral:24b", "gen_tok": 341, "gen_prompt_tok": 16383, "gen_sec": 52.3}
+{"stage": "gen", "id": "A21", "num": "9", "title": "電池残量・省電力動作", "section": "A", "gen_model": "devstral:24b", "gen_tok": 471, "gen_prompt_tok": 16383, "gen_sec": 57.8}
+{"stage": "gen", "id": "A22", "num": "10", "title": "エラー表示（本体故障・バッテリエラー）", "section": "A", "gen_model": "devstral:24b", "gen_tok": 510, "gen_prompt_tok": 16383, "gen_sec": 59.5}
+{"stage": "gen", "id": "B00", "num": "1", "title": "プローブ概要・役割", "section": "B", "gen_model": "devstral:24b", "gen_tok": 65, "gen_prompt_tok": 2154, "gen_sec": 7.4}
+{"stage": "gen", "id": "B01", "num": "2", "title": "ハードウェア構成（電源・MCU）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 316, "gen_prompt_tok": 2175, "gen_sec": 12.2}
+{"stage": "gen", "id": "B02", "num": "3", "title": "計測フロントエンド（アナログ信号系）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 245, "gen_prompt_tok": 2188, "gen_sec": 9.6}
+{"stage": "gen", "id": "B03", "num": "4", "title": "測定チャネルとMD応答", "section": "B", "gen_model": "devstral:24b", "gen_tok": 470, "gen_prompt_tok": 2179, "gen_sec": 17.9}
+{"stage": "gen", "id": "B05", "num": "6", "title": "ゼロ点・スパン補正（SADZ/SADS）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 725, "gen_prompt_tok": 2165, "gen_sec": 27.1}
+{"stage": "gen", "id": "B06", "num": "7", "title": "補正式・調整パラメータ", "section": "B", "gen_model": "devstral:24b", "gen_tok": 593, "gen_prompt_tok": 2174, "gen_sec": 22.4}
+{"stage": "gen", "id": "B07", "num": "8", "title": "エラー処理・タイムアウト", "section": "B", "gen_model": "devstral:24b", "gen_tok": 73, "gen_prompt_tok": 2155, "gen_sec": 3.1}
+{"stage": "review", "id": "A00", "num": "1", "title": "はじめに", "section": "A", "review_model": "mistralprism:24b", "review_tok": 428, "review_sec": 38.1}
+{"stage": "review", "id": "A01", "num": "2", "title": "シナリオ", "section": "A", "review_model": "mistralprism:24b", "review_tok": 627, "review_sec": 25.4}
+{"stage": "review", "id": "A02", "num": "3", "title": "対象外", "section": "A", "review_model": "mistralprism:24b", "review_tok": 33, "review_sec": 1.8}
+{"stage": "review", "id": "A03", "num": "4", "title": "概略・システム構成", "section": "A", "review_model": "mistralprism:24b", "review_tok": 426, "review_sec": 17.0}
+{"stage": "review", "id": "A05", "num": "5.2", "title": "測定メニュー・モード選択", "section": "A", "review_model": "mistralprism:24b", "review_tok": 686, "review_sec": 27.2}
+{"stage": "review", "id": "A06", "num": "5.3", "title": "MLSS測定画面（待機・測定中・完了）", "section": "A", "review_model": "mistralprism:24b", "review_tok": 437, "review_sec": 17.4}
+{"stage": "review", "id": "A07", "num": "5.4", "title": "SS測定画面", "section": "A", "review_model": "mistralprism:24b", "review_tok": 229, "review_sec": 9.0}
+{"stage": "review", "id": "A08", "num": "5.5", "title": "透視度測定画面", "section": "A", "review_model": "mistralprism:24b", "review_tok": 236, "review_sec": 9.3}
+{"stage": "review", "id": "A09", "num": "5.6", "title": "界面測定画面", "section": "A", "review_model": "mistralprism:24b", "review_tok": 232, "review_sec": 9.3}
+{"stage": "review", "id": "A10", "num": "5.7", "title": "測定履歴表示画面", "section": "A", "review_model": "mistralprism:24b", "review_tok": 181, "review_sec": 7.3}
+{"stage": "review", "id": "A11", "num": "6.1", "title": "校正機能 概要", "section": "A", "review_model": "mistralprism:24b", "review_tok": 332, "review_sec": 13.1}
+{"stage": "review", "id": "A12", "num": "6.2", "title": "MLSS校正", "section": "A", "review_model": "mistralprism:24b", "review_tok": 750, "review_sec": 29.7}
+{"stage": "review", "id": "A13", "num": "6.3", "title": "SS校正", "section": "A", "review_model": "mistralprism:24b", "review_tok": 703, "review_sec": 28.4}
+{"stage": "review", "id": "A14", "num": "6.4", "title": "透視度校正", "section": "A", "review_model": "mistralprism:24b", "review_tok": 808, "review_sec": 36.0}
+{"stage": "review", "id": "A15", "num": "6.5", "title": "校正リセット", "section": "A", "review_model": "mistralprism:24b", "review_tok": 317, "review_sec": 12.7}
+{"stage": "review", "id": "A16", "num": "7.1", "title": "設定メニュー", "section": "A", "review_model": "mistralprism:24b", "review_tok": 529, "review_sec": 20.5}
+{"stage": "review", "id": "A17", "num": "7.2", "title": "時刻設定", "section": "A", "review_model": "mistralprism:24b", "review_tok": 500, "review_sec": 19.8}
+{"stage": "review", "id": "A18", "num": "7.3", "title": "初期化", "section": "A", "review_model": "mistralprism:24b", "review_tok": 412, "review_sec": 16.2}
+{"stage": "review", "id": "A19", "num": "7.4", "title": "製品情報", "section": "A", "review_model": "mistralprism:24b", "review_tok": 180, "review_sec": 7.1}
+{"stage": "review", "id": "A20", "num": "8", "title": "BLE通信（Readerとの通信）", "section": "A", "review_model": "mistralprism:24b", "review_tok": 435, "review_sec": 17.1}
+{"stage": "review", "id": "A21", "num": "9", "title": "電池残量・省電力動作", "section": "A", "review_model": "mistralprism:24b", "review_tok": 170, "review_sec": 7.7}
+{"stage": "review", "id": "A22", "num": "10", "title": "エラー表示（本体故障・バッテリエラー）", "section": "A", "review_model": "mistralprism:24b", "review_tok": 439, "review_sec": 17.7}
+{"stage": "review", "id": "B00", "num": "1", "title": "プローブ概要・役割", "section": "B", "review_model": "mistralprism:24b", "review_tok": 161, "review_sec": 10.4}
+{"stage": "review", "id": "B01", "num": "2", "title": "ハードウェア構成（電源・MCU）", "section": "B", "review_model": "mistralprism:24b", "review_tok": 340, "review_sec": 13.7}
+{"stage": "review", "id": "B02", "num": "3", "title": "計測フロントエンド（アナログ信号系）", "section": "B", "review_model": "mistralprism:24b", "review_tok": 485, "review_sec": 18.9}
+{"stage": "review", "id": "B03", "num": "4", "title": "測定チャネルとMD応答", "section": "B", "review_model": "mistralprism:24b", "review_tok": 511, "review_sec": 20.4}
+{"stage": "review", "id": "B05", "num": "6", "title": "ゼロ点・スパン補正（SADZ/SADS）", "section": "B", "review_model": "mistralprism:24b", "review_tok": 711, "review_sec": 28.6}
+{"stage": "review", "id": "B06", "num": "7", "title": "補正式・調整パラメータ", "section": "B", "review_model": "mistralprism:24b", "review_tok": 513, "review_sec": 20.8}
+{"stage": "review", "id": "B07", "num": "8", "title": "エラー処理・タイムアウト", "section": "B", "review_model": "mistralprism:24b", "review_tok": 263, "review_sec": 10.3}
+{"stage": "gen", "id": "A01", "num": "2", "title": "シナリオ", "section": "A", "gen_model": "devstral:24b", "gen_tok": 690, "gen_prompt_tok": 16383, "gen_sec": 82.7}
+{"stage": "gen", "id": "A00", "num": "1", "title": "はじめに", "section": "A", "gen_model": "devstral:24b", "gen_tok": 80, "gen_prompt_tok": 16383, "gen_sec": 25.3}
+{"stage": "gen", "id": "A01", "num": "2", "title": "シナリオ", "section": "A", "gen_model": "devstral:24b", "gen_tok": 1009, "gen_prompt_tok": 16383, "gen_sec": 83.0}
+{"stage": "gen", "id": "A02", "num": "3", "title": "対象外", "section": "A", "gen_model": "devstral:24b", "gen_tok": 58, "gen_prompt_tok": 16383, "gen_sec": 43.2}
+{"stage": "gen", "id": "A03", "num": "4", "title": "概略・システム構成", "section": "A", "gen_model": "devstral:24b", "gen_tok": 473, "gen_prompt_tok": 16383, "gen_sec": 61.1}
+{"stage": "gen", "id": "A04", "num": "5.1", "title": "起動画面", "section": "A", "gen_model": "devstral:24b", "gen_tok": 66, "gen_prompt_tok": 16383, "gen_sec": 43.6}
+{"stage": "gen", "id": "B00", "num": "1", "title": "プローブ概要・役割", "section": "B", "gen_model": "devstral:24b", "gen_tok": 65, "gen_prompt_tok": 2259, "gen_sec": 7.6}
+{"stage": "gen", "id": "B01", "num": "2", "title": "ハードウェア構成（電源・MCU）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 347, "gen_prompt_tok": 2280, "gen_sec": 13.3}
+{"stage": "gen", "id": "B02", "num": "3", "title": "計測フロントエンド（アナログ信号系）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 284, "gen_prompt_tok": 2293, "gen_sec": 11.0}
+{"stage": "gen", "id": "B03", "num": "4", "title": "測定チャネルとMD応答", "section": "B", "gen_model": "devstral:24b", "gen_tok": 386, "gen_prompt_tok": 2284, "gen_sec": 14.8}
+{"stage": "gen", "id": "B04", "num": "5", "title": "RS-232Cコマンド仕様", "section": "B", "gen_model": "devstral:24b", "gen_tok": 636, "gen_prompt_tok": 2302, "gen_sec": 24.1}
+{"stage": "gen", "id": "B05", "num": "6", "title": "ゼロ点・スパン補正（SADZ/SADS）", "section": "B", "gen_model": "devstral:24b", "gen_tok": 571, "gen_prompt_tok": 2270, "gen_sec": 21.6}
+{"stage": "gen", "id": "B06", "num": "7", "title": "補正式・調整パラメータ", "section": "B", "gen_model": "devstral:24b", "gen_tok": 306, "gen_prompt_tok": 2279, "gen_sec": 11.8}
+{"stage": "gen", "id": "B07", "num": "8", "title": "エラー処理・タイムアウト", "section": "B", "gen_model": "devstral:24b", "gen_tok": 90, "gen_prompt_tok": 2260, "gen_sec": 3.8}

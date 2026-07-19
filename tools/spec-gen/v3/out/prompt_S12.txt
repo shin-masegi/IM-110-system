@@ -1,0 +1,230 @@
+# 前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（測定項目 MLSS/SS/透視度/界面）。表示はモノクロLCD 400×240。
+- 操作スイッチ3個: 電源 / 記録(MEM) / 履歴(DISP)。`MEM_sw_check()` `DISP_sw_check()` の戻り値≥3が押下・==4が長押し相当。
+- 画面遷移は状態変数 `operation_mode`（AllDef.h 参照）で管理し、各 case ブロックで次状態を代入して遷移する。
+- 描画は `Display.c` の `disp_*` 関数（`LS027_disp_*` 呼出）、遷移・スイッチ処理は呼出側 `Normal.c`/`Setting.c`/`Adjust.c` の case ブロックにある。
+
+# 状態定義（AllDef.h 抜粋 / operation_mode）
+```c
+/**
+ * @file AllDef.h
+ * @brief 共通定義ヘッダーファイル
+ * @author 飯島電子 柵木
+ * @date 2018/07/25
+ */
+
+#include "main.h"
+#include "IM_110.h"
+
+//機能有効/無効
+#define WIRE_ENABLE (0) // 1-Wire制御 (0...無効, 1...有効) IM-110では無効
+
+//デバッグ用
+#define DEBUG (0)	//デバッグ用
+#define UART_ON (1)	//測定モードUART（0:無効, 1:有効)
+
+//画面遷移を中心とした状態定義(変数名 operation_mode)
+//状態変数説明[0xABCD] A...起動方法によるモード B...メニュー名(タイトル) CD...メニュー内の状態
+#define NORMAL 0x0000	//測定モード===============================================
+
+#define STRTDSP (NORMAL | 0x000)	//起動画面表示-----------------------------------------
+#define STRT_1 (STRTDSP | 0x00)		//起動画面表示前
+#define STRT_2 (STRTDSP | 0x10)		//起動画面表示中(RTC確認)
+#define STRT_3 (STRTDSP | 0x20)		//起動画面表示中(1秒経過待ち)
+#define STRT_4 (STRTDSP | 0x30)		//操作説明画面
+#define STRT_5 (STRTDSP | 0x40)		//操作説明画面
+
+#define MEASURE (NORMAL | 0x100)	//通常測定-----------------------------------------
+#define MSR_1 (MEASURE | 0x00)		//測定開始前
+#define MSR_2 (MEASURE | 0x10)		//測定中
+#define MSR_3 (MEASURE | 0x20)		//安定中
+#define MSR_4 (MEASURE | 0x30)		//履歴記録
+#define MSR_5 (MEASURE | 0x40)		//記録完了1
+#define MSR_6 (MEASURE | 0x50)		//記録完了2
+#define MSR_7 (MEASURE | 0x60)		//安定中表示
+#define MSR_8 (MEASURE | 0x70)		//通常測定切替メッセージ表示
+#define MSR_9 (MEASURE | 0x80)		//通常測定切替待ち
+
+#define LOGGER (NORMAL | 0x200)		//データロガー測定---------------------------------
+#define LOG_1 (LOGGER | 0x00)		//データロガー測定開始前
+#define LOG_2 (LOGGER | 0x10)		//データロガー測定開始前表示
+#define LOG_3 (LOGGER | 0x20)		//データロガー測定待機中1
+#define LOG_4 (LOGGER | 0x30)		//データロガー測定待機中2(確認画面)
+#define LOG_5 (LOGGER | 0x40)		//データロガー測定中表示
+#define LOG_6 (LOGGER | 0x50)		//データロガー測定中処理（タイマー）
+#define LOG_7 (LOGGER | 0x60)		//データロガー測定中処理（記録）
+#define LOG_8 (LOGGER | 0x70)		//データロガー測定中処理（スイッチ）
+#define LOG_9 (LOGGER | 0x80)		//データロガー測定中処理（表示復帰）
+#define LOG_A (LOGGER | 0x90)		//データロガー測定完了表示
+#define LOG_B (LOGGER | 0xA0)		//データロガー測定完了処理
+#define LOG_C (LOGGER | 0xB0)		//ロガー測定切替メッセージ表示
+#define LOG_D (LOGGER | 0xC0)		//ロガー測定切替待ち
+
+
+//ID-200T
+#define DISPHIS (NORMAL | 0x300)	//測定履歴表示--------------------------------------
+#define DISPHIS_1 (DISPHIS | 0x00)	//測定履歴表示前
+#define DISPHIS_2 (DISPHIS | 0x10)	//測定履歴表示
+#define DISPHIS_3 (DISPHIS | 0x20)	//測定履歴表示中
+#define DISPHIS_4 (DISPHIS | 0x30)	//測定履歴消去中1
+#define DISPHIS_5 (DISPHIS | 0x40)	//測定履歴消去中2
+#define DISPHIS_6 (DISPHIS | 0x50)	//測定履歴消去中3
+
+#define DISPLOG (NORMAL | 0x500)	//データロガー表示----------------------------------
+#define DISPLOG_1 (DISPLOG | 0x00)	//データロガー表示前
+#define DISPLOG_2 (DISPLOG | 0x10)	//データロガー表示
+#define DISPLOG_3 (DISPLOG | 0x20)	//データロガー表示中
+
+//IM-110
+#define M_CHANGE (NORMAL | 0x400)		//測定モード切替------------------------------------
+#define M_CHANGE_1 (M_CHANGE | 0x00)		//測定モード切替画面1
+#define M_CHANGE_2 (M_CHANGE | 0x10)		//測定モード切替画面2
+#define M_CHANGE_3 (M_CHANGE | 0x20)		//測定モード切替画面3
+#define M_CHANGE_4 (M_CHANGE | 0x30)		//測定モード切替画面4
+#define M_CHANGE_5 (M_CHANGE | 0x40)		//測定モード切替画面5
+#define M_CHANGE_6 (M_CHANGE | 0x50)		//測定モード切替画面6
+
+#define M_MENU (NORMAL | 0x600)		//測定メニュー------------------------------------
+#define M_MENU_1 (M_MENU | 0x00)		//測定メニュー画面1
+#define M_MENU_2 (M_MENU | 0x10)		//測定メニュー画面2
+#define M_MENU_3 (M_MENU | 0x20)		//測定メニュー画面3
+#define M_MENU_4 (M_MENU | 0x30)		//測定メニュー画面4
+#define M_MENU_5 (M_MENU | 0x40)		//測定メニュー画面5
+#define M_MENU_6 (M_MENU | 0x50)		//測定メニュー画面6
+
+#define S_CORR (NORMAL | 0x700)		//相関式設定------------------------------------
+#define S_CORR_1 (S_CORR | 0x00)		//相関式設定画面1
+#define S_CORR_2 (S_CORR | 0x10)		//相関式設定画面2
+#define S_CORR_3 (S_CORR | 0x20)		//相関式設定画面3
+#define S_CORR_4 (S_CORR | 0x30)		//相関式設定画面4
+#define S_CORR_5 (S_CORR | 0x40)		//相関式設定画面5
+#define S_CORR_6 (S_CORR | 0x50)		//相関式設定画面6
+
+#define D_SET (NORMAL | 0x800)		//界面設定値設定------------------------------------
+#define D_SET_1 (D_SET | 0x00)		//界面設定値設定画面1
+#define D_SET_2 (D_SET | 0x10)		//界面設定値設定画面2
+#define D_SET_3 (D_SET | 0x20)		//界面設定値設定画面3
+#define D_SET_4 (D_SET | 0x30)		//界面設定値設定画面4
+#define D_SET_5 (D_SET | 0x40)		//界面設定値設定画面5
+
+#define SETTING 0x1000	//設定メニュー(DISP swを押しながら起動)==================
+
+#define MENU1 (SETTING | 0x0
+```
+
+# 執筆対象画面: 6.3 補正設定
+# 描画コード（Display.c）
+```c
+// ===== disp_Corr_setting (描画) =====
+uint8_t disp_Corr_setting(uint8_t select, uint8_t batvol, uint8_t fl)
+{
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_correlation); // タイトル
+	LS027_disp_battery_icon(batvol);		// 電池残量アイコン
+
+	LS027_disp_datetime(); //日付時刻表示
+
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 18, (uint8_t *)icon_select);   //選択
+	LS027_disp_icon(5, 23, (uint8_t *)icon_decision); //決定
+
+	LS027_disp_icon(18, 6, ((select == 0) && (fl == 1)) ? (uint8_t *)b_m_1 : (uint8_t *)m_num[1]);  // "1"
+	LS027_disp_icon(24, 6, ((select == 1) && (fl == 1)) ? (uint8_t *)b_m_2 : (uint8_t *)m_num[2]);  // "2"
+	LS027_disp_icon(30, 6, ((select == 2) && (fl == 1)) ? (uint8_t *)b_m_3 : (uint8_t *)m_num[3]); 	// "3"
+	LS027_disp_icon(36, 6, ((select == 3) && (fl == 1)) ? (uint8_t *)b_m_4 : (uint8_t *)m_num[4]);  // "4"
+	LS027_disp_icon(42, 6, ((select == 4) && (fl == 1)) ? (uint8_t *)b_m_5 : (uint8_t *)m_num[5]); 	// "5"
+
+	LS027_disp_icon(18, 14, ((select == 5) && (fl == 1)) ? (uint8_t *)b_m_6 : (uint8_t *)m_num[6]);  // "6"
+	LS027_disp_icon(24, 14, ((select == 6) && (fl == 1)) ? (uint8_t *)b_m_7 : (uint8_t *)m_num[7]);  // "7"
+	LS027_disp_icon(30, 14, ((select == 7) && (fl == 1)) ? (uint8_t *)b_m_8 : (uint8_t *)m_num[8]);  // "8"
+	LS027_disp_icon(36, 14, ((select == 8) && (fl == 1)) ? (uint8_t *)b_m_9 : (uint8_t *)m_num[9]);  // "9"
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+
+// ===== disp_Corr_setting_30 (描画) =====
+uint8_t disp_Corr_setting_30(uint8_t corr_val_disp, uint8_t num_sel, uint8_t batvol, uint8_t fl)
+{
+	//相関式 No. を 2 桁インクリメント入力で受け付ける画面 (01〜30)。
+	//corr_val_disp = 表示値 (0..30、内部値 + 1)、num_sel = 編集中の桁 (0=10の位、1=1の位)
+	//l_num サイズで横中央寄せ (x=22 / x=28、6 ユニット幅)、点滅は b_l_num
+	uint8_t num[2];
+	num[0] = corr_val_disp / 10;	//10の位 (0..3)
+	num[1] = corr_val_disp % 10;	//1の位 (0..9)
+
+	if (lcd_init(0) != LCD_OK)
+	{
+		return DISP_NG;
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_correlation); // タイトル "相関式"
+	LS027_disp_battery_icon(batvol);				 // 電池残量アイコン
+	LS027_disp_datetime();							 // 日付時刻表示
+
+	//大サイズ数字 2 桁を表示 (1 桁 = 6 ユニット、x=24/30、y=9)
+	//点滅桁は b_l_num (反転)、それ以外は l_num (通常)
+	{
+		const uint8_t x_pos[2] = {24, 30};
+		uint8_t i;
+		for (i = 0; i < 2; i++)
+		{
+			if (fl && (i == num_sel))
+			{
+				LS027_disp_icon(x_pos[i], 9, (uint8_t *)b_l_num[num[i]]);
+			}
+			else
+			{
+				LS027_disp_icon(x_pos[i], 9, (uint8_t *)l_num[num[i]]);
+			}
+		}
+	}
+
+	//左列: SW アイコン (3 段構成 = 長押し戻る / 次の桁 / 桁値変更)
+	LS027_disp_icon(0, 13, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 13, (uint8_t *)icon_l_return);	//長押しで戻る
+	LS027_disp_icon(5, 18, (uint8_t *)icon_next);		//次へ
+	LS027_disp_icon(5, 23, (uint8_t *)icon_change);		//切替
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+```
+
+# 呼出側 状態遷移・スイッチ処理（Normal.c/Setting.c/Adjust.c の該当 case）
+```c
+// ===== Normal.c : case C_S_CORR_2 (L697) =====
+	case C_S_CORR_2:		//相関式設定画面2 (dead code: 現在到達しない経路。新 disp シグネチャに追従のみ)
+		operation_mode = C_S_CORR_3;
+		flash_calc(FLASH_BAT, NULL, NULL, NULL, 0, 1, NULL);
+		if (disp_Corr_setting_30(corr_sel + 1, 0, bar_flag, fl_flag) == DISP_OK)
+		{
+			fl_flag ^= 1;
+			timer_set(&disp_timer, DISP_CYCLE);
+		}
+
+		break;
+
+// ===== Normal.c : case S_CORR_2 (L1914) =====
+	case S_CORR_2:		//相関式設定画面2 (表示)
+		operation_mode = S_CORR_3;
+		flash_calc(FLASH_BAT, NULL, NULL, NULL, 0, 1, NULL);
+		if (disp_Corr_setting_30(num[0] * 10 + num[1], corr_num_sel, bar_flag, fl_flag) == DISP_OK)
+		{
+			fl_flag ^= 1;
+			timer_set(&disp_timer, DISP_CYCLE);
+		}
+
+		break;
+```
+
+画面「補正設定」の動作仕様を、表示要素・状態(operation_mode)ごとの遷移・記録/履歴スイッチ操作の効果を含めてID-200T相当の粒度・である調で日本語で書いてください。

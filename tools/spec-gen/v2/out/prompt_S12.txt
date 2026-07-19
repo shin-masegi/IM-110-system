@@ -1,0 +1,96 @@
+# 対象機器の前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（活性汚泥処理の水質計測。測定項目 MLSS/SS/透視度/界面）。
+- 表示: モノクロLCD 400×240（Sharp LS027B7）。関数内の `LS027_disp_icon` / `LS027_disp_number` 等が画面への描画呼び出し。
+- 操作スイッチは3個: 電源(SW3) / 記録(SW1) / 履歴(SW2)。タッチパネルではない。画面内の「開始」等はアイコン表示であってタッチボタンではない。
+- 各画面の最上段にタイトル・日付時刻・電池残量、BT接続中はBTアイコン(共通表示)。
+- `batvol` は電池残量、`flash_flg`/`fl` は点滅表示制御、`select`/`num_sel` は選択/桁位置、`en` は有効/無効。
+
+# 執筆対象画面: 6.3 補正設定
+# 実装コード（IM-110本体 Core/Src/Display.c より抜粋）
+```c
+// ===== disp_Corr_setting =====
+uint8_t disp_Corr_setting(uint8_t select, uint8_t batvol, uint8_t fl)
+{
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_correlation); // タイトル
+	LS027_disp_battery_icon(batvol);		// 電池残量アイコン
+
+	LS027_disp_datetime(); //日付時刻表示
+
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 18, (uint8_t *)icon_select);   //選択
+	LS027_disp_icon(5, 23, (uint8_t *)icon_decision); //決定
+
+	LS027_disp_icon(18, 6, ((select == 0) && (fl == 1)) ? (uint8_t *)b_m_1 : (uint8_t *)m_num[1]);  // "1"
+	LS027_disp_icon(24, 6, ((select == 1) && (fl == 1)) ? (uint8_t *)b_m_2 : (uint8_t *)m_num[2]);  // "2"
+	LS027_disp_icon(30, 6, ((select == 2) && (fl == 1)) ? (uint8_t *)b_m_3 : (uint8_t *)m_num[3]); 	// "3"
+	LS027_disp_icon(36, 6, ((select == 3) && (fl == 1)) ? (uint8_t *)b_m_4 : (uint8_t *)m_num[4]);  // "4"
+	LS027_disp_icon(42, 6, ((select == 4) && (fl == 1)) ? (uint8_t *)b_m_5 : (uint8_t *)m_num[5]); 	// "5"
+
+	LS027_disp_icon(18, 14, ((select == 5) && (fl == 1)) ? (uint8_t *)b_m_6 : (uint8_t *)m_num[6]);  // "6"
+	LS027_disp_icon(24, 14, ((select == 6) && (fl == 1)) ? (uint8_t *)b_m_7 : (uint8_t *)m_num[7]);  // "7"
+	LS027_disp_icon(30, 14, ((select == 7) && (fl == 1)) ? (uint8_t *)b_m_8 : (uint8_t *)m_num[8]);  // "8"
+	LS027_disp_icon(36, 14, ((select == 8) && (fl == 1)) ? (uint8_t *)b_m_9 : (uint8_t *)m_num[9]);  // "9"
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+
+// ===== disp_Corr_setting_30 =====
+uint8_t disp_Corr_setting_30(uint8_t corr_val_disp, uint8_t num_sel, uint8_t batvol, uint8_t fl)
+{
+	//相関式 No. を 2 桁インクリメント入力で受け付ける画面 (01〜30)。
+	//corr_val_disp = 表示値 (0..30、内部値 + 1)、num_sel = 編集中の桁 (0=10の位、1=1の位)
+	//l_num サイズで横中央寄せ (x=22 / x=28、6 ユニット幅)、点滅は b_l_num
+	uint8_t num[2];
+	num[0] = corr_val_disp / 10;	//10の位 (0..3)
+	num[1] = corr_val_disp % 10;	//1の位 (0..9)
+
+	if (lcd_init(0) != LCD_OK)
+	{
+		return DISP_NG;
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_correlation); // タイトル "相関式"
+	LS027_disp_battery_icon(batvol);				 // 電池残量アイコン
+	LS027_disp_datetime();							 // 日付時刻表示
+
+	//大サイズ数字 2 桁を表示 (1 桁 = 6 ユニット、x=24/30、y=9)
+	//点滅桁は b_l_num (反転)、それ以外は l_num (通常)
+	{
+		const uint8_t x_pos[2] = {24, 30};
+		uint8_t i;
+		for (i = 0; i < 2; i++)
+		{
+			if (fl && (i == num_sel))
+			{
+				LS027_disp_icon(x_pos[i], 9, (uint8_t *)b_l_num[num[i]]);
+			}
+			else
+			{
+				LS027_disp_icon(x_pos[i], 9, (uint8_t *)l_num[num[i]]);
+			}
+		}
+	}
+
+	//左列: SW アイコン (3 段構成 = 長押し戻る / 次の桁 / 桁値変更)
+	LS027_disp_icon(0, 13, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 13, (uint8_t *)icon_l_return);	//長押しで戻る
+	LS027_disp_icon(5, 18, (uint8_t *)icon_next);		//次へ
+	LS027_disp_icon(5, 23, (uint8_t *)icon_change);		//切替
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+```
+
+上記コードが実装する画面「補正設定」の動作仕様を、表示要素・引数の効果・状態ごとの差異を含めてID-200T相当の粒度で日本語で書いてください。

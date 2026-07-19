@@ -1,0 +1,65 @@
+# 対象機器の前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（活性汚泥処理の水質計測。測定項目 MLSS/SS/透視度/界面）。
+- 表示: モノクロLCD 400×240（Sharp LS027B7）。関数内の `LS027_disp_icon` / `LS027_disp_number` 等が画面への描画呼び出し。
+- 操作スイッチは3個: 電源(SW3) / 記録(SW1) / 履歴(SW2)。タッチパネルではない。画面内の「開始」等はアイコン表示であってタッチボタンではない。
+- 各画面の最上段にタイトル・日付時刻・電池残量、BT接続中はBTアイコン(共通表示)。
+- `batvol` は電池残量、`flash_flg`/`fl` は点滅表示制御、`select`/`num_sel` は選択/桁位置、`en` は有効/無効。
+
+# 執筆対象画面: 5.10 測定履歴表示
+# 実装コード（IM-110本体 Core/Src/Display.c より抜粋）
+```c
+// ===== disp_DISPHIS =====
+uint8_t disp_DISPHIS(uint16_t index, uint8_t erase, uint8_t batvol)
+{
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_disp_meas_history); // タイトル
+	LS027_disp_battery_icon(batvol);			  // 電池残量アイコン
+
+	//操作表示仕様変更 2019/03/03 柵木
+	LS027_disp_datetime(); //日付時刻表示
+
+	//スイッチ表示
+	if (index < 3)
+	{
+		if (erase)
+		{
+			LS027_disp_icon(0, 13, (uint8_t *)icon_erase);
+		}
+		else
+		{
+			LS027_disp_icon(0, 13, (uint8_t *)icon_DISP);
+		}
+		LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+		if (!erase)
+		{
+			LS027_disp_icon(5, 13, (uint8_t *)icon_measure);	//測定
+		}
+		LS027_disp_icon(0, 18, (uint8_t *)icon_l_erase);	//長押し消去
+		LS027_disp_icon(5, 23, (uint8_t *)icon_next);		//次へ
+	}
+	else
+	{
+		LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+		LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+		LS027_disp_icon(5, 18, (uint8_t *)icon_measure); //測定
+		LS027_disp_icon(5, 23, (uint8_t *)icon_next);	//次へ
+	}
+
+	disp_his_data(16, 6, index, HIS_NUM);	  //"履歴データ1つめ表示"
+	LS027_disp_icon(16, 13, (uint8_t *)icon_line);				//区切り
+	disp_his_data(16, 14, index + 1, HIS_NUM); //"履歴データ2つめ表示"
+	LS027_disp_icon(16, 21, (uint8_t *)icon_line);				//区切り
+	disp_his_data(16, 22, index + 2, HIS_NUM); //"履歴データ3つめ表示"
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+```
+
+上記コードが実装する画面「測定履歴表示」の動作仕様を、表示要素・引数の効果・状態ごとの差異を含めてID-200T相当の粒度で日本語で書いてください。

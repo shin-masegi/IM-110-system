@@ -1,0 +1,43 @@
+{"id": "S01", "num": "5.1", "title": "起動画面", "ok": true, "funcs": ["disp_STRTDSP", "disp_STRTDSP2"], "prompt_chars": 1945, "prompt_tok": 1495, "eval_tok": 962, "sec": 81.3, "attempts": 1}
+{"id": "S05", "num": "5.5", "title": "MLSS測定画面（待機・測定中）", "ok": true, "funcs": ["disp_MLSS_Meas_2", "disp_MLSS_Meas_3"], "prompt_chars": 14922, "prompt_tok": 8901, "eval_tok": 1444, "sec": 140.7, "attempts": 1}
+{"id": "S02", "num": "5.2", "title": "測定メニュー", "ok": true, "funcs": ["disp_M_MENU"], "prompt_chars": 1992, "prompt_tok": 1478, "eval_tok": 647, "sec": 52.0, "attempts": 1}
+{"id": "S03", "num": "5.3", "title": "モード切替", "ok": true, "funcs": ["disp_M_CHANGE"], "prompt_chars": 1854, "prompt_tok": 1415, "eval_tok": 864, "sec": 65.5, "attempts": 1}
+{"id": "S04", "num": "5.4", "title": "測定モード設定", "ok": true, "funcs": ["disp_MEASMODE"], "prompt_chars": 1550, "prompt_tok": 1234, "eval_tok": 810, "sec": 61.6, "attempts": 1}
+{"id": "S06", "num": "5.6", "title": "MLSS測定完了画面", "ok": true, "funcs": ["disp_MLSS_Meas_4"], "prompt_chars": 1073, "prompt_tok": 1029, "eval_tok": 526, "sec": 40.5, "attempts": 1}
+{"id": "S07", "num": "5.7", "title": "測定レンジ表示", "ok": true, "funcs": ["disp_RANGE1", "disp_RANGE2"], "prompt_chars": 2898, "prompt_tok": 1907, "eval_tok": 764, "sec": 59.0, "attempts": 1}
+{"id": "S08", "num": "5.8", "title": "水温表示", "ok": true, "funcs": ["disp_WAT1", "disp_WAT2"], "prompt_chars": 2151, "prompt_tok": 1575, "eval_tok": 705, "sec": 53.6, "attempts": 1}
+{"id": "S09", "num": "5.9", "title": "界面閾値設定", "ok": true, "funcs": ["disp_Depth_Setting"], "prompt_chars": 2272, "prompt_tok": 1679, "eval_tok": 571, "sec": 44.0, "attempts": 1}
+{"id": "S10", "num": "6.1", "title": "校正メニュー", "ok": true, "funcs": ["disp_C_MENU"], "prompt_chars": 3917, "prompt_tok": 2470, "eval_tok": 836, "sec": 66.2, "attempts": 1}
+{"id": "S11", "num": "6.2", "title": "校正設定", "ok": true, "funcs": ["disp_CAL_SETTING"], "prompt_chars": 1464, "prompt_tok": 1219, "eval_tok": 312, "sec": 24.2, "attempts": 1}
+{"id": "S12", "num": "6.3", "title": "補正設定", "ok": true, "funcs": ["disp_Corr_setting", "disp_Corr_setting_30"], "prompt_chars": 3445, "prompt_tok": 2257, "eval_tok": 579, "sec": 46.5, "attempts": 1}
+{"id": "S13", "num": "6.4", "title": "MLSSゼロ校正", "ok": true, "funcs": ["disp_MLSS_ZCal_2", "disp_MLSS_ZCal_3"], "prompt_chars": 5666, "prompt_tok": 3412, "eval_tok": 1124, "sec": 91.7, "attempts": 1}
+{"id": "S14", "num": "6.5", "title": "MLSS中間校正", "ok": true, "funcs": ["disp_MLSS_MCal_2", "disp_MLSS_MCal_3"], "prompt_chars": 6208, "prompt_tok": 3766, "eval_tok": 1184, "sec": 97.8, "attempts": 1}
+{"id": "S15", "num": "6.6", "title": "MLSSスパン校正", "ok": true, "funcs": ["disp_MLSS_SCal_1", "disp_MLSS_SCal_2", "disp_MLSS_SCal_3"], "prompt_chars": 12302, "prompt_tok": 7313, "eval_tok": 1380, "sec": 128.4, "attempts": 1}
+{"id": "S16", "num": "6.7", "title": "AD校正", "ok": true, "funcs": ["disp_ADCAL1", "disp_ADCAL2", "disp_ADCAL3"], "prompt_chars": 5535, "prompt_tok": 3538, "eval_tok": 999, "sec": 82.8, "attempts": 1}
+{"id": "S17", "num": "6.8", "title": "自動校正完了", "ok": true, "funcs": ["disp_AUTOCAL_COMP"], "prompt_chars": 1095, "prompt_tok": 1041, "eval_tok": 812, "sec": 59.4, "attempts": 1}
+{"id": "S18", "num": "6.9", "title": "校正リセット", "ok": true, "funcs": ["disp_C_RESET"], "prompt_chars": 1657, "prompt_tok": 1333, "eval_tok": 696, "sec": 51.9, "attempts": 1}
+{"id": "S19", "num": "6.10", "title": "後校正 記録選択", "ok": true, "funcs": ["disp_CAL_HSEL"], "prompt_chars": 1552, "prompt_tok": 1274, "eval_tok": 711, "sec": 52.8, "attempts": 1}
+{"id": "S20", "num": "6.11", "title": "校正履歴表示", "ok": true, "funcs": ["disp_DISPCAL"], "prompt_chars": 1449, "prompt_tok": 1233, "eval_tok": 742, "sec": 55.0, "attempts": 1}
+{"id": "S21", "num": "5.10", "title": "測定履歴表示", "ok": true, "funcs": ["disp_DISPHIS"], "prompt_chars": 1873, "prompt_tok": 1465, "eval_tok": 800, "sec": 60.1, "attempts": 1}
+{"id": "S22", "num": "7.1", "title": "設定メニュー", "ok": true, "funcs": ["disp_S_MENU"], "prompt_chars": 1730, "prompt_tok": 1344, "eval_tok": 781, "sec": 58.2, "attempts": 1}
+{"id": "S23", "num": "7.2", "title": "自動校正設定", "ok": true, "funcs": ["disp_ACALSET"], "prompt_chars": 1934, "prompt_tok": 1441, "eval_tok": 845, "sec": 63.2, "attempts": 1}
+{"id": "S24", "num": "7.3", "title": "淡水/海水設定", "ok": true, "funcs": ["disp_TANSUI"], "prompt_chars": 1604, "prompt_tok": 1299, "eval_tok": 698, "sec": 52.0, "attempts": 1}
+{"id": "S25", "num": "7.4", "title": "アプリDL先表示", "ok": true, "funcs": ["disp_APPDL"], "prompt_chars": 1126, "prompt_tok": 1045, "eval_tok": 619, "sec": 45.3, "attempts": 1}
+{"id": "S26", "num": "7.5", "title": "時刻設定（入口）", "ok": true, "funcs": ["disp_SETTIME"], "prompt_chars": 1867, "prompt_tok": 1460, "eval_tok": 804, "sec": 60.1, "attempts": 1}
+{"id": "S27", "num": "7.6", "title": "年設定", "ok": true, "funcs": ["disp_SETYEAR"], "prompt_chars": 1678, "prompt_tok": 1322, "eval_tok": 779, "sec": 58.0, "attempts": 1}
+{"id": "S28", "num": "7.7", "title": "月日設定", "ok": true, "funcs": ["disp_SETDAYS"], "prompt_chars": 2522, "prompt_tok": 1761, "eval_tok": 971, "sec": 73.6, "attempts": 1}
+{"id": "S29", "num": "7.8", "title": "時分設定", "ok": true, "funcs": ["disp_SETHOUR"], "prompt_chars": 2520, "prompt_tok": 1761, "eval_tok": 847, "sec": 64.5, "attempts": 1}
+{"id": "S30", "num": "7.9", "title": "水温校正", "ok": true, "funcs": ["disp_CALTEMP"], "prompt_chars": 1791, "prompt_tok": 1385, "eval_tok": 967, "sec": 71.7, "attempts": 1}
+{"id": "S31", "num": "7.10", "title": "初期化", "ok": true, "funcs": ["disp_RESET"], "prompt_chars": 1380, "prompt_tok": 1177, "eval_tok": 750, "sec": 55.4, "attempts": 1}
+{"id": "S32", "num": "7.11", "title": "BT初期化", "ok": true, "funcs": ["disp_BT_RESET"], "prompt_chars": 1609, "prompt_tok": 1292, "eval_tok": 670, "sec": 49.9, "attempts": 1}
+{"id": "S33", "num": "7.12", "title": "QRコード表示", "ok": true, "funcs": ["disp_QR"], "prompt_chars": 1456, "prompt_tok": 1229, "eval_tok": 606, "sec": 45.0, "attempts": 1}
+{"id": "S34", "num": "8.1", "title": "基板調整：プログラムVer表示", "ok": true, "funcs": ["disp_PRGVER"], "prompt_chars": 1190, "prompt_tok": 1095, "eval_tok": 833, "sec": 60.8, "attempts": 1}
+{"id": "S35", "num": "8.2", "title": "基板調整：EEPROM確認", "ok": true, "funcs": ["disp_EEP1", "disp_EEP2", "disp_EEP3"], "prompt_chars": 1997, "prompt_tok": 1457, "eval_tok": 665, "sec": 50.0, "attempts": 1}
+{"id": "S36", "num": "8.3", "title": "基板調整：電池電圧確認", "ok": true, "funcs": ["disp_BATVOL"], "prompt_chars": 1027, "prompt_tok": 1022, "eval_tok": 697, "sec": 50.8, "attempts": 1}
+{"id": "S37", "num": "9.1", "title": "ガイダンス表示", "ok": true, "funcs": ["disp_GUIDE1", "disp_GUIDE2", "disp_GUIDE3", "disp_GUIDE4", "disp_GUIDE5"], "prompt_chars": 1213, "prompt_tok": 1021, "eval_tok": 904, "sec": 65.7, "attempts": 1}
+{"id": "S38", "num": "10.1", "title": "エラー表示（共通）", "ok": true, "funcs": ["disp_ERROR"], "prompt_chars": 1007, "prompt_tok": 992, "eval_tok": 495, "sec": 36.1, "attempts": 1}
+{"id": "S39", "num": "10.2", "title": "エラー画面 1〜9", "ok": true, "funcs": ["disp_ERROR1_1", "disp_ERROR1_2", "disp_ERROR2_1", "disp_ERROR2_2", "disp_ERROR3_1", "disp_ERROR3_2", "disp_ERROR4_1", "disp_ERROR4_2", "disp_ERROR5_1", "disp_ERROR5_2", "disp_ERROR6_1", "disp_ERROR6_2", "disp_ERROR7_1", "disp_ERROR7_2", "disp_ERROR8_1", "disp_ERROR8_2", "disp_ERROR9_1", "disp_ERROR9_2"], "prompt_chars": 3367, "prompt_tok": 1780, "eval_tok": 2674, "sec": 201.0, "attempts": 1}
+{"id": "S40", "num": "10.3", "title": "エラー画面 17/19", "ok": true, "funcs": ["disp_ERROR17_1", "disp_ERROR17_2", "disp_ERROR19_1", "disp_ERROR19_2"], "prompt_chars": 1172, "prompt_tok": 1000, "eval_tok": 636, "sec": 46.7, "attempts": 1}
+{"id": "S41", "num": "11.1", "title": "省電力測定中画面", "ok": true, "funcs": ["disp_ECOMODE"], "prompt_chars": 811, "prompt_tok": 897, "eval_tok": 531, "sec": 38.6, "attempts": 1}
+{"id": "S42", "num": "11.2", "title": "ロガー測定画面", "ok": true, "funcs": ["disp_LOG1", "disp_LOG3", "disp_LOG4", "disp_LOG5"], "prompt_chars": 8679, "prompt_tok": 5122, "eval_tok": 1123, "sec": 98.2, "attempts": 1}
+{"id": "S43", "num": "11.3", "title": "ロガー履歴表示", "ok": true, "funcs": ["disp_DISPLOG"], "prompt_chars": 4929, "prompt_tok": 3194, "eval_tok": 920, "sec": 75.4, "attempts": 1}

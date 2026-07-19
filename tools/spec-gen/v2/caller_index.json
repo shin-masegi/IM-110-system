@@ -1,0 +1,725 @@
+{
+  "disp_C_RESET": [
+    {
+      "file": "Normal.c",
+      "label": "case C_RESET_1",
+      "start": 90
+    },
+    {
+      "file": "Normal.c",
+      "label": "case C_RESET_3",
+      "start": 110
+    }
+  ],
+  "disp_MLSS_SCal_1": [
+    {
+      "file": "Normal.c",
+      "label": "case C_S_SET_2",
+      "start": 266
+    },
+    {
+      "file": "Normal.c",
+      "label": "case C_M_SET_2",
+      "start": 412
+    }
+  ],
+  "disp_CAL_HSEL": [
+    {
+      "file": "Normal.c",
+      "label": "case CAL_HSEL_2",
+      "start": 513
+    }
+  ],
+  "disp_Depth_Setting": [
+    {
+      "file": "Normal.c",
+      "label": "case D_SET_2",
+      "start": 625
+    }
+  ],
+  "disp_Corr_setting_30": [
+    {
+      "file": "Normal.c",
+      "label": "case C_S_CORR_2",
+      "start": 697
+    },
+    {
+      "file": "Normal.c",
+      "label": "case S_CORR_2",
+      "start": 1914
+    }
+  ],
+  "disp_CAL_SETTING": [
+    {
+      "file": "Normal.c",
+      "label": "case C_MODE_2",
+      "start": 770
+    }
+  ],
+  "disp_C_MENU": [
+    {
+      "file": "Normal.c",
+      "label": "case C_MENU_2",
+      "start": 855
+    }
+  ],
+  "disp_STRTDSP": [
+    {
+      "file": "Normal.c",
+      "label": "case CALDSP_1",
+      "start": 1030
+    },
+    {
+      "file": "Normal.c",
+      "label": "case STRT_1",
+      "start": 2528
+    },
+    {
+      "file": "Setting.c",
+      "label": "case SETDSP_1",
+      "start": 248
+    }
+  ],
+  "disp_MLSS_ZCal_3": [
+    {
+      "file": "Normal.c",
+      "label": "case ZCAL_8",
+      "start": 1123
+    },
+    {
+      "file": "Normal.c",
+      "label": "case ZCAL_5",
+      "start": 1256
+    },
+    {
+      "file": "Normal.c",
+      "label": "case ZCAL_9",
+      "start": 1274
+    }
+  ],
+  "disp_MLSS_ZCal_2": [
+    {
+      "file": "Normal.c",
+      "label": "case ZCAL_4",
+      "start": 1225
+    }
+  ],
+  "disp_MLSS_MCal_3": [
+    {
+      "file": "Normal.c",
+      "label": "case MCAL_8",
+      "start": 1365
+    },
+    {
+      "file": "Normal.c",
+      "label": "case MCAL_5",
+      "start": 1490
+    },
+    {
+      "file": "Normal.c",
+      "label": "case MCAL_9",
+      "start": 1507
+    }
+  ],
+  "disp_MLSS_MCal_2": [
+    {
+      "file": "Normal.c",
+      "label": "case MCAL_4",
+      "start": 1459
+    }
+  ],
+  "disp_MLSS_SCal_3": [
+    {
+      "file": "Normal.c",
+      "label": "case ADCAL_8",
+      "start": 1600
+    },
+    {
+      "file": "Normal.c",
+      "label": "case ADCAL_5",
+      "start": 1726
+    },
+    {
+      "file": "Normal.c",
+      "label": "case ADCAL_9",
+      "start": 1743
+    }
+  ],
+  "disp_MLSS_SCal_2": [
+    {
+      "file": "Normal.c",
+      "label": "case ADCAL_4",
+      "start": 1695
+    }
+  ],
+  "disp_M_MENU": [
+    {
+      "file": "Normal.c",
+      "label": "case M_MENU_2",
+      "start": 2021
+    }
+  ],
+  "disp_M_CHANGE": [
+    {
+      "file": "Normal.c",
+      "label": "case M_CHANGE_1",
+      "start": 2136
+    },
+    {
+      "file": "Normal.c",
+      "label": "case M_CHANGE_3",
+      "start": 2178
+    }
+  ],
+  "disp_MLSS_Meas_2": [
+    {
+      "file": "Normal.c",
+      "label": "case MSR_2",
+      "start": 2243
+    }
+  ],
+  "disp_MLSS_Meas_3": [
+    {
+      "file": "Normal.c",
+      "label": "case MSR_7",
+      "start": 2260
+    },
+    {
+      "file": "Normal.c",
+      "label": "case MSR_5",
+      "start": 2323
+    }
+  ],
+  "disp_MLSS_Meas_4": [
+    {
+      "file": "Normal.c",
+      "label": "case MSR_8",
+      "start": 2344
+    }
+  ],
+  "disp_DISPHIS": [
+    {
+      "file": "Normal.c",
+      "label": "case DISPHIS_2",
+      "start": 2418
+    },
+    {
+      "file": "Normal.c",
+      "label": "case DISPHIS_5",
+      "start": 2488
+    }
+  ],
+  "disp_STRTDSP2": [
+    {
+      "file": "Normal.c",
+      "label": "case STRT_5",
+      "start": 2555
+    }
+  ],
+  "disp_DISPCAL": [
+    {
+      "file": "Normal.c",
+      "label": "case DISPCAL_2",
+      "start": 2634
+    },
+    {
+      "file": "Normal.c",
+      "label": "case DISPCAL_5",
+      "start": 2714
+    }
+  ],
+  "disp_LOG1": [
+    {
+      "file": "Normal.c",
+      "label": "case LOG_2",
+      "start": 2860
+    }
+  ],
+  "disp_LOG3": [
+    {
+      "file": "Normal.c",
+      "label": "case LOG_5",
+      "start": 2968
+    }
+  ],
+  "disp_ECOMODE": [
+    {
+      "file": "Normal.c",
+      "label": "case LOG_9",
+      "start": 3200
+    }
+  ],
+  "disp_LOG4": [
+    {
+      "file": "Normal.c",
+      "label": "case LOG_A",
+      "start": 3219
+    }
+  ],
+  "disp_LOG5": [
+    {
+      "file": "Normal.c",
+      "label": "case LOG_C",
+      "start": 3298
+    }
+  ],
+  "disp_DISPLOG": [
+    {
+      "file": "Normal.c",
+      "label": "case DISPLOG_2",
+      "start": 3386
+    }
+  ],
+  "disp_ERROR1_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_DAYS",
+      "start": 3471
+    }
+  ],
+  "disp_ERROR2_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_WAR",
+      "start": 3479
+    }
+  ],
+  "disp_ERROR3_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_OUT",
+      "start": 3487
+    }
+  ],
+  "disp_ERROR4_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_NEND",
+      "start": 3494
+    }
+  ],
+  "disp_ERROR5_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_END",
+      "start": 3502
+    }
+  ],
+  "disp_ERROR6_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_METER",
+      "start": 3509
+    }
+  ],
+  "disp_ERROR7_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_BATT",
+      "start": 3516
+    }
+  ],
+  "disp_ERROR8_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_CAL",
+      "start": 3523
+    }
+  ],
+  "disp_ERROR9_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_DISABLE",
+      "start": 3530
+    }
+  ],
+  "disp_ERROR17_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_ACAL1",
+      "start": 3537
+    }
+  ],
+  "disp_ERROR19_1": [
+    {
+      "file": "Normal.c",
+      "label": "case err_ACAL3",
+      "start": 3544
+    }
+  ],
+  "disp_AUTOCAL_COMP": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_ACALCOMP",
+      "start": 3551
+    }
+  ],
+  "disp_GUIDE1": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_INDI",
+      "start": 3559
+    }
+  ],
+  "disp_GUIDE2": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_SPAN",
+      "start": 3566
+    }
+  ],
+  "disp_GUIDE3": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_ZERO",
+      "start": 3573
+    }
+  ],
+  "disp_GUIDE4": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_MEAS",
+      "start": 3580
+    }
+  ],
+  "disp_GUIDE5": [
+    {
+      "file": "Normal.c",
+      "label": "case gui_STORE",
+      "start": 3587
+    },
+    {
+      "file": "mainSub.c",
+      "label": "default",
+      "start": 117
+    }
+  ],
+  "disp_ERROR": [
+    {
+      "file": "Normal.c",
+      "label": "default",
+      "start": 3594
+    },
+    {
+      "file": "Normal.c",
+      "label": "default",
+      "start": 3721
+    }
+  ],
+  "disp_ERROR1_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_DAYS",
+      "start": 3644
+    }
+  ],
+  "disp_ERROR2_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_WAR",
+      "start": 3651
+    }
+  ],
+  "disp_ERROR3_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_OUT",
+      "start": 3658
+    }
+  ],
+  "disp_ERROR4_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_NEND",
+      "start": 3665
+    }
+  ],
+  "disp_ERROR5_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_END",
+      "start": 3672
+    }
+  ],
+  "disp_ERROR6_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_METER",
+      "start": 3679
+    }
+  ],
+  "disp_ERROR7_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_BATT",
+      "start": 3686
+    }
+  ],
+  "disp_ERROR8_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_CAL",
+      "start": 3693
+    }
+  ],
+  "disp_ERROR9_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_DISABLE",
+      "start": 3700
+    }
+  ],
+  "disp_ERROR17_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_ACAL1",
+      "start": 3707
+    }
+  ],
+  "disp_ERROR19_2": [
+    {
+      "file": "Normal.c",
+      "label": "case err_ACAL3",
+      "start": 3714
+    }
+  ],
+  "disp_RESET": [
+    {
+      "file": "Setting.c",
+      "label": "case RESET_1",
+      "start": 69
+    },
+    {
+      "file": "Setting.c",
+      "label": "case RESET_3",
+      "start": 107
+    }
+  ],
+  "disp_QR": [
+    {
+      "file": "Setting.c",
+      "label": "case QR_1",
+      "start": 134
+    },
+    {
+      "file": "Setting.c",
+      "label": "case QR_3",
+      "start": 161
+    }
+  ],
+  "disp_S_MENU": [
+    {
+      "file": "Setting.c",
+      "label": "case MENU2_2",
+      "start": 332
+    }
+  ],
+  "disp_SETTIME": [
+    {
+      "file": "Setting.c",
+      "label": "case SETTIME_2",
+      "start": 409
+    }
+  ],
+  "disp_APPDL": [
+    {
+      "file": "Setting.c",
+      "label": "case APPDL_1",
+      "start": 592
+    }
+  ],
+  "disp_ACALSET": [
+    {
+      "file": "Setting.c",
+      "label": "case ACALSET_1",
+      "start": 624
+    },
+    {
+      "file": "Setting.c",
+      "label": "case ACALSET_3",
+      "start": 665
+    }
+  ],
+  "disp_MEASMODE": [
+    {
+      "file": "Setting.c",
+      "label": "case MEASMODE_1",
+      "start": 697
+    },
+    {
+      "file": "Setting.c",
+      "label": "case MEASMODE_3",
+      "start": 735
+    }
+  ],
+  "disp_TANSUI": [
+    {
+      "file": "Setting.c",
+      "label": "case TANSUI_1",
+      "start": 767
+    },
+    {
+      "file": "Setting.c",
+      "label": "case TANSUI_3",
+      "start": 805
+    }
+  ],
+  "disp_BT_RESET": [
+    {
+      "file": "Setting.c",
+      "label": "case BT_RESET_1",
+      "start": 837
+    },
+    {
+      "file": "Setting.c",
+      "label": "case BT_RESET_3",
+      "start": 856
+    },
+    {
+      "file": "Setting.c",
+      "label": "case BT_RESET_5",
+      "start": 872
+    }
+  ],
+  "disp_PRGVER": [
+    {
+      "file": "Adjust.c",
+      "label": "default",
+      "start": 138
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case PRG_3",
+      "start": 177
+    }
+  ],
+  "disp_EEP1": [
+    {
+      "file": "Adjust.c",
+      "label": "default",
+      "start": 212
+    }
+  ],
+  "disp_EEP2": [
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_3",
+      "start": 238
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_4",
+      "start": 282
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_5",
+      "start": 339
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_6",
+      "start": 383
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_7",
+      "start": 439
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_8",
+      "start": 483
+    }
+  ],
+  "disp_EEP3": [
+    {
+      "file": "Adjust.c",
+      "label": "case EEP_9",
+      "start": 530
+    }
+  ],
+  "disp_BATVOL": [
+    {
+      "file": "Adjust.c",
+      "label": "default",
+      "start": 814
+    }
+  ],
+  "disp_RANGE1": [
+    {
+      "file": "Adjust.c",
+      "label": "default",
+      "start": 889
+    }
+  ],
+  "disp_RANGE2": [
+    {
+      "file": "Adjust.c",
+      "label": "case ADJ_4",
+      "start": 920
+    }
+  ],
+  "disp_WAT1": [
+    {
+      "file": "Adjust.c",
+      "label": "default",
+      "start": 976
+    }
+  ],
+  "disp_WAT2": [
+    {
+      "file": "Adjust.c",
+      "label": "case ADJ_4",
+      "start": 1007
+    }
+  ],
+  "disp_CALTEMP": [
+    {
+      "file": "Adjust.c",
+      "label": "case CALTEMP_2",
+      "start": 1055
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case CALTEMP_5",
+      "start": 1090
+    }
+  ],
+  "disp_SETYEAR": [
+    {
+      "file": "Adjust.c",
+      "label": "case SETYEAR_2",
+      "start": 1197
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case SETYEAR_5",
+      "start": 1232
+    }
+  ],
+  "disp_SETDAYS": [
+    {
+      "file": "Adjust.c",
+      "label": "case SETDAYS_2",
+      "start": 1347
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case SETDAYS_5",
+      "start": 1401
+    }
+  ],
+  "disp_SETHOUR": [
+    {
+      "file": "Adjust.c",
+      "label": "case SETHOUR_2",
+      "start": 1547
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case SETHOUR_5",
+      "start": 1580
+    }
+  ]
+}

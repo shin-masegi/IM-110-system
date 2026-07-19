@@ -1,0 +1,500 @@
+[
+  {
+    "name": "disp_C_RESET",
+    "start": 111,
+    "end": 148,
+    "lines": 38
+  },
+  {
+    "name": "disp_CAL_SETTING",
+    "start": 159,
+    "end": 183,
+    "lines": 25
+  },
+  {
+    "name": "disp_C_MENU",
+    "start": 194,
+    "end": 267,
+    "lines": 74
+  },
+  {
+    "name": "disp_MLSS_SCal_1",
+    "start": 278,
+    "end": 467,
+    "lines": 190
+  },
+  {
+    "name": "disp_Depth_Setting",
+    "start": 477,
+    "end": 526,
+    "lines": 50
+  },
+  {
+    "name": "disp_MLSS_SCal_2",
+    "start": 538,
+    "end": 627,
+    "lines": 90
+  },
+  {
+    "name": "disp_MLSS_SCal_3",
+    "start": 638,
+    "end": 764,
+    "lines": 127
+  },
+  {
+    "name": "disp_MLSS_MCal_2",
+    "start": 776,
+    "end": 865,
+    "lines": 90
+  },
+  {
+    "name": "disp_MLSS_MCal_3",
+    "start": 876,
+    "end": 1001,
+    "lines": 126
+  },
+  {
+    "name": "disp_MLSS_ZCal_2",
+    "start": 1013,
+    "end": 1100,
+    "lines": 88
+  },
+  {
+    "name": "disp_MLSS_ZCal_3",
+    "start": 1111,
+    "end": 1220,
+    "lines": 110
+  },
+  {
+    "name": "disp_Corr_setting",
+    "start": 1231,
+    "end": 1262,
+    "lines": 32
+  },
+  {
+    "name": "disp_Corr_setting_30",
+    "start": 1275,
+    "end": 1322,
+    "lines": 48
+  },
+  {
+    "name": "disp_M_MENU",
+    "start": 1333,
+    "end": 1369,
+    "lines": 37
+  },
+  {
+    "name": "disp_S_MENU",
+    "start": 1380,
+    "end": 1407,
+    "lines": 28
+  },
+  {
+    "name": "disp_M_CHANGE",
+    "start": 1420,
+    "end": 1463,
+    "lines": 44
+  },
+  {
+    "name": "disp_MLSS_Meas_2",
+    "start": 1475,
+    "end": 1681,
+    "lines": 207
+  },
+  {
+    "name": "disp_MLSS_Meas_3",
+    "start": 1692,
+    "end": 1899,
+    "lines": 208
+  },
+  {
+    "name": "disp_MLSS_Meas_4",
+    "start": 1909,
+    "end": 1931,
+    "lines": 23
+  },
+  {
+    "name": "disp_AUTOCAL_COMP",
+    "start": 2004,
+    "end": 2022,
+    "lines": 19
+  },
+  {
+    "name": "disp_ERROR17_2",
+    "start": 2034,
+    "end": 2037,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR17_1",
+    "start": 2049,
+    "end": 2052,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR19_2",
+    "start": 2064,
+    "end": 2067,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR19_1",
+    "start": 2079,
+    "end": 2082,
+    "lines": 4
+  },
+  {
+    "name": "disp_DISPCAL",
+    "start": 2178,
+    "end": 2206,
+    "lines": 29
+  },
+  {
+    "name": "disp_DISPHIS",
+    "start": 2280,
+    "end": 2330,
+    "lines": 51
+  },
+  {
+    "name": "disp_CAL_HSEL",
+    "start": 2374,
+    "end": 2410,
+    "lines": 37
+  },
+  {
+    "name": "disp_STRTDSP2",
+    "start": 2422,
+    "end": 2459,
+    "lines": 38
+  },
+  {
+    "name": "disp_STRTDSP",
+    "start": 2468,
+    "end": 2487,
+    "lines": 20
+  },
+  {
+    "name": "disp_ADCAL1",
+    "start": 2502,
+    "end": 2567,
+    "lines": 66
+  },
+  {
+    "name": "disp_ADCAL2",
+    "start": 2581,
+    "end": 2648,
+    "lines": 68
+  },
+  {
+    "name": "disp_ADCAL3",
+    "start": 2661,
+    "end": 2734,
+    "lines": 74
+  },
+  {
+    "name": "disp_ERROR",
+    "start": 2747,
+    "end": 2763,
+    "lines": 17
+  },
+  {
+    "name": "disp_ERROR1_1",
+    "start": 2773,
+    "end": 2776,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR2_1",
+    "start": 2787,
+    "end": 2790,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR3_1",
+    "start": 2801,
+    "end": 2804,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR4_1",
+    "start": 2815,
+    "end": 2818,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR5_1",
+    "start": 2830,
+    "end": 2833,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR6_1",
+    "start": 2845,
+    "end": 2848,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR7_1",
+    "start": 2860,
+    "end": 2863,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR8_1",
+    "start": 2875,
+    "end": 2878,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR9_1",
+    "start": 2890,
+    "end": 2893,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR1_2",
+    "start": 2905,
+    "end": 2908,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR2_2",
+    "start": 2919,
+    "end": 2922,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR3_2",
+    "start": 2933,
+    "end": 2936,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR4_2",
+    "start": 2947,
+    "end": 2950,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR5_2",
+    "start": 2962,
+    "end": 2965,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR6_2",
+    "start": 2977,
+    "end": 2980,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR7_2",
+    "start": 2992,
+    "end": 2995,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR8_2",
+    "start": 3007,
+    "end": 3010,
+    "lines": 4
+  },
+  {
+    "name": "disp_ERROR9_2",
+    "start": 3022,
+    "end": 3025,
+    "lines": 4
+  },
+  {
+    "name": "disp_GUIDE1",
+    "start": 3036,
+    "end": 3039,
+    "lines": 4
+  },
+  {
+    "name": "disp_GUIDE2",
+    "start": 3050,
+    "end": 3053,
+    "lines": 4
+  },
+  {
+    "name": "disp_GUIDE3",
+    "start": 3064,
+    "end": 3067,
+    "lines": 4
+  },
+  {
+    "name": "disp_GUIDE4",
+    "start": 3078,
+    "end": 3081,
+    "lines": 4
+  },
+  {
+    "name": "disp_GUIDE5",
+    "start": 3092,
+    "end": 3095,
+    "lines": 4
+  },
+  {
+    "name": "disp_APPDL",
+    "start": 3100,
+    "end": 3120,
+    "lines": 21
+  },
+  {
+    "name": "disp_ACALSET",
+    "start": 3133,
+    "end": 3176,
+    "lines": 44
+  },
+  {
+    "name": "disp_MEASMODE",
+    "start": 3189,
+    "end": 3224,
+    "lines": 36
+  },
+  {
+    "name": "disp_BT_RESET",
+    "start": 3235,
+    "end": 3272,
+    "lines": 38
+  },
+  {
+    "name": "disp_TANSUI",
+    "start": 3285,
+    "end": 3321,
+    "lines": 37
+  },
+  {
+    "name": "disp_SETTIME",
+    "start": 3333,
+    "end": 3366,
+    "lines": 34
+  },
+  {
+    "name": "disp_RESET",
+    "start": 3377,
+    "end": 3411,
+    "lines": 35
+  },
+  {
+    "name": "disp_QR",
+    "start": 3422,
+    "end": 3456,
+    "lines": 35
+  },
+  {
+    "name": "disp_PRGVER",
+    "start": 3466,
+    "end": 3491,
+    "lines": 26
+  },
+  {
+    "name": "disp_EEP1",
+    "start": 3500,
+    "end": 3517,
+    "lines": 18
+  },
+  {
+    "name": "disp_EEP2",
+    "start": 3528,
+    "end": 3541,
+    "lines": 14
+  },
+  {
+    "name": "disp_EEP3",
+    "start": 3551,
+    "end": 3570,
+    "lines": 20
+  },
+  {
+    "name": "disp_BATVOL",
+    "start": 3580,
+    "end": 3596,
+    "lines": 17
+  },
+  {
+    "name": "disp_RANGE1",
+    "start": 3607,
+    "end": 3649,
+    "lines": 43
+  },
+  {
+    "name": "disp_RANGE2",
+    "start": 3660,
+    "end": 3696,
+    "lines": 37
+  },
+  {
+    "name": "disp_WAT1",
+    "start": 3707,
+    "end": 3740,
+    "lines": 34
+  },
+  {
+    "name": "disp_WAT2",
+    "start": 3751,
+    "end": 3778,
+    "lines": 28
+  },
+  {
+    "name": "disp_CALTEMP",
+    "start": 3792,
+    "end": 3826,
+    "lines": 35
+  },
+  {
+    "name": "disp_SETYEAR",
+    "start": 3839,
+    "end": 3872,
+    "lines": 34
+  },
+  {
+    "name": "disp_SETDAYS",
+    "start": 3885,
+    "end": 3931,
+    "lines": 47
+  },
+  {
+    "name": "disp_SETHOUR",
+    "start": 3944,
+    "end": 3990,
+    "lines": 47
+  },
+  {
+    "name": "disp_LOG5",
+    "start": 4000,
+    "end": 4031,
+    "lines": 32
+  },
+  {
+    "name": "disp_ECOMODE",
+    "start": 4041,
+    "end": 4055,
+    "lines": 15
+  },
+  {
+    "name": "disp_LOG1",
+    "start": 4069,
+    "end": 4134,
+    "lines": 66
+  },
+  {
+    "name": "disp_LOG3",
+    "start": 4151,
+    "end": 4228,
+    "lines": 78
+  },
+  {
+    "name": "disp_LOG4",
+    "start": 4243,
+    "end": 4307,
+    "lines": 65
+  },
+  {
+    "name": "disp_DISPLOG",
+    "start": 4320,
+    "end": 4431,
+    "lines": 112
+  }
+]

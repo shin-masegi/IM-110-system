@@ -1,0 +1,45 @@
+{"id": "S01", "title": "起動画面", "ok": true, "hash": "744831cff5f15a51", "prompt_chars": 7153, "prompt_tok": 4265, "eval_tok": 748, "sec": 106.6, "attempts": 1}
+{"id": "S02", "title": "測定メニュー", "ok": true, "hash": "e75e95a86ee9becc", "prompt_chars": 6381, "prompt_tok": 3848, "eval_tok": 565, "sec": 60.3, "attempts": 1}
+{"id": "S03", "title": "モード切替", "ok": true, "hash": "60ca053bb360aaba", "prompt_chars": 6792, "prompt_tok": 4041, "eval_tok": 874, "sec": 93.5, "attempts": 1}
+{"id": "S04", "title": "測定モード設定", "ok": true, "hash": "fb7b1b44cbb34918", "prompt_chars": 6403, "prompt_tok": 3788, "eval_tok": 916, "sec": 98.6, "attempts": 1}
+{"id": "S05", "title": "MLSS測定画面（待機・測定中）", "ok": true, "hash": "a0f4537a898d14cb", "prompt_chars": 20042, "prompt_tok": 11651, "eval_tok": 909, "sec": 132.6, "attempts": 1}
+{"id": "S06", "title": "MLSS測定完了画面", "ok": true, "hash": "a0a8b40c081ed9e4", "prompt_chars": 5506, "prompt_tok": 3423, "eval_tok": 440, "sec": 47.0, "attempts": 1}
+{"id": "S07", "title": "測定レンジ表示", "ok": true, "hash": "05e63d4145b58356", "prompt_chars": 7506, "prompt_tok": 4368, "eval_tok": 1394, "sec": 61.9, "attempts": 1}
+{"id": "S08", "title": "水温表示", "ok": true, "hash": "50a951a7d04f4b8a", "prompt_chars": 6757, "prompt_tok": 4039, "eval_tok": 530, "sec": 23.4, "attempts": 1}
+{"id": "S09", "title": "界面閾値設定", "ok": true, "hash": "82699b4644d090ba", "prompt_chars": 6689, "prompt_tok": 4056, "eval_tok": 563, "sec": 23.9, "attempts": 1}
+{"id": "S10", "title": "校正メニュー", "ok": true, "hash": "21f0b07f1ec1373e", "prompt_chars": 8320, "prompt_tok": 4840, "eval_tok": 684, "sec": 30.4, "attempts": 1}
+{"id": "S11", "title": "校正設定", "ok": true, "hash": "b408ec6029d3c98a", "prompt_chars": 5861, "prompt_tok": 3591, "eval_tok": 392, "sec": 16.4, "attempts": 1}
+{"id": "S12", "title": "補正設定", "ok": true, "hash": "baeb103e0beb9251", "prompt_chars": 8229, "prompt_tok": 4824, "eval_tok": 676, "sec": 30.1, "attempts": 1}
+{"id": "S13", "title": "MLSSゼロ校正", "ok": true, "hash": "035c3b5bd69a8a23", "prompt_chars": 11044, "prompt_tok": 6255, "eval_tok": 763, "sec": 37.0, "attempts": 1}
+{"id": "S14", "title": "MLSS中間校正", "ok": true, "hash": "a1adf8baefc758b1", "prompt_chars": 11556, "prompt_tok": 6578, "eval_tok": 711, "sec": 36.7, "attempts": 1}
+{"id": "S15", "title": "MLSSスパン校正", "ok": true, "hash": "7eb850a6c0d293a2", "prompt_chars": 18317, "prompt_tok": 10420, "eval_tok": 1020, "sec": 58.4, "attempts": 1}
+{"id": "S16", "title": "AD校正", "ok": true, "hash": "c531e72179634326", "prompt_chars": 9667, "prompt_tok": 5810, "eval_tok": 614, "sec": 30.7, "attempts": 1}
+{"id": "S17", "title": "自動校正完了", "ok": true, "hash": "d0d6cdc6352b6589", "prompt_chars": 5412, "prompt_tok": 3374, "eval_tok": 441, "sec": 18.1, "attempts": 1}
+{"id": "S18", "title": "校正リセット", "ok": true, "hash": "9978a7e2956f3ce0", "prompt_chars": 6229, "prompt_tok": 3773, "eval_tok": 461, "sec": 19.5, "attempts": 1}
+{"id": "S19", "title": "後校正 記録選択", "ok": true, "hash": "a4750d892b256f67", "prompt_chars": 6020, "prompt_tok": 3675, "eval_tok": 418, "sec": 17.6, "attempts": 1}
+{"id": "S20", "title": "校正履歴表示", "ok": true, "hash": "09f0c2cc4a484bc2", "prompt_chars": 6010, "prompt_tok": 3700, "eval_tok": 703, "sec": 28.4, "attempts": 1}
+{"id": "S21", "title": "測定履歴表示", "ok": true, "hash": "aca8c3a856f7afab", "prompt_chars": 6434, "prompt_tok": 3932, "eval_tok": 627, "sec": 26.2, "attempts": 1}
+{"id": "S22", "title": "設定メニュー", "ok": true, "hash": "343ba9a07269dfca", "prompt_chars": 6224, "prompt_tok": 3764, "eval_tok": 489, "sec": 20.4, "attempts": 1}
+{"id": "S23", "title": "自動校正設定", "ok": true, "hash": "0f78389dd5f93f71", "prompt_chars": 6773, "prompt_tok": 3996, "eval_tok": 612, "sec": 25.7, "attempts": 1}
+{"id": "S24", "title": "淡水/海水設定", "ok": true, "hash": "c96a4be029b7e2a8", "prompt_chars": 6430, "prompt_tok": 3858, "eval_tok": 531, "sec": 22.3, "attempts": 1}
+{"id": "S25", "title": "アプリDL先表示", "ok": true, "hash": "8baa8d5113cd0ebe", "prompt_chars": 5375, "prompt_tok": 3355, "eval_tok": 178, "sec": 7.9, "attempts": 1}
+{"id": "S26", "title": "時刻設定（入口）", "ok": true, "hash": "1958c6e0176c463b", "prompt_chars": 6323, "prompt_tok": 3856, "eval_tok": 645, "sec": 26.6, "attempts": 1}
+{"id": "S27", "title": "年設定", "ok": true, "hash": "965b6a8e5462473f", "prompt_chars": 6342, "prompt_tok": 3818, "eval_tok": 446, "sec": 19.0, "attempts": 1}
+{"id": "S28", "title": "月日設定", "ok": true, "hash": "824382cec0dcff08", "prompt_chars": 7184, "prompt_tok": 4255, "eval_tok": 599, "sec": 25.8, "attempts": 1}
+{"id": "S29", "title": "時分設定", "ok": true, "hash": "545aff040fbc9ac7", "prompt_chars": 7182, "prompt_tok": 4257, "eval_tok": 500, "sec": 22.1, "attempts": 1}
+{"id": "S30", "title": "水温校正", "ok": true, "hash": "b31d3404949b336c", "prompt_chars": 6513, "prompt_tok": 3910, "eval_tok": 603, "sec": 25.2, "attempts": 1}
+{"id": "S31", "title": "初期化", "ok": true, "hash": "5ff80a70397f4b8a", "prompt_chars": 5925, "prompt_tok": 3603, "eval_tok": 472, "sec": 19.4, "attempts": 1}
+{"id": "S32", "title": "BT初期化", "ok": true, "hash": "d46b47f2b10acbe4", "prompt_chars": 6433, "prompt_tok": 3828, "eval_tok": 924, "sec": 37.2, "attempts": 1}
+{"id": "S33", "title": "QRコード表示", "ok": true, "hash": "85071e0aacbbff45", "prompt_chars": 5922, "prompt_tok": 3629, "eval_tok": 876, "sec": 34.8, "attempts": 1}
+{"id": "S34", "title": "基板調整：プログラムVer表示", "ok": true, "hash": "a1e11370810376c8", "prompt_chars": 5578, "prompt_tok": 3461, "eval_tok": 563, "sec": 22.6, "attempts": 1}
+{"id": "S35", "title": "基板調整：EEPROM確認", "ok": true, "hash": "853b4a9334ad5c4c", "prompt_chars": 9738, "prompt_tok": 5405, "eval_tok": 998, "sec": 43.9, "attempts": 1}
+{"id": "S36", "title": "基板調整：電池電圧確認", "ok": true, "hash": "68d6a6eac88a2078", "prompt_chars": 5286, "prompt_tok": 3329, "eval_tok": 304, "sec": 13.0, "attempts": 1}
+{"id": "S37", "title": "ガイダンス表示", "ok": true, "hash": "fc5bd04e8918744c", "prompt_chars": 9341, "prompt_tok": 5072, "eval_tok": 738, "sec": 33.1, "attempts": 1}
+{"id": "S38", "title": "エラー表示（共通）", "ok": true, "hash": "3e5826552474b1e8", "prompt_chars": 5611, "prompt_tok": 3437, "eval_tok": 469, "sec": 19.4, "attempts": 1}
+{"id": "S39", "title": "エラー画面 1〜9", "ok": true, "hash": "2847122372f07896", "prompt_chars": 10902, "prompt_tok": 5500, "eval_tok": 914, "sec": 40.9, "attempts": 1}
+{"id": "S40", "title": "エラー画面 17/19", "ok": true, "hash": "ef1941ca6dca4fac", "prompt_chars": 6008, "prompt_tok": 3570, "eval_tok": 457, "sec": 19.9, "attempts": 1}
+{"id": "S41", "title": "省電力測定中画面", "ok": true, "hash": "5fa0a95df503dd84", "prompt_chars": 5189, "prompt_tok": 3268, "eval_tok": 386, "sec": 15.6, "attempts": 1}
+{"id": "S42", "title": "ロガー測定画面", "ok": true, "hash": "14a77f44082e1995", "prompt_chars": 14106, "prompt_tok": 7936, "eval_tok": 907, "sec": 47.0, "attempts": 1}
+{"id": "S43", "title": "ロガー履歴表示", "ok": true, "hash": "0954788ee0b31f84", "prompt_chars": 9373, "prompt_tok": 5560, "eval_tok": 500, "sec": 25.9, "attempts": 1}
+{"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "0af37b9676fa8fda", "prompt_chars": 17916, "prompt_tok": 12287, "eval_tok": 1870, "sec": 104.3, "attempts": 1}
+{"id": "APX_B", "title": "EEPROM割付表", "ok": true, "hash": "9b2111fe183b97e7", "prompt_chars": 8867, "prompt_tok": 4418, "eval_tok": 1210, "sec": 56.0, "attempts": 1}

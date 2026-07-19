@@ -1,0 +1,207 @@
+uint8_t disp_MLSS_Meas_2(uint8_t flash_flg, float bar, uint8_t batvol)
+{
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_battery_icon(batvol);  // 電池残量アイコン
+	LS027_disp_datetime();				   //日付時刻表示
+
+	//矢印 (測定中) アイコン: 透視度で 200cm 超えのときはレンジオーバー固定アイコンに切替、それ以外は通常の wait アニメ
+	if ((Meas_Mode == MEAS_MODE_TR) && (Transparency >= 100.0f) && (Transparency != FLT_MAX))
+	{
+		LS027_disp_icon(3, 8, (uint8_t *)icon_over);
+	}
+	else
+	{
+		LS027_disp_icon(3, 8, (flash_flg) ? (uint8_t *)icon_wait1 : (uint8_t *)icon_wait2); // 矢印アイコン
+	}
+
+	switch(Meas_Mode) {
+	case MEAS_MODE_MLSS:
+	default:
+		LS027_disp_icon(0, 1, (uint8_t *)t_MLSS); //MLSS
+		if (((MLSS == FLT_MAX)||(MLSS >= 20000)||(MLSS <= -99))&& (flash_flg == 1))
+		{
+			lcd_fill_box(15, 11, 30, 12, 1); // 白塗り (ID-200T DO 位置に合わせて y=9)
+		}
+		else
+		{
+			//ローカル変数でクランプ (グローバル MLSS を破壊しないことで check_stable がレンジ外を検出可能)
+			float mlss_disp = MLSS;
+			if (mlss_disp > 20000.0f) mlss_disp = 20000.0f;
+			else if (mlss_disp < -99.0f) mlss_disp = -99.0f;
+			//表示用に 1 の位を四捨五入して 10 単位に揃える (内部 MLSS は破壊しない)
+			mlss_disp = roundf(mlss_disp / 10.0f) * 10.0f;
+			//丸めで -100 になった分も含め、表示下限は -90 に再クランプ
+			if (mlss_disp < -90.0f) mlss_disp = -90.0f;
+			//10000 mg/L 以上は g/L 表示 (10000→10.0 g/L、20000→20.0 g/L、分解能 0.1 g/L=100 mg/L)。MLSS 位置は y=9 (ID-200T DO と同じ)
+			//1000-9999 mg/L はカンマ付き 4 桁手動描画 (l_comma2 16px、桁配置: 18/24/26/32/38 で右端を ones に揃える)
+			if (mlss_disp >= 10000.0f) {
+				LS027_disp_number(38, 11, 0, mlss_disp / 1000.0f, 1); //g/L 形式 (XX.Y、precision 1)
+			} else if (mlss_disp >= 1000.0f) {
+				int v = (int)(mlss_disp + 0.5f);
+				LS027_disp_icon(38, 11, (uint8_t *)l_num[v % 10]);          //ones
+				LS027_disp_icon(32, 11, (uint8_t *)l_num[(v / 10) % 10]);   //tens
+				LS027_disp_icon(26, 11, (uint8_t *)l_num[(v / 100) % 10]);  //hundreds
+				LS027_disp_icon(24, 11, (uint8_t *)l_comma2);               //"," (16px 幅)
+				LS027_disp_icon(18, 11, (uint8_t *)l_num[v / 1000]);        //thousands
+			} else {
+				LS027_disp_number(38, 11, 0, mlss_disp, 0); //mg/L 整数 (3桁以下)
+			}
+		}
+		//単位アイコン: g/L 表示時は l_gl を y=10 (mg/L 位置から 5 unit 上、l_gl が 4 unit 幅 = l_mgl より 2 unit 狭いので x=46 で右端を l_mgl と揃える)、mg/L 表示時は l_mgl を y=15 (ID-200T DO 単位位置と同じ)
+		if (MLSS >= 10000.0f) {
+			LS027_disp_icon(46, 12, (uint8_t *)l_gl);  // "g/L"
+		} else {
+			LS027_disp_icon(44, 17, (uint8_t *)l_mgl); // "mg/L"
+		}
+
+		//界面判断バー: MLSS_inst / Interface_Threshold を 100% としてバー表示 (移動平均無しの瞬時値で過敏な伸縮)
+		//icon_air_bar3 (19×3 LCD unit、152×24px) 使用、LS027_disp_airbar3 で bar2 = 16*bar/100 → 右端 = 118.75%
+		{
+			float ipct = (Interface_Threshold > 0.001f) ? (MLSS_inst / Interface_Threshold * 100.0f) : 0.0f;
+			if (ipct > 118.75f) ipct = 118.75f;
+			else if (ipct < 0.0f) ipct = 0.0f;
+			LS027_disp_airbar3(ipct);
+		}
+
+		//水深表示 2 系統:
+		// (a) S サイズ = 現在の Depth (リアルタイム、bar3 右隣)
+		// (b) M サイズ = Interface_Hold (= MLSS_inst が Interface_Threshold を 99→100% で越えた瞬間の Depth、右上)
+		//(a) S サイズ: bar3 右端 col 151 から 8px gap、uni_x=26、leftmost ones at LCD x=20、m_m at x=28..30
+		//(b) M サイズ: uni_x=41、m_m at (45, 8) (従来位置)、未捕捉時 (FLT_MAX) は flash で白塗り
+		//(a) 現 Depth (S size)
+		{
+			float d_disp = Depth;
+			if (((d_disp == FLT_MAX)||(d_disp >= 6.0f)||(d_disp <= -0.99f))&& (flash_flg == 1))
+			{
+				lcd_fill_box(20, 5, 11, 3, 1); // S size 白塗り
+			}
+			else
+			{
+				if (d_disp > 6.0f) d_disp = 6.0f;
+				else if (d_disp < -0.99f) d_disp = -0.99f;
+				LS027_disp_number(26, 5, 2, d_disp, 2); // S size 水深 (bar3 の右)
+			}
+			LS027_disp_icon(28, 5, (uint8_t *)m_m); // S size "m" (3×3 LCD、x=28..30)
+		}
+		//(b) Interface_Hold (M size、界面深度)
+		{
+			float h_disp = Interface_Hold;
+			if (h_disp == FLT_MAX)
+			{
+				//未捕捉: "-.--" を steady で表示 (点滅させない)。
+				//M size 数値レイアウトに合わせ、ones / 0.1 / 0.01 位置に m_minus、dot 位置に m_dot を直接描画。
+				LS027_disp_icon(33, 5, (uint8_t *)m_minus); // ones 位置のダッシュ
+				LS027_disp_icon(36, 5, (uint8_t *)m_dot);   // 小数点
+				LS027_disp_icon(38, 5, (uint8_t *)m_minus); // 0.1 位置のダッシュ
+				LS027_disp_icon(41, 5, (uint8_t *)m_minus); // 0.01 位置のダッシュ
+			}
+			else if (((h_disp >= 6.0f)||(h_disp <= -0.99f))&& (flash_flg == 1))
+			{
+				lcd_fill_box(31, 5, 13, 6, 1); // 範囲外 (捕捉済みだが異常値) のみ点滅、x=31 開始で S m_m を保護
+			}
+			else
+			{
+				if (h_disp > 6.0f) h_disp = 6.0f;
+				else if (h_disp < -0.99f) h_disp = -0.99f;
+				LS027_disp_number(41, 5, 1, h_disp, 2); // M size 水深 (界面深度ホールド値)
+			}
+			LS027_disp_icon(45, 8, (uint8_t *)m_m); // M size "m" (従来位置)
+		}
+		LS027_disp_number(39, 25, 2, MLSS_MODE + 1, 0); //MLSS_MODE (y=25 → y=5 移動、界面バーと同じ高さ)
+		break;
+
+	case MEAS_MODE_SS:
+		LS027_disp_icon(0, 1, (uint8_t *)t_SS); //SS
+		if (((SS == FLT_MAX)||(SS >= 1000)||(SS <= -99))&& (flash_flg == 1))
+		{
+			lcd_fill_box(15, 11, 30, 12, 1); // 白塗り (MLSS と同位置 y=9)
+		}
+		else
+		{
+			//ローカル変数でクランプ (グローバル SS を破壊しないことで check_stable が実値を判定できる)
+			float ss_disp = SS;
+			if (ss_disp > 1000.0f) ss_disp = 1000.0f;
+			else if (ss_disp < -99.0f) ss_disp = -99.0f;
+			LS027_disp_number(38, 11, 0, ss_disp, 0); //SS (MLSS と同位置 y=9)
+		}
+		LS027_disp_icon(44, 17, (uint8_t *)l_mgl); // "mg/L" (MLSS と同位置 y=15)
+		LS027_disp_number(39, 25, 2, SS_MODE + 1, 0); //SS_MODE (MLSS と同様 y=5)
+		break;
+
+	case MEAS_MODE_TR:
+		LS027_disp_icon(0, 1, (uint8_t *)t_Transparency); //透視度
+		//200cm 超えは点滅停止、200.0 のまま表示 (icon_over でレンジオーバー通知)。下限と FLT_MAX のみ点滅。
+		if (((Transparency == FLT_MAX)||(Transparency <= -9.9))&& (flash_flg == 1))
+		{
+			lcd_fill_box(15, 11, 30, 12, 1); // 白塗り (MLSS と同位置 y=9)
+		}
+		else
+		{
+			//ローカル変数でクランプ (グローバル Transparency を破壊しないことで check_stable が実値を判定 → 200 超えでも安定成立しない)
+			float tr_disp = Transparency;
+			if (tr_disp > 100.0f) tr_disp = 100.0f;
+			else if (tr_disp < -9.9f) tr_disp = -9.9f;
+			LS027_disp_number(38, 11, 0, tr_disp, 1); //透視度 (MLSS と同位置 y=9)
+		}
+		LS027_disp_icon(44, 17, (uint8_t *)m_cm); // "cm" (MLSS と同位置 y=15)
+		LS027_disp_number(39, 25, 2, TR_MODE + 1, 0); //TR_MODE (MLSS と同様 y=5)
+		break;
+
+	case MEAS_MODE_DEPTH:
+		LS027_disp_icon(0, 1, (uint8_t *)t_Interface); //界面
+		if (((Depth == FLT_MAX)||(Depth >= 6.0)||(Depth <= -0.99))&& (flash_flg == 1))
+		{
+			lcd_fill_box(15, 5, 30, 12, 1); // 白塗り
+		}
+		else
+		{
+			if (Depth > 6.0) {
+				Depth = 6.0;
+			}
+			else if (Depth < -0.99) {
+				Depth = -0.99;
+			}
+			LS027_disp_number(38, 5, 0, Depth, 2); //Depth
+		}
+		LS027_disp_icon(45, 11, (uint8_t *)m_m); // "m"
+
+		//界面測定 (測定中): MLSS 値を常時点滅させる。
+		//flash_flg=1 のとき MLSS を消し、=0 のとき描画 (1Hz 程度の点滅)
+		if (flash_flg == 1)
+		{
+			lcd_fill_box(30, 18, 14, 6, 1); // 白塗り (点滅消し)
+		}
+		else
+		{
+			if (MLSS > 20000) {
+				MLSS = 20000;
+			}
+			else if (MLSS < -99) {
+				MLSS = -99;
+			}
+			LS027_disp_number(41, 18, 1, MLSS, 0); //MLSS
+		}
+		LS027_disp_icon(44, 21, (uint8_t *)s_mgl); //"mg/L"
+		LS027_disp_number(39, 25, 2, MLSS_MODE + 1, 0); //MLSS_MODE
+		break;
+	}
+
+	//モード ラベル「モード/30」: MLSS/SS/TR すべて y=5 (上段表示で統一、DEPTH は UI 到達不能)
+	{
+		LS027_disp_icon(28, 25, (uint8_t *)icon_mode); // "モード"
+		LS027_disp_icon(41, 25, (uint8_t *)s_slash); // "/"
+		LS027_disp_number(45, 25, 2, 30, 0); //"30"
+	}
+
+	LS027_disp_bar_icon(bar);		   // 進捗バー
+
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(5, 18, (uint8_t *)icon_change); //切替
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}

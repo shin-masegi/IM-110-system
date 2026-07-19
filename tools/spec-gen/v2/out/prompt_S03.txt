@@ -1,0 +1,61 @@
+# 対象機器の前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（活性汚泥処理の水質計測。測定項目 MLSS/SS/透視度/界面）。
+- 表示: モノクロLCD 400×240（Sharp LS027B7）。関数内の `LS027_disp_icon` / `LS027_disp_number` 等が画面への描画呼び出し。
+- 操作スイッチは3個: 電源(SW3) / 記録(SW1) / 履歴(SW2)。タッチパネルではない。画面内の「開始」等はアイコン表示であってタッチボタンではない。
+- 各画面の最上段にタイトル・日付時刻・電池残量、BT接続中はBTアイコン(共通表示)。
+- `batvol` は電池残量、`flash_flg`/`fl` は点滅表示制御、`select`/`num_sel` は選択/桁位置、`en` は有効/無効。
+
+# 執筆対象画面: 5.3 モード切替
+# 実装コード（IM-110本体 Core/Src/Display.c より抜粋）
+```c
+// ===== disp_M_CHANGE =====
+uint8_t disp_M_CHANGE(uint8_t select, uint8_t flg, uint8_t batvol, uint8_t fl)
+{
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_measure); // タイトル
+	LS027_disp_battery_icon(batvol);		// 電池残量アイコン
+
+	LS027_disp_datetime(); //日付時刻表示
+
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 18, (uint8_t *)icon_select);   //選択
+	LS027_disp_icon(5, 23, (uint8_t *)icon_decision); //決定
+
+	switch(flg)
+	{
+	case 0:
+	default:
+		LS027_disp_icon(18, 7, ((select == 0) && (fl == 1)) ? (uint8_t *)b_MLSS : (uint8_t *)w_MLSS);  // "MLSS"
+		LS027_disp_icon(34, 7, ((select == 1) && (fl == 1)) ? (uint8_t *)b_SS : (uint8_t *)w_SS);  // "SS"
+		LS027_disp_icon(18, 18, ((select == 2) && (fl == 1)) ? (uint8_t *)b_Transparency : (uint8_t *)w_Transparency); // "透視度"
+		//「界面」アイコンは廃止 (設定メニュー側で界面しきい値だけ設定する仕様に移行)
+		break;
+	case 1:
+		LS027_disp_icon(15, 6, (uint8_t *)msg_MLSS);
+		break;
+	case 2:
+		LS027_disp_icon(15, 6, (uint8_t *)msg_SS);
+		break;
+	case 3:
+		LS027_disp_icon(15, 6, (uint8_t *)msg_Transparency);
+		break;
+	case 4:
+		LS027_disp_icon(15, 6, (uint8_t *)msg_Interface);
+		break;
+	}
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+```
+
+# 補足指示
+測定/ロガー等のモード切替画面。
+
+上記コードが実装する画面「モード切替」の動作仕様を、表示要素・引数の効果・状態ごとの差異を含めてID-200T相当の粒度で日本語で書いてください。

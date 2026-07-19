@@ -1,0 +1,67 @@
+# 対象機器の前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（活性汚泥処理の水質計測。測定項目 MLSS/SS/透視度/界面）。
+- 表示: モノクロLCD 400×240（Sharp LS027B7）。関数内の `LS027_disp_icon` / `LS027_disp_number` 等が画面への描画呼び出し。
+- 操作スイッチは3個: 電源(SW3) / 記録(SW1) / 履歴(SW2)。タッチパネルではない。画面内の「開始」等はアイコン表示であってタッチボタンではない。
+- 各画面の最上段にタイトル・日付時刻・電池残量、BT接続中はBTアイコン(共通表示)。
+- `batvol` は電池残量、`flash_flg`/`fl` は点滅表示制御、`select`/`num_sel` は選択/桁位置、`en` は有効/無効。
+
+# 執筆対象画面: 5.9 界面閾値設定
+# 実装コード（IM-110本体 Core/Src/Display.c より抜粋）
+```c
+// ===== disp_Depth_Setting =====
+uint8_t disp_Depth_Setting(uint8_t flash_flg,float Interface_Threshold_tmp, uint8_t num_sel, uint8_t batvol)
+{
+	static uint8_t num[5] = {0, 0, 0, 0, 0}; // 表示中の数値(整数部5桁)
+	num[0] = (uint8_t)(Interface_Threshold_tmp / 10000);
+	num[1] = (uint8_t)((Interface_Threshold_tmp - (num[0] * 10000)) / 1000);
+	num[2] = (uint8_t)((Interface_Threshold_tmp - (num[0] * 10000) - (num[1] * 1000)) / 100);
+	num[3] = (uint8_t)((Interface_Threshold_tmp - (num[0] * 10000) - (num[1] * 1000) - (num[2] * 100)) / 10);
+	num[4] = (uint8_t)(Interface_Threshold_tmp - (num[0] * 10000) - (num[1] * 1000) - (num[2] * 100) - (num[3] * 10));
+
+
+	if (lcd_init(0) != LCD_OK)
+	{					// LCD表示クリア(＆LCD表示バッファ更新OKか確認)
+		return DISP_NG; // 更新NGのため終了
+	}
+	LS027_disp_icon(0, 1, (uint8_t *)t_depth_setting);	//界面設定
+	LS027_disp_battery_icon(batvol);  // 電池残量アイコン
+	LS027_disp_datetime();				   //日付時刻表示
+
+	//5 桁の Interface_Threshold 設定値を大サイズで上段に表示
+	//1 桁あたり 6 ユニット幅 (l_num = 48×96px)、x=14,20,26,32,38、y=5
+	{
+		const uint8_t x_pos[5] = {14, 20, 26, 32, 38};
+		uint8_t i;
+		for (i = 0; i < 5; i++)
+		{
+			if ((flash_flg) && (i == num_sel))
+			{
+				//選択桁は反転で点滅
+				LS027_disp_icon(x_pos[i], 5, (uint8_t *)b_l_num[num[i]]);
+			}
+			else
+			{
+				LS027_disp_icon(x_pos[i], 5, (uint8_t *)l_num[num[i]]);
+			}
+		}
+	}
+	LS027_disp_icon(44, 11, (uint8_t *)l_mgl);		// "mg/L"
+
+	LS027_disp_icon(0, 13, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+	LS027_disp_icon(0, 23, (uint8_t *)icon_MEM);
+
+	LS027_disp_icon(5, 13, (uint8_t *)icon_l_return);	//長押しで元の画面
+	LS027_disp_icon(5, 18, (uint8_t *)icon_next);	//次へ
+	LS027_disp_icon(5, 23, (uint8_t *)icon_change);	//切替
+
+	SPI_transmitLCD(); // LCD表示
+
+	return DISP_OK;
+}
+```
+
+# 補足指示
+界面測定の閾値設定画面。
+
+上記コードが実装する画面「界面閾値設定」の動作仕様を、表示要素・引数の効果・状態ごとの差異を含めてID-200T相当の粒度で日本語で書いてください。

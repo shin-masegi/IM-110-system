@@ -1,0 +1,45 @@
+# 対象機器の前提事実（IM-110T 本体）
+- 製品: MLSSメーター／IM-110T（活性汚泥処理の水質計測。測定項目 MLSS/SS/透視度/界面）。
+- 表示: モノクロLCD 400×240（Sharp LS027B7）。関数内の `LS027_disp_icon` / `LS027_disp_number` 等が画面への描画呼び出し。
+- 操作スイッチは3個: 電源(SW3) / 記録(SW1) / 履歴(SW2)。タッチパネルではない。画面内の「開始」等はアイコン表示であってタッチボタンではない。
+- 各画面の最上段にタイトル・日付時刻・電池残量、BT接続中はBTアイコン(共通表示)。
+- `batvol` は電池残量、`flash_flg`/`fl` は点滅表示制御、`select`/`num_sel` は選択/桁位置、`en` は有効/無効。
+
+# 執筆対象画面: 9.1 ガイダンス表示
+# 実装コード（IM-110本体 Core/Src/Display.c より抜粋）
+```c
+// ===== disp_GUIDE1 =====
+uint8_t disp_GUIDE1(uint8_t batvol)
+{
+	return disp_guide_page(&guide_table[0], &disp_ui, batvol);
+}
+
+// ===== disp_GUIDE2 =====
+uint8_t disp_GUIDE2(uint8_t batvol)
+{
+	return disp_guide_page(&guide_table[1], &disp_ui, batvol);
+}
+
+// ===== disp_GUIDE3 =====
+uint8_t disp_GUIDE3(uint8_t batvol)
+{
+	return disp_guide_page(&guide_table[2], &disp_ui, batvol);
+}
+
+// ===== disp_GUIDE4 =====
+uint8_t disp_GUIDE4(uint8_t batvol)
+{
+	return disp_guide_page(&guide_table[3], &disp_ui, batvol);
+}
+
+// ===== disp_GUIDE5 =====
+uint8_t disp_GUIDE5(uint8_t batvol)
+{
+	return disp_guide_page(&guide_table[4], &disp_ui, batvol);
+}
+```
+
+# 補足指示
+5種のガイダンス画面。各々の表示内容をコードから読む。
+
+上記コードが実装する画面「ガイダンス表示」の動作仕様を、表示要素・引数の効果・状態ごとの差異を含めてID-200T相当の粒度で日本語で書いてください。
