@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(*)"
+      "Bash(*)",
+      "Bash(curl -s -m3 -o /dev/null -w \"ollama HTTP %{http_code}\\\\n\" http://192.168.0.77:11434/)"
     ]
   }
 }
