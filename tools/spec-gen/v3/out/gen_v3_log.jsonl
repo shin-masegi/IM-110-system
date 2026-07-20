@@ -91,3 +91,8 @@
 {"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "f7049c433348606a", "prompt_chars": 18196, "prompt_tok": 12287, "eval_tok": 1336, "sec": 88.6, "attempts": 1}
 {"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "742b040c19c7e16a", "prompt_chars": 18316, "prompt_tok": 12287, "eval_tok": 995, "sec": 93.0, "attempts": 1}
 {"id": "APX_C", "title": "相関式・項目別演算", "ok": true, "hash": "8e2dd797aba02921", "prompt_chars": 1957, "prompt_tok": 1655, "eval_tok": 596, "sec": 26.4, "attempts": 1}
+{"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "16cdad315b1e20ae", "prompt_chars": 10164, "prompt_tok": 6514, "eval_tok": 891, "sec": 66.3, "attempts": 1}
+{"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "f24d4710a6840c5c", "prompt_chars": 9516, "prompt_tok": 6124, "eval_tok": 1390, "sec": 66.2, "attempts": 1}
+{"id": "APX_C", "title": "相関式・項目別演算", "ok": true, "hash": "f4eb734d3c383ad4", "prompt_chars": 3735, "prompt_tok": 2980, "eval_tok": 894, "sec": 39.4, "attempts": 1}
+{"id": "APX_D", "title": "調整機能とパラメータ記憶", "ok": true, "hash": "e5c2b23aed12973d", "prompt_chars": 7289, "prompt_tok": 5223, "eval_tok": 1535, "sec": 975.7, "attempts": 2}
+{"id": "APX_A", "title": "計算式・補正式", "ok": true, "hash": "b5105af53649690c", "prompt_chars": 8861, "prompt_tok": 5689, "eval_tok": 1791, "sec": 75.4, "attempts": 1}

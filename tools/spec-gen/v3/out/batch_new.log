@@ -1,0 +1,11 @@
+gen_v3: host=192.168.0.77:11434 model=devstral:24b num_ctx=16384 todo=3/47 cooldown=15.0s
+[1/3] APX_A 付録A 計算式・補正式 (9516 chars) ...
+      OK 1390 tok in 66.2s (prompt 6124 tok)
+      cooldown 15s
+[2/3] APX_C 付録C 相関式・項目別演算 (3735 chars) ...
+      OK 894 tok in 39.4s (prompt 2980 tok)
+      cooldown 15s
+[3/3] APX_D 付録D 調整機能とパラメータ記憶 (7289 chars) ...
+      ! attempt 1/3: timed out
+      OK 1535 tok in 975.7s (prompt 5223 tok)
+gen_v3: done. ok=3 fail=0

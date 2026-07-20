@@ -154,7 +154,8 @@ def main() -> int:
 
     L.append("\n---\n\n# 付録\n")
     for sid, num, title in [("APX_A", "付録A", "計算式・補正式"), ("APX_B", "付録B", "EEPROM割付表"),
-                            ("APX_C", "付録C", "相関式・項目別演算")]:
+                            ("APX_C", "付録C", "相関式・項目別演算"),
+                            ("APX_D", "付録D", "調整機能とパラメータ記憶")]:
         L.append(f"\n## {num} {title}\n")
         # unwrap mis-fenced prose, drop the redundant leading title it exposes, LaTeX -> plain
         L.append(delatex(strip_heading(unwrap_prose_fences(frag(sid)))))

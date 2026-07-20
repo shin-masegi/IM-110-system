@@ -154,24 +154,33 @@ def load_sections() -> list[dict]:
     body = json.loads((V2 / "sections_v2.json").read_text(encoding="utf-8"))["sections"]
     appendices = [
         {"id": "APX_A", "num": "付録A", "title": "計算式・補正式", "kind": "appendix",
-         "sources": ["Calc.c", "corr_xlsx_text.txt"],
-         "note": "本体 Calc.c の水温補正等の計算と、補正式作成手順(xlsx)の校正・補正式(スパン校正係数・1次演算式・吸光度/透視度式)を整理する。"
-                 "水温補正は低温側 TLsp/TLzr、高温側 THsp/THzr、35℃以上用 TOsp/TOzr をすべて記載し、"
-                 "TOsp が参照する Sim50 の導出（SimHenka35 = TPsp / 39.24344、"
-                 "SimHenka50 = ((SimHenka35 - 1.0) * 0.831441531) + 1.0、Sim50 = 55.05571 * SimHenka50）も必ず含める。"
-                 "Calc.c に現れる係数・定数（39.24344 等）を省略しないこと。"
-                 "数式はプレーンテキストで `変数 = 式` の形（LaTeX不可、乗算 *、除算 /）。"
-                 "各式が測定項目(MLSS/SS/透視度/界面)のどれに対応するか、または全モード共通(水温補正など)かを見出しや注記で明示する。"
-                 "吸光度・1次演算・スパン校正の式については、項目別に ZR(MLSSZR/透視度ZR 等)が異なる点にも触れる。"},
+         "sources": ["mlss_formulas.md"],
+         "note": "IM-110 の現行測定式(2026-07-20 再設計)を整理する。与えた資料(開発仕様 mlss-calc-reference.md の抜粋)を真実源とする。"
+                 "測定チェーン: プローブ出力 = 生mV − ADZero(空中出力を1750mVにオフセットする値) → "
+                 "本体で I(0) = MLSSZR + (Ref − refZR) * (B + (Ref − refZR) * B2) (Ref温度補正=相対mVの2次) → "
+                 "ABS = log10(I(0) / Y0) (暗時ADZRは廃止し分母はY0そのもの) → "
+                 "ベース(MLSS/SSは出荷時2次式×相関式ゲインk_No、透視度は累乗式 a*ABS^b) → スパン校正 SP_A*f*f + SP_B*f + SP_C。"
+                 "機差補正kizaは廃止、プローブ側の傾きspan補正も廃止。透視度は累乗式の後にさらに2次補正式をかける。"
+                 "水深は Depth = (現在気圧 − 電源ON直後の大気圧) × k_depth (6m相当加圧で6.0m表示になる1点スロープ校正)。"
+                 "数式はプレーンテキストで `変数 = 式`(LaTeX不可, 乗算*, 除算/)。各式が MLSS/SS/透視度/界面 のどれに対応するか明示する。"
+                 "係数の具体数値は機体・相関式ごとのデータで固定式ではない旨を注記する。"},
         {"id": "APX_B", "num": "付録B", "title": "EEPROM割付表", "kind": "appendix",
          "sources": ["Eeprom.h"],
          "note": "Eeprom.h の EEP_*_PAGE 等のページ割付(ヘッダ/基板調整/界面/共通/MLSS/SS/TR校正係数/ロガー等)を、ページ番号と用途の表に整理する。"},
         {"id": "APX_C", "num": "付録C", "title": "相関式・項目別演算", "kind": "appendix",
-         "sources": ["soukan_facts.md"],
-         "note": "相関式(No.01-30、No.01-20は係数固定・校正不可 / No.21-30は校正可、各7係数 ZR/FABS_SPAN/SP_A/SP_B/SP_C/1A/1B)と、"
-                 "測定項目(mode)別の構成(MLSS/SS は相関式21-30の10式、TR透視度は1式、界面は相関式非依存)、"
-                 "係数の真実源はプローブvault(RCFで読込)であること、を表・箇条書きで整理する。"
-                 "係数の具体数値は機体・相関式ごとに異なるデータであり固定式ではない旨を明記。数式はプレーンテキスト。"},
+         "sources": ["mlss_corr.md"],
+         "note": "相関式 No. モデル(2026-07-20 再設計)を整理する。"
+                 "No.1-20 は出荷時2次式(基準=No.1)の傾きをゲイン k_No 倍したもの(No.1=1.00 〜 No.20≒2.8879、等間隔 step≒0.099)。"
+                 "No.21-30 は各スロット独立の2次式(校正で作成、傾きゲインk=1.00固定、初期値は出荷時基準のコピー)。"
+                 "SS/透視度は相関式No.が無く No.21 の単一式のみ。係数の真実源はプローブflash。"
+                 "測定項目(MLSS/SS/透視度/界面)別の構成も整理する。表・箇条書きで、数式はプレーンテキスト。"},
+        {"id": "APX_D", "num": "付録D", "title": "調整機能とパラメータ記憶", "kind": "appendix",
+         "sources": ["mlss_storage.md"],
+         "note": "IM-110 の基板調整(ADBOAD)/出荷時調整の機能と、プローブflash・本体EEPROMのパラメータ記憶方式(2026-07-20 再設計)を整理する。"
+                 "責務分界(プローブはAD値をそのまま出力し補正計算は本体、係数はプローブflashに保存)、"
+                 "調整順序(LED PWM調整 → ADZero個別オフセット → Ref温度補正 → 出荷時3点調整)、"
+                 "真実源=プローブflash + 本体EEPROMミラー(プローブ個体ID+最終更新日による3層初期化、電源OFF時に一括書戻し)、"
+                 "フラッシュ32Bレコード割付(ヘッダ/プローブ共通/MLSS/SS/TR)を表・箇条書きで整理する。数式はプレーンテキスト。"},
     ]
     return body + appendices
 
