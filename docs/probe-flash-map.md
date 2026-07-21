@@ -27,8 +27,8 @@
 |---|---|---|---|---|---|
 | `Product_Name[7]` | uint8_t | 7B | 行0 offset0 | `PRO_NAME` | `"IM-110 "` |
 | `Probe_ID` | uint32_t | 1 | 行0 offset7 | — | `0xFFFFFFFF` |
-| `ADC_Zero[5]` | float | 5 | 行1 | `ADC_ZERO_INI` | `0.0f` |
-| `ADC_Span[5]` | float | 5 | 行2 | `ADC_SPAN_INI` | `1850.0f` |
+| `ADC_Zero[5]` | float | 5 | 行1 | `ADC_ZERO_INI` | `0.0f`（残置・計算未使用, 2026-07-21） |
+| `ADC_Span[5]` | float | 5 | 行2 | `ADC_SPAN_INI` | `1700.0f`（空中1700 span傾き, SADS/MLSS AD0） |
 | `LED_Out[5]` | float | 5 | 行3 | `LED_OUT_INI` | `0.36f` |
 | `ADC_Span_S[5]` | float | 5 | 行4 | `ADC_SPAN_S_INI` | `1850.0f` |
 
