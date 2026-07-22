@@ -7,9 +7,9 @@
 
 | リポ | HEAD | 内容 |
 |---|---|---|
-| `IM-110`（本体, STM32L452） | `c8f0f85` [WIP] feat(adjust): ADBOAD 調整機能 本体側 | 計算式再設計＋ADBOAD＋UART |
-| `IM-110_Probe`（プローブ, STM32G070） | `4069e57` feat(debug): MDR/RPF 追加 (Ver.0.18) | span傾き正規化＋MDR/RPF |
-| `IM-110-system`（本リポ） | `7ad7c56` docs(protocol): MDR/RPF §3.2.7 | 仕様・ログ・ハーネス |
+| `IM-110`（本体, STM32L452） | `6ca22ee` feat(adjust): ALDA 現duty読取化 | 計算式再設計＋ADBOAD＋UART＋**P_透過中継** |
+| `IM-110_Probe`（プローブ, STM32G070） | `2480d77` feat(store): **フラッシュ512B化 完了** | 統合ストア(Page63, 512B)＋MDR/RPF/WST/RST |
+| `IM-110-system`（本リポ） | 本コミット docs(handoff): 512B化完了を反映 | 仕様・ログ・ハーネス |
 
 いずれも `main`・push済み・clean。**3リポとも同時に pull すること**（通信・計算は両側整合が前提）。
 
@@ -51,18 +51,21 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 - 調整順序: **LED PWM → AD調整 → Ref温度補正 → 出荷時3点調整**（`mlss-calc-reference §8`）。
   → これを一通りやるまで測定値は暫定（出荷時2次式データ未取得のため）。
 
-## 4. フラッシュ配置（重要: まだ2領域のまま）
+## 4. フラッシュ配置（2026-07-22 更新: **512B 1領域化 完了**）
 
-- プローブ flash は **PARAM (Page62, 0x0801F300) と VAULT (Page63, 0x0801F800) の2領域**構成のまま。
-- `mlss-calc-reference §12` の **32B共通レコードによる1領域統合・本体EEPROMミラー・3層同期は未実装**（後日）。
-  現状は既存の `read_Param`/`write_Param`（PARAM）＋ `vault_load`/`vault_commit`（VAULT）の別々機構で動く。
-- VAULT 通信は不安定要因として切り分け済み（`probe-flash-map.md` 参照）。現状 **本体側 VAULT アクセスは起動時 暫定無効化**中（`IM-110` `bff0812`）。
-- **重要な切り分け**: flash の**書込プリミティブ `flash_erase_program()` は PARAM/VAULT 共通化済み・正常動作**（VAULT の独自 HAL 直叩きは廃止済み）。
-  ⇒ **2領域のままなのは「R/W が未完成だから」ではなく、§12 の構造的統合（1領域化＋32Bレコード＋本体ミラー＋3層同期）が未着手だから**。両者は別物。詳細は下記 T2。
+- プローブ flash は **統合ストア `probe_store_t`(512B = 32B×16ページ, Page63 `STORE_AD=0x0801F800`) の1領域**に一本化した（`probe_store.h`, `mlss-calc-reference §12`）。**旧 PARAM(Page62)・旧 VAULT(Page63) の分割は撤去**。
+- **配線済み（実機で store R/W = valid=1 / k_depth=1.0 確認）**:
+  - 起動: `store_load()` が Page63 を読み検証→ `ADC_Span[5]`/`LED_Out[0]`/`Probe_ID`/`Product_Name` を live へ適用。無効(新品)なら §12 既定。
+  - 保存: `WPP`→`store_commit()`（live を capture→封緘→Page63 書込）。新品化: `RPF`→`store_new_probe_init()`（§12 既定を Page63 へ）。
+  - 検証コマンド: `WST`(現値をストアへ確定) / `RST`(ストア読出ダンプ)。整合性 = 各32Bページ末尾1B XOR(本体EEPROM同配置) + 全体 checksum(`store_seal`/`store_valid`)。
+- **旧 Page62 コードは全削除**（`read_Param`/`write_Param`/`Set_Param2Flash`/`Set_Flash2Param`/`Flash_Data`/`PARAM_AD`）。`flash_erase_program()`(共有プリミティブ)のみ残置。
+- **⚠ 残（T1 の続き, 未完）**: 濃度換算の**校正係数コマンド `RCF`/`WCFC`/`WCF`/`WCS`/`WCM`/`WCK`/`WCZ`/`WCT` が旧 `probe_vault_t`(Page63) のまま**で、**統合ストアと同じ Page63 を使うため衝突**する（特に `WCFC`=`vault_commit` はストアを上書きして壊す。`RCF` は常に NG）。**削除してはいけない**（係数の本体⇔プローブ転送は調整の必須機能, §A-2 でプローブ=係数真実源）。正しい対応は**これらを統合ストアの係数ページ(§12 Page3-14: MLSS/SS/TR ゼロ・温度・ベース・相関式・SetVal)へ読み書きするよう繋ぎ替える**こと。それまで `WCFC` は叩かない。
+- **本体EEPROMミラー・3層同期・電源OFF一括書戻し は未実装**（下記 T1 残 / §A-2）。書込プリミティブ `flash_erase_program()` は正常動作。
 
 ## 5. 実機の状態（書込み履歴）
 
-- 両基板とも新FWを実機へ書込済み（プローブ=FUP経由 / 本体=ST-Link）。
+- **2026-07-22 時点の実機 vs HEAD**: 本体 = `6ca22ee` 相当を書込済（ALDA現duty読取版, st-flash）。**プローブ = 現HEAD `2480d77` より前の版（512B化の起動/WPP配線・Page62撤去が入る前）が載っている** → **再開時にプローブを `2480d77` で FUP 再書込が必要**（そうしないと起動が統合ストアを読まない）。
+- 両基板とも FW を実機へ書込済み（プローブ=FUP経由 / 本体=ST-Link）だが上記のとおり版ずれあり。
 - ただし**書込んだ版と現HEADの厳密一致は保証しない**。再開時は **current HEAD から rebuild して両基板へ書き直す**のが安全。
   - 本体: `cd ../IM-110 && make -j` → `st-flash --format ihex write build/IM-110.hex`
     - ⚠ **本体は STOP2 で寝ると SWD 接続不可**。かつ **NRST でリセットすると電源が落ちる**ので `--connect-under-reset` は使わない。
@@ -77,7 +80,8 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 ### T1. フラッシュ32B統合＋本体EEPROMミラー＋3層同期（★最優先・2領域問題の本丸）
 > **なぜ最優先（T2と入替）**: T2の実機調整は flash 初期化・確定を伴うが、現状2領域が中途半端でそこが破綻し調整が進められない。
 > **先に統合ストレージを完成させてから調整**する。これを飛ばすと毎回ここで詰まる。
-- **現状**: プローブは PARAM(Page62, `Flash_Data[][]`, `read_Param`/`write_Param`) と VAULT(Page63, `probe_vault_t`, `vault_load`/`vault_commit`) の**2領域・別ロード**。書込プリミティブ `flash_erase_program` は共通(§4)。統合の痕跡はコードに無し＝着手前。
+- **現状（2026-07-22 更新）**: **プローブ側の 512B 1領域化＝完了**（§4 参照）。`probe_store_t`(512B/Page63) を `store_load`/`store_commit`/`store_new_probe_init` で起動/WPP/RPF に配線、旧 PARAM(Page62) 撤去、実機で valid=1 確認。**下記 プローブ側手順 1-3 は完了、4-8(最終更新日/protocol先行/本体ミラー/3層/OFF書戻し) と 校正係数コマンドの統合ストア繋ぎ替え が残**。
+- **旧記述（着手前）**: ~~プローブは PARAM(Page62)+VAULT(Page63) の2領域・別ロード。統合の痕跡はコードに無し~~ → 上記のとおり解消済。
 - **プローブ側 手順**:
   1. **32B共通レコード構造体を定義**（`Core/Inc/` に新規, `__attribute__((packed))`, 全メンバ4B境界）。レイアウトは `mlss-calc-reference §12` の Page0-14（Page0=ヘッダ magic/ver/Probe_ID/最終更新日/checksum, Page1=ADZero[5]/LED_Out/k_depth, Page3-9=MLSS, Page10-12=SS, Page13-14=TR）。
   2. **1領域化**: Page62-63 を連続1ブロックとして1構造体で扱う（または新base確保）。**旧2領域からのマイグレーション**を入れる（起動時 magic/ver 判定で旧`Flash_Data`+`probe_vault_t`→新統合へ変換）。
