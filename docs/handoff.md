@@ -8,7 +8,7 @@
 | リポ | HEAD | 内容 |
 |---|---|---|
 | `IM-110`（本体, STM32L452） | `6ca22ee` feat(adjust): ALDA 現duty読取化 | 計算式再設計＋ADBOAD＋UART＋**P_透過中継** |
-| `IM-110_Probe`（プローブ, STM32G070） | `2480d77` feat(store): **フラッシュ512B化 完了** | 統合ストア(Page63, 512B)＋MDR/RPF/WST/RST |
+| `IM-110_Probe`（プローブ, STM32G070） | `2480d77` feat(store): **フラッシュ512B化 途中（未完成）** | 統合ストア(Page63,512B)＝PARAM系のみ配線／**校正係数は未統合=別structで衝突(バグ)** |
 | `IM-110-system`（本リポ） | 本コミット docs(handoff): 512B化完了を反映 | 仕様・ログ・ハーネス |
 
 いずれも `main`・push済み・clean。**3リポとも同時に pull すること**（通信・計算は両側整合が前提）。
@@ -51,9 +51,11 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 - 調整順序: **LED PWM → AD調整 → Ref温度補正 → 出荷時3点調整**（`mlss-calc-reference §8`）。
   → これを一通りやるまで測定値は暫定（出荷時2次式データ未取得のため）。
 
-## 4. フラッシュ配置（2026-07-22 更新: **512B 1領域化 完了**）
+## 4. フラッシュ配置（2026-07-22: **512B 1領域化 は途中＝未完成**）
 
-- プローブ flash は **統合ストア `probe_store_t`(512B = 32B×16ページ, Page63 `STORE_AD=0x0801F800`) の1領域**に一本化した（`probe_store.h`, `mlss-calc-reference §12`）。**旧 PARAM(Page62)・旧 VAULT(Page63) の分割は撤去**。
+> **未完成の核心**: 512B ストアに入っているのは **PARAM系(span/LED/ID)だけ**。**校正係数は依然として旧 `probe_vault_t` struct で別に書かれ、512B ストアの中に無い**。しかも旧 struct の保存先が統合ストアと同じ Page63 のため、**`WCFC`(`vault_commit`)を叩くと 512B ストアを上書きして破壊する＝バグ**。「512B の外に係数を書いている」=1領域化の意味を成していない。**係数を 512B ストアの係数ページ(§12 Page3-14)へ入れて初めて完了**。
+
+- プローブ flash の **統合ストア `probe_store_t`(512B = 32B×16ページ, Page63 `STORE_AD=0x0801F800`)** は定義済み（`probe_store.h`, `mlss-calc-reference §12`）。**旧 PARAM(Page62) は撤去済**。だが上記のとおり**係数が未統合のため 1領域化は未完成**。
 - **配線済み（実機で store R/W = valid=1 / k_depth=1.0 確認）**:
   - 起動: `store_load()` が Page63 を読み検証→ `ADC_Span[5]`/`LED_Out[0]`/`Probe_ID`/`Product_Name` を live へ適用。無効(新品)なら §12 既定。
   - 保存: `WPP`→`store_commit()`（live を capture→封緘→Page63 書込）。新品化: `RPF`→`store_new_probe_init()`（§12 既定を Page63 へ）。
@@ -80,7 +82,7 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 ### T1. フラッシュ32B統合＋本体EEPROMミラー＋3層同期（★最優先・2領域問題の本丸）
 > **なぜ最優先（T2と入替）**: T2の実機調整は flash 初期化・確定を伴うが、現状2領域が中途半端でそこが破綻し調整が進められない。
 > **先に統合ストレージを完成させてから調整**する。これを飛ばすと毎回ここで詰まる。
-- **現状（2026-07-22 更新）**: **プローブ側の 512B 1領域化＝完了**（§4 参照）。`probe_store_t`(512B/Page63) を `store_load`/`store_commit`/`store_new_probe_init` で起動/WPP/RPF に配線、旧 PARAM(Page62) 撤去、実機で valid=1 確認。**下記 プローブ側手順 1-3 は完了、4-8(最終更新日/protocol先行/本体ミラー/3層/OFF書戻し) と 校正係数コマンドの統合ストア繋ぎ替え が残**。
+- **現状（2026-07-22 更新）**: **プローブ側の 512B 1領域化＝途中（未完成）**（§4 参照）。`probe_store_t`(512B/Page63) を `store_load`/`store_commit`/`store_new_probe_init` で起動/WPP/RPF に配線し **PARAM系(span/LED/ID)は 512B ストアで動作**（実機 valid=1）、旧 PARAM(Page62) 撤去済。**だが校正係数が 512B ストアに入っておらず旧 struct で別書き＝1領域化は未完成・`WCFC`衝突バグあり**。**残: 校正係数(RCF/WCFC/WCx)を 512B ストアの係数ページ(§12 Page3-14)へ繋ぎ替え（これが完了条件の本丸）＋ 手順4-8(最終更新日/protocol先行/本体ミラー/3層/OFF書戻し)**。
 - **旧記述（着手前）**: ~~プローブは PARAM(Page62)+VAULT(Page63) の2領域・別ロード。統合の痕跡はコードに無し~~ → 上記のとおり解消済。
 - **プローブ側 手順**:
   1. **32B共通レコード構造体を定義**（`Core/Inc/` に新規, `__attribute__((packed))`, 全メンバ4B境界）。レイアウトは `mlss-calc-reference §12` の Page0-14（Page0=ヘッダ magic/ver/Probe_ID/最終更新日/checksum, Page1=ADZero[5]/LED_Out/k_depth, Page3-9=MLSS, Page10-12=SS, Page13-14=TR）。
