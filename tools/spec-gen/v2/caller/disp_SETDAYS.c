@@ -1,4 +1,4 @@
-// ===== Adjust.c : case SETDAYS_2 (L1347) =====
+// ===== Adjust.c : case SETDAYS_2 (L1413) =====
 	case SETDAYS_2:		//日付設定前表示
 		fl_flag2 = 0;
 		if (disp_SETDAYS(cur_sel_item2, bar_flag, fl_flag2, 0) == DISP_OK)
@@ -8,7 +8,7 @@
 		break;
 
 
-// ===== Adjust.c : case SETDAYS_5 (L1401) =====
+// ===== Adjust.c : case SETDAYS_5 (L1467) =====
 	case SETDAYS_5:		//日付設定表示
 		operation_mode = SETDAYS_6;
 		if (disp_timer == 0)

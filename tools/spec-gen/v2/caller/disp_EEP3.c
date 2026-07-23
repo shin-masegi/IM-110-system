@@ -1,4 +1,4 @@
-// ===== Adjust.c : case EEP_9 (L530) =====
+// ===== Adjust.c : case EEP_9 (L529) =====
 	case EEP_9:		//結果表示
 		if (disp_EEP3(result) == DISP_OK)
 		{

@@ -1,4 +1,4 @@
-// ===== Adjust.c : default (L138) =====
+// ===== Adjust.c : default (L137) =====
 	default:
 		if (disp_PRGVER(0) == DISP_OK)
 		{
@@ -7,7 +7,7 @@
 		break;
 
 
-// ===== Adjust.c : case PRG_3 (L177) =====
+// ===== Adjust.c : case PRG_3 (L176) =====
 	case PRG_3:
 		if (disp_PRGVER(1) == DISP_OK)
 		{

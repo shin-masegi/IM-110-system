@@ -1,4 +1,4 @@
-// ===== Adjust.c : case SETYEAR_2 (L1197) =====
+// ===== Adjust.c : case SETYEAR_2 (L1263) =====
 	case SETYEAR_2:		//日付設定前画面表示
 		fl_flag2 = 0;
 		if (disp_SETYEAR(cur_sel_item2, bar_flag, fl_flag2, 0) == DISP_OK)
@@ -8,7 +8,7 @@
 		break;
 
 
-// ===== Adjust.c : case SETYEAR_5 (L1232) =====
+// ===== Adjust.c : case SETYEAR_5 (L1298) =====
 	case SETYEAR_5:		//日付設定表示
 		operation_mode = SETYEAR_6;
 		if (disp_timer == 0)

@@ -1,4 +1,4 @@
-// ===== Adjust.c : case ADJ_4 (L1007) =====
+// ===== Adjust.c : case ADJ_4 (L1073) =====
 	case ADJ_4:		//調整値ホールド画面表示
 		if (disp_WAT2((operation_mode & 0xFF00), temp) == DISP_OK)
 		{

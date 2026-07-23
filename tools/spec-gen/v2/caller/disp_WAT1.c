@@ -1,4 +1,4 @@
-// ===== Adjust.c : default (L976) =====
+// ===== Adjust.c : default (L1042) =====
 	default:
 		adj_calc(operation_mode);	//計算値を更新
 		if (disp_WAT1((operation_mode & 0xFF00), WTemp) == DISP_OK)

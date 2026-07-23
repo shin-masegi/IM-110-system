@@ -585,141 +585,146 @@
     {
       "file": "Adjust.c",
       "label": "default",
-      "start": 138
+      "start": 137
     },
     {
       "file": "Adjust.c",
       "label": "case PRG_3",
-      "start": 177
+      "start": 176
     }
   ],
   "disp_EEP1": [
     {
       "file": "Adjust.c",
       "label": "default",
-      "start": 212
+      "start": 211
     }
   ],
   "disp_EEP2": [
     {
       "file": "Adjust.c",
       "label": "case EEP_3",
-      "start": 238
+      "start": 237
     },
     {
       "file": "Adjust.c",
       "label": "case EEP_4",
-      "start": 282
+      "start": 281
     },
     {
       "file": "Adjust.c",
       "label": "case EEP_5",
-      "start": 339
+      "start": 338
     },
     {
       "file": "Adjust.c",
       "label": "case EEP_6",
-      "start": 383
+      "start": 382
     },
     {
       "file": "Adjust.c",
       "label": "case EEP_7",
-      "start": 439
+      "start": 438
     },
     {
       "file": "Adjust.c",
       "label": "case EEP_8",
-      "start": 483
+      "start": 482
     }
   ],
   "disp_EEP3": [
     {
       "file": "Adjust.c",
       "label": "case EEP_9",
-      "start": 530
+      "start": 529
     }
   ],
   "disp_BATVOL": [
     {
       "file": "Adjust.c",
       "label": "default",
-      "start": 814
+      "start": 813
+    },
+    {
+      "file": "Adjust.c",
+      "label": "case BAT_2",
+      "start": 821
     }
   ],
   "disp_RANGE1": [
     {
       "file": "Adjust.c",
       "label": "default",
-      "start": 889
+      "start": 955
     }
   ],
   "disp_RANGE2": [
     {
       "file": "Adjust.c",
       "label": "case ADJ_4",
-      "start": 920
+      "start": 986
     }
   ],
   "disp_WAT1": [
     {
       "file": "Adjust.c",
       "label": "default",
-      "start": 976
+      "start": 1042
     }
   ],
   "disp_WAT2": [
     {
       "file": "Adjust.c",
       "label": "case ADJ_4",
-      "start": 1007
+      "start": 1073
     }
   ],
   "disp_CALTEMP": [
     {
       "file": "Adjust.c",
       "label": "case CALTEMP_2",
-      "start": 1055
+      "start": 1121
     },
     {
       "file": "Adjust.c",
       "label": "case CALTEMP_5",
-      "start": 1090
+      "start": 1156
     }
   ],
   "disp_SETYEAR": [
     {
       "file": "Adjust.c",
       "label": "case SETYEAR_2",
-      "start": 1197
+      "start": 1263
     },
     {
       "file": "Adjust.c",
       "label": "case SETYEAR_5",
-      "start": 1232
+      "start": 1298
     }
   ],
   "disp_SETDAYS": [
     {
       "file": "Adjust.c",
       "label": "case SETDAYS_2",
-      "start": 1347
+      "start": 1413
     },
     {
       "file": "Adjust.c",
       "label": "case SETDAYS_5",
-      "start": 1401
+      "start": 1467
     }
   ],
   "disp_SETHOUR": [
     {
       "file": "Adjust.c",
       "label": "case SETHOUR_2",
-      "start": 1547
+      "start": 1613
     },
     {
       "file": "Adjust.c",
       "label": "case SETHOUR_5",
-      "start": 1580
+      "start": 1646
     }
   ]
 }

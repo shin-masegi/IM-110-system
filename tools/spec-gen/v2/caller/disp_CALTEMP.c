@@ -1,4 +1,4 @@
-// ===== Adjust.c : case CALTEMP_2 (L1055) =====
+// ===== Adjust.c : case CALTEMP_2 (L1121) =====
 	case CALTEMP_2:		//1点調整開始前画面表示
 		fl_flag2 = 0;
 		if (disp_CALTEMP(cur_sel_item2, bar_flag, fl_flag2, 0, WTemp) == DISP_OK)
@@ -9,7 +9,7 @@
 		break;
 
 
-// ===== Adjust.c : case CALTEMP_5 (L1090) =====
+// ===== Adjust.c : case CALTEMP_5 (L1156) =====
 	case CALTEMP_5:		//水温1点調整表示
 		operation_mode = CALTEMP_6;
 		if (disp_timer == 0)

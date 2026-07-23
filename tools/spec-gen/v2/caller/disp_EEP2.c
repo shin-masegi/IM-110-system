@@ -1,4 +1,4 @@
-// ===== Adjust.c : case EEP_3 (L238) =====
+// ===== Adjust.c : case EEP_3 (L237) =====
 	case EEP_3:		//0xAA書込
 		if (!disp_timer)
 		{
@@ -25,7 +25,7 @@
 			switch (ret)
 			{
 
-// ===== Adjust.c : case EEP_4 (L282) =====
+// ===== Adjust.c : case EEP_4 (L281) =====
 	case EEP_4:		//0xAAベリファイ
 		if (!disp_timer)
 		{
@@ -53,7 +53,7 @@
 			switch (ret)
 			{
 
-// ===== Adjust.c : case EEP_5 (L339) =====
+// ===== Adjust.c : case EEP_5 (L338) =====
 	case EEP_5:		//0x55書込
 		if (!disp_timer)
 		{
@@ -80,7 +80,7 @@
 			switch (ret)
 			{
 
-// ===== Adjust.c : case EEP_6 (L383) =====
+// ===== Adjust.c : case EEP_6 (L382) =====
 	case EEP_6:		//0x55ベリファイ
 		if (!disp_timer)
 		{
@@ -107,7 +107,7 @@
 			switch (ret)
 			{
 
-// ===== Adjust.c : case EEP_7 (L439) =====
+// ===== Adjust.c : case EEP_7 (L438) =====
 	case EEP_7:		//0x00書込
 		if (!disp_timer)
 		{
@@ -134,7 +134,7 @@
 			switch (ret)
 			{
 
-// ===== Adjust.c : case EEP_8 (L483) =====
+// ===== Adjust.c : case EEP_8 (L482) =====
 	case EEP_8:		//0x00ベリファイ
 		if (!disp_timer)
 		{

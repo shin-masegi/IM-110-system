@@ -17,6 +17,22 @@ uint8_t disp_MLSS_Meas_2(uint8_t flash_flg, float bar, uint8_t batvol)
 		LS027_disp_icon(3, 8, (flash_flg) ? (uint8_t *)icon_wait1 : (uint8_t *)icon_wait2); // 矢印アイコン
 	}
 
+	//プローブ無応答/切断 (測定値ストリーム鮮度切れ、protocol §4.3/§5.5): 主表示を "----" にして返す。
+	//測定完了ホールド画面 (Meas_3) には適用しない (捕捉済みの結果を消さないため)。
+	if (!Probe_Data_Valid)
+	{
+		disp_meas_no_data(flash_flg);
+		//共通「モード /30」ラベル + 進捗バー + ナビアイコン
+		LS027_disp_icon(28, 25, (uint8_t *)icon_mode);	// "モード"
+		LS027_disp_icon(41, 25, (uint8_t *)s_slash);	// "/"
+		LS027_disp_number(45, 25, 2, 30, 0);			// "30"
+		LS027_disp_bar_icon(bar);
+		LS027_disp_icon(0, 18, (uint8_t *)icon_DISP);
+		LS027_disp_icon(5, 18, (uint8_t *)icon_change);	//切替
+		SPI_transmitLCD();
+		return DISP_OK;
+	}
+
 	switch(Meas_Mode) {
 	case MEAS_MODE_MLSS:
 	default:

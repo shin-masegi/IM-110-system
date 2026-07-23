@@ -1,4 +1,4 @@
-// ===== Adjust.c : default (L889) =====
+// ===== Adjust.c : default (L955) =====
 	default:
 		adj_calc(operation_mode);	//計算値を更新
 		if (disp_RANGE1((operation_mode & 0xFF00), AD) == DISP_OK)

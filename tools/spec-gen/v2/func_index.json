@@ -97,404 +97,404 @@
   },
   {
     "name": "disp_MLSS_Meas_2",
-    "start": 1475,
-    "end": 1681,
-    "lines": 207
+    "start": 1528,
+    "end": 1750,
+    "lines": 223
   },
   {
     "name": "disp_MLSS_Meas_3",
-    "start": 1692,
-    "end": 1899,
+    "start": 1761,
+    "end": 1968,
     "lines": 208
   },
   {
     "name": "disp_MLSS_Meas_4",
-    "start": 1909,
-    "end": 1931,
+    "start": 1978,
+    "end": 2000,
     "lines": 23
   },
   {
     "name": "disp_AUTOCAL_COMP",
-    "start": 2004,
-    "end": 2022,
+    "start": 2073,
+    "end": 2091,
     "lines": 19
   },
   {
     "name": "disp_ERROR17_2",
-    "start": 2034,
-    "end": 2037,
+    "start": 2103,
+    "end": 2106,
     "lines": 4
   },
   {
     "name": "disp_ERROR17_1",
-    "start": 2049,
-    "end": 2052,
+    "start": 2118,
+    "end": 2121,
     "lines": 4
   },
   {
     "name": "disp_ERROR19_2",
-    "start": 2064,
-    "end": 2067,
+    "start": 2133,
+    "end": 2136,
     "lines": 4
   },
   {
     "name": "disp_ERROR19_1",
-    "start": 2079,
-    "end": 2082,
+    "start": 2148,
+    "end": 2151,
     "lines": 4
   },
   {
     "name": "disp_DISPCAL",
-    "start": 2178,
-    "end": 2206,
+    "start": 2247,
+    "end": 2275,
     "lines": 29
   },
   {
     "name": "disp_DISPHIS",
-    "start": 2280,
-    "end": 2330,
+    "start": 2349,
+    "end": 2399,
     "lines": 51
   },
   {
     "name": "disp_CAL_HSEL",
-    "start": 2374,
-    "end": 2410,
+    "start": 2443,
+    "end": 2479,
     "lines": 37
   },
   {
     "name": "disp_STRTDSP2",
-    "start": 2422,
-    "end": 2459,
+    "start": 2491,
+    "end": 2528,
     "lines": 38
   },
   {
     "name": "disp_STRTDSP",
-    "start": 2468,
-    "end": 2487,
+    "start": 2537,
+    "end": 2556,
     "lines": 20
   },
   {
     "name": "disp_ADCAL1",
-    "start": 2502,
-    "end": 2567,
+    "start": 2571,
+    "end": 2636,
     "lines": 66
   },
   {
     "name": "disp_ADCAL2",
-    "start": 2581,
-    "end": 2648,
+    "start": 2650,
+    "end": 2717,
     "lines": 68
   },
   {
     "name": "disp_ADCAL3",
-    "start": 2661,
-    "end": 2734,
+    "start": 2730,
+    "end": 2803,
     "lines": 74
   },
   {
     "name": "disp_ERROR",
-    "start": 2747,
-    "end": 2763,
+    "start": 2816,
+    "end": 2832,
     "lines": 17
   },
   {
     "name": "disp_ERROR1_1",
-    "start": 2773,
-    "end": 2776,
+    "start": 2842,
+    "end": 2845,
     "lines": 4
   },
   {
     "name": "disp_ERROR2_1",
-    "start": 2787,
-    "end": 2790,
+    "start": 2856,
+    "end": 2859,
     "lines": 4
   },
   {
     "name": "disp_ERROR3_1",
-    "start": 2801,
-    "end": 2804,
+    "start": 2870,
+    "end": 2873,
     "lines": 4
   },
   {
     "name": "disp_ERROR4_1",
-    "start": 2815,
-    "end": 2818,
+    "start": 2884,
+    "end": 2887,
     "lines": 4
   },
   {
     "name": "disp_ERROR5_1",
-    "start": 2830,
-    "end": 2833,
+    "start": 2899,
+    "end": 2902,
     "lines": 4
   },
   {
     "name": "disp_ERROR6_1",
-    "start": 2845,
-    "end": 2848,
+    "start": 2914,
+    "end": 2917,
     "lines": 4
   },
   {
     "name": "disp_ERROR7_1",
-    "start": 2860,
-    "end": 2863,
+    "start": 2929,
+    "end": 2932,
     "lines": 4
   },
   {
     "name": "disp_ERROR8_1",
-    "start": 2875,
-    "end": 2878,
+    "start": 2944,
+    "end": 2947,
     "lines": 4
   },
   {
     "name": "disp_ERROR9_1",
-    "start": 2890,
-    "end": 2893,
+    "start": 2959,
+    "end": 2962,
     "lines": 4
   },
   {
     "name": "disp_ERROR1_2",
-    "start": 2905,
-    "end": 2908,
+    "start": 2974,
+    "end": 2977,
     "lines": 4
   },
   {
     "name": "disp_ERROR2_2",
-    "start": 2919,
-    "end": 2922,
+    "start": 2988,
+    "end": 2991,
     "lines": 4
   },
   {
     "name": "disp_ERROR3_2",
-    "start": 2933,
-    "end": 2936,
+    "start": 3002,
+    "end": 3005,
     "lines": 4
   },
   {
     "name": "disp_ERROR4_2",
-    "start": 2947,
-    "end": 2950,
+    "start": 3016,
+    "end": 3019,
     "lines": 4
   },
   {
     "name": "disp_ERROR5_2",
-    "start": 2962,
-    "end": 2965,
+    "start": 3031,
+    "end": 3034,
     "lines": 4
   },
   {
     "name": "disp_ERROR6_2",
-    "start": 2977,
-    "end": 2980,
+    "start": 3046,
+    "end": 3049,
     "lines": 4
   },
   {
     "name": "disp_ERROR7_2",
-    "start": 2992,
-    "end": 2995,
+    "start": 3061,
+    "end": 3064,
     "lines": 4
   },
   {
     "name": "disp_ERROR8_2",
-    "start": 3007,
-    "end": 3010,
+    "start": 3076,
+    "end": 3079,
     "lines": 4
   },
   {
     "name": "disp_ERROR9_2",
-    "start": 3022,
-    "end": 3025,
+    "start": 3091,
+    "end": 3094,
     "lines": 4
   },
   {
     "name": "disp_GUIDE1",
-    "start": 3036,
-    "end": 3039,
+    "start": 3105,
+    "end": 3108,
     "lines": 4
   },
   {
     "name": "disp_GUIDE2",
-    "start": 3050,
-    "end": 3053,
+    "start": 3119,
+    "end": 3122,
     "lines": 4
   },
   {
     "name": "disp_GUIDE3",
-    "start": 3064,
-    "end": 3067,
+    "start": 3133,
+    "end": 3136,
     "lines": 4
   },
   {
     "name": "disp_GUIDE4",
-    "start": 3078,
-    "end": 3081,
+    "start": 3147,
+    "end": 3150,
     "lines": 4
   },
   {
     "name": "disp_GUIDE5",
-    "start": 3092,
-    "end": 3095,
+    "start": 3161,
+    "end": 3164,
     "lines": 4
   },
   {
     "name": "disp_APPDL",
-    "start": 3100,
-    "end": 3120,
+    "start": 3169,
+    "end": 3189,
     "lines": 21
   },
   {
     "name": "disp_ACALSET",
-    "start": 3133,
-    "end": 3176,
+    "start": 3202,
+    "end": 3245,
     "lines": 44
   },
   {
     "name": "disp_MEASMODE",
-    "start": 3189,
-    "end": 3224,
+    "start": 3258,
+    "end": 3293,
     "lines": 36
   },
   {
     "name": "disp_BT_RESET",
-    "start": 3235,
-    "end": 3272,
+    "start": 3304,
+    "end": 3341,
     "lines": 38
   },
   {
     "name": "disp_TANSUI",
-    "start": 3285,
-    "end": 3321,
+    "start": 3354,
+    "end": 3390,
     "lines": 37
   },
   {
     "name": "disp_SETTIME",
-    "start": 3333,
-    "end": 3366,
+    "start": 3402,
+    "end": 3435,
     "lines": 34
   },
   {
     "name": "disp_RESET",
-    "start": 3377,
-    "end": 3411,
+    "start": 3446,
+    "end": 3480,
     "lines": 35
   },
   {
     "name": "disp_QR",
-    "start": 3422,
-    "end": 3456,
+    "start": 3491,
+    "end": 3525,
     "lines": 35
   },
   {
     "name": "disp_PRGVER",
-    "start": 3466,
-    "end": 3491,
+    "start": 3535,
+    "end": 3560,
     "lines": 26
   },
   {
     "name": "disp_EEP1",
-    "start": 3500,
-    "end": 3517,
+    "start": 3569,
+    "end": 3586,
     "lines": 18
   },
   {
     "name": "disp_EEP2",
-    "start": 3528,
-    "end": 3541,
+    "start": 3597,
+    "end": 3610,
     "lines": 14
   },
   {
     "name": "disp_EEP3",
-    "start": 3551,
-    "end": 3570,
+    "start": 3620,
+    "end": 3639,
     "lines": 20
   },
   {
     "name": "disp_BATVOL",
-    "start": 3580,
-    "end": 3596,
+    "start": 3649,
+    "end": 3665,
     "lines": 17
   },
   {
     "name": "disp_RANGE1",
-    "start": 3607,
-    "end": 3649,
+    "start": 3676,
+    "end": 3718,
     "lines": 43
   },
   {
     "name": "disp_RANGE2",
-    "start": 3660,
-    "end": 3696,
+    "start": 3729,
+    "end": 3765,
     "lines": 37
   },
   {
     "name": "disp_WAT1",
-    "start": 3707,
-    "end": 3740,
+    "start": 3776,
+    "end": 3809,
     "lines": 34
   },
   {
     "name": "disp_WAT2",
-    "start": 3751,
-    "end": 3778,
+    "start": 3820,
+    "end": 3847,
     "lines": 28
   },
   {
     "name": "disp_CALTEMP",
-    "start": 3792,
-    "end": 3826,
+    "start": 3861,
+    "end": 3895,
     "lines": 35
   },
   {
     "name": "disp_SETYEAR",
-    "start": 3839,
-    "end": 3872,
+    "start": 3908,
+    "end": 3941,
     "lines": 34
   },
   {
     "name": "disp_SETDAYS",
-    "start": 3885,
-    "end": 3931,
+    "start": 3954,
+    "end": 4000,
     "lines": 47
   },
   {
     "name": "disp_SETHOUR",
-    "start": 3944,
-    "end": 3990,
+    "start": 4013,
+    "end": 4059,
     "lines": 47
   },
   {
     "name": "disp_LOG5",
-    "start": 4000,
-    "end": 4031,
+    "start": 4069,
+    "end": 4100,
     "lines": 32
   },
   {
     "name": "disp_ECOMODE",
-    "start": 4041,
-    "end": 4055,
+    "start": 4110,
+    "end": 4124,
     "lines": 15
   },
   {
     "name": "disp_LOG1",
-    "start": 4069,
-    "end": 4134,
+    "start": 4138,
+    "end": 4203,
     "lines": 66
   },
   {
     "name": "disp_LOG3",
-    "start": 4151,
-    "end": 4228,
+    "start": 4220,
+    "end": 4297,
     "lines": 78
   },
   {
     "name": "disp_LOG4",
-    "start": 4243,
-    "end": 4307,
+    "start": 4312,
+    "end": 4376,
     "lines": 65
   },
   {
     "name": "disp_DISPLOG",
-    "start": 4320,
-    "end": 4431,
+    "start": 4389,
+    "end": 4500,
     "lines": 112
   }
 ]
