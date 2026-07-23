@@ -478,6 +478,30 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 - **相関式初期化 / ゼロ初期化** = P4/P11 の出荷時ベース・P3/P10 の MLSSZR_出荷時 を、対応する現場枠・No.21-30 スロットへコピー。
 - **要詰め（実装時）**: Page2 の int パラメータの正確なバイト割付、TR の No.21 と 出荷時累乗 の関係（同一枠 or 別枠）、SS 余剰スロットの扱い。
 
+### 12.1 新品（工場出荷前）既定値 — **単一ソース = `probe_store.h store_set_new_probe_defaults()`**
+
+新品化（プローブ `RPF` / 本体ミラー未同期時の seed）で書き込む既定イメージ。**係数枠を 0 埋めしてはならない**:
+0 埋めだと本体 `store_unpack_to_globals()` が基準カーブと ZR まで 0 上書きし、`I(0)=0 → log10(0)=−∞`、
+続く `eval_modecf(全0係数, −∞)` が `0×∞=NaN` となって MLSS/SS が **NaN**（測定破綻）になる。
+新品でも「空中 ≈0・清水近傍で微小値」の健全出力にするため、下表の初期係数を必ず入れる。
+
+| ページ | フィールド | 新品既定 | 由来（本体 live INI と同値） |
+|---|---|---|---|
+| 0 ヘッダ | magic/ver / probe_id / last_update / product_name | `IM2S`/1 / `0xFFFFFFFF` / 0 / `"IM-110 "` | 新品＝ID未割当・日付未設定 |
+| 1 共通 | adc_span[5] / led_out / k_depth | 1700.0 / 0.36 / 1.0 | `ADC_SPAN_INI`/`LED_OUT_INI` |
+| 2 設定 | SADA/SADC/選択No./Meas_Mode | 0（現状 unpack/apply 非配線・中立） | — |
+| 3/10 MLSS/SS ゼロ温度 | zr_ship / zr_field | **1700.0 / 1700.0** | `INI_MLSS_ZR`/`INI_SS_ZR`（`i0=0` 回避の要） |
+| | refzr / b / b2 | 0 / 0 / 0 | 温度補正 中立 |
+| 4/11 MLSS/SS ベース校正 | c0,c1,c2 / sp_a,sp_b,sp_c | **0,21315.0,0 / 0,1.0,0** | `*_Mode_CF[0]`(No.1傾き) / `*_SP_*`(恒等) |
+| 5-9 MLSS No.21-30 (×10) | 各 (c0,c1,c2) | **0,21315.0,0** | 初期＝No.1 傾き（校正で上書き） |
+| 12 SS No.21 | (c0,c1,c2) | **0,21315.0,0** | 同上 |
+| 13 TR | trzr / pow_a,pow_b / sp_a,b,c | **1700.0** / 0,0 / 0,1.0,0 | ZR で `log10(0)` 回避。pow_a=0 は本体で旧多項式へフォールバック |
+| 14 TR No.21 | pow_a_cal,pow_b_cal | 0,0 | 未校正 |
+| 15 SetVal | mlss 8000/5000, ss 1000/500, tr 100/50 | 上記 | `INI_*_SP_1/2`（校正時のみ使用） |
+
+- **バイト一致契約**: プローブ flash（`store_set_defaults` → `store_set_new_probe_defaults`）と本体 EEPROM ミラー seed（`mirror_ensure_valid` → 同関数）は**同一ビルダー**で同一 512B を組む（§A-2）。値の変更は `probe_store.h` の `STORE_DEF_*` 一箇所のみ。
+- **本体 live との関係**: 本体 live 計算グローバルは起動時ハードコード INI（同値）で立ち上がるため、`RPG` 前でも測定は健全。ミラー seed は「プローブ断／本体単体交換」時の 3 層フォールバック（§A-2 層2）を健全に保つための土台。
+
 ## 9. （解決済みログ）
 
 初期の要確認は §2/§8/§8-S/§8-T/§10 で解決:
