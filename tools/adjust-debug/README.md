@@ -33,10 +33,10 @@ python3 tools/adjust-debug/adjctl.py AMV         # 単発
 2. シリアルで `AMR` → `AMC,<mgL>` を数点 → `AMD`（捕捉確認）→ `AMCF,<次数>`。
 3. `AMCF` 送信で **GDB が `adj_fit_poly` で停止** → `p adj_x` / `p adj_y` / step で S,T,Gauss を追う。
 4. 返った係数 `coef` と R² を、`AMD` ダンプ値でホスト再計算（`scratchpad/test_fit.c` 系）と突合。
-5. `mlssv`/`ssv`/`trv` で live 反映と vault staging を確認。ホットパスは `stepmlss` で 1 サイクル捕捉し
+5. `mlssv`/`ssv`/`trv` で live 反映と 統合ストア staging を確認。ホットパスは `stepmlss` で 1 サイクル捕捉し
    `I(0)`/`abss`/`fabss` を step。
 
-> A コマンドは `CheckSerialCMD`（main ループ）で実行。fit/vault 書込中はブロッキングだが、
+> A コマンドは `CheckSerialCMD`（main ループ）で実行。fit/統合ストア書込中はブロッキングだが、
 > ブレークで停止しても測定ループが止まるだけで安全（プローブ MS は本体側でポーリング）。
 
 ## 調整シーケンス（xlsx 手順1–9 → A コマンド）
@@ -64,5 +64,5 @@ python3 tools/adjust-debug/adjctl.py AMV         # 単発
 - `ATCF` は refZR(adzr[1]) と B(tempc[0]) を書く。**受光ダーク adzr[0] は `AZR` が書く**（両者は WCZ で
   相手フィールドを保持）。ZR（清水受光_20）は別途ゼロ/清水校正が `MLSS_ZR/SS_ZR` に設定する前提。
 - `ALDA` の開始 duty は引数（本体はプローブ現 duty を保持しない）。製造直後 ≒ 0.36。
-- `adj.gdb` の `mlssv` は `MLSS_MODE≥20`（調整対象 No.21-30）前提で vault 添字を計算。
+- `adj.gdb` の `mlssv` は `MLSS_MODE≥20`（調整対象 No.21-30）前提で 統合ストア添字を計算。
 - 静的グローバル（`adj_n` 等）が GDB で曖昧なら `p 'IM_110.c'::adj_n` と file 修飾。

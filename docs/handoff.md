@@ -8,17 +8,17 @@
 | リポ | HEAD | 内容 |
 |---|---|---|
 | `IM-110`（本体, STM32L452） | `6ca22ee` feat(adjust): ALDA 現duty読取化 | 計算式再設計＋ADBOAD＋UART＋**P_透過中継** |
-| `IM-110_Probe`（プローブ, STM32G070） | `2480d77` feat(store): **フラッシュ512B化 途中（未完成）** | 統合ストア(Page63,512B)＝PARAM系のみ配線／**校正係数は未統合=別structで衝突(バグ)** |
-| `IM-110-system`（本リポ） | 本コミット docs(handoff): 512B化完了を反映 | 仕様・ログ・ハーネス |
+| `IM-110_Probe`（プローブ, STM32G070） | (未コミット) **T1: 統合ストア一本化＋RPG/WPG/WSC** | Page63=probe_store_t一本、旧coef削除、32Bページ転送。ビルドOK |
+| `IM-110-system`（本リポ） | (未コミット) docs: T1コア完了・vault/kiza根絶を反映 | 仕様・ログ・ハーネス |
 
-いずれも `main`・push済み・clean。**3リポとも同時に pull すること**（通信・計算は両側整合が前提）。
+**2026-07-23 未コミット作業あり**（下記 T1 コア完了）。**3リポとも同時に pull/commit すること**（通信・計算は両側整合が前提）。旧HEAD: 本体`6ca22ee`/プローブ`2480d77`。
 
 ## 1. 真実源ドキュメント（最初に読む順）
 
 1. `docs/mlss-calc-reference.md` — MLSS/SS/TR の調整・校正・測定・パラメータ記憶の**全設計**（真実源）。
 2. `docs/protocol-rs232c.md` — 本体⇔プローブ通信（プローブコマンド SADZ/SADS/MDR/RPF 等、§3.2.7=MDR/RPF）。
 3. `docs/protocol-adjust-uart.md` — 本体 CN2 の A系デバッグコマンド一覧。
-4. `docs/probe-flash-map.md` — プローブ flash 配置（PARAM/VAULT の2領域）＋VAULT通信不安定の切り分け結果。
+4. `docs/probe-flash-map.md` — プローブ flash 配置（PARAM/係数 の2領域）＋係数領域 通信不安定の切り分け結果。
 5. `../IM-110/CLAUDE.md §7` — 本体側 作業中の項目（タスクB/C/D）と未実装残件。
 
 ## 2. 現在の測定モデル（現行実装＝1700系・span傾き）
@@ -51,18 +51,20 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 - 調整順序: **LED PWM → AD調整 → Ref温度補正 → 出荷時3点調整**（`mlss-calc-reference §8`）。
   → これを一通りやるまで測定値は暫定（出荷時2次式データ未取得のため）。
 
-## 4. フラッシュ配置（2026-07-22: **512B 1領域化 は途中＝未完成**）
+## 4. フラッシュ配置（2026-07-23: **512B 1領域化＝コア完了・ビルドOK**）
 
-> **未完成の核心**: 512B ストアに入っているのは **PARAM系(span/LED/ID)だけ**。**校正係数は依然として旧 `probe_vault_t` struct で別に書かれ、512B ストアの中に無い**。しかも旧 struct の保存先が統合ストアと同じ Page63 のため、**`WCFC`(`vault_commit`)を叩くと 512B ストアを上書きして破壊する＝バグ**。「512B の外に係数を書いている」=1領域化の意味を成していない。**係数を 512B ストアの係数ページ(§12 Page3-14)へ入れて初めて完了**。
+> **完了の核心**: Page63 は **`probe_store_t`(512B) 一本**。旧係数構造(`probe_vault_t`/coef サブシステム)は**削除**され、衝突バグは根絶。係数は §12 の係数ページ(Page3-15)へ統合。プローブ⇔本体は **32Bページ転送 `RPG`/`WPG`/`WSC`**（旧 `RCF`/`WCF`… は全廃）。**両FW `make -j` 成功、`vault`/`kiza`/旧senderコード=0**。⚠ 未実機検証（要 rebuild 両基板書込）。
 
-- プローブ flash の **統合ストア `probe_store_t`(512B = 32B×16ページ, Page63 `STORE_AD=0x0801F800`)** は定義済み（`probe_store.h`, `mlss-calc-reference §12`）。**旧 PARAM(Page62) は撤去済**。だが上記のとおり**係数が未統合のため 1領域化は未完成**。
-- **配線済み（実機で store R/W = valid=1 / k_depth=1.0 確認）**:
-  - 起動: `store_load()` が Page63 を読み検証→ `ADC_Span[5]`/`LED_Out[0]`/`Probe_ID`/`Product_Name` を live へ適用。無効(新品)なら §12 既定。
-  - 保存: `WPP`→`store_commit()`（live を capture→封緘→Page63 書込）。新品化: `RPF`→`store_new_probe_init()`（§12 既定を Page63 へ）。
-  - 検証コマンド: `WST`(現値をストアへ確定) / `RST`(ストア読出ダンプ)。整合性 = 各32Bページ末尾1B XOR(本体EEPROM同配置) + 全体 checksum(`store_seal`/`store_valid`)。
-- **旧 Page62 コードは全削除**（`read_Param`/`write_Param`/`Set_Param2Flash`/`Set_Flash2Param`/`Flash_Data`/`PARAM_AD`）。`flash_erase_program()`(共有プリミティブ)のみ残置。
-- **⚠ 残（T1 の続き, 未完）**: 濃度換算の**校正係数コマンド `RCF`/`WCFC`/`WCF`/`WCS`/`WCM`/`WCK`/`WCZ`/`WCT` が旧 `probe_vault_t`(Page63) のまま**で、**統合ストアと同じ Page63 を使うため衝突**する（特に `WCFC`=`vault_commit` はストアを上書きして壊す。`RCF` は常に NG）。**削除してはいけない**（係数の本体⇔プローブ転送は調整の必須機能, §A-2 でプローブ=係数真実源）。正しい対応は**これらを統合ストアの係数ページ(§12 Page3-14: MLSS/SS/TR ゼロ・温度・ベース・相関式・SetVal)へ読み書きするよう繋ぎ替える**こと。それまで `WCFC` は叩かない。
-- **本体EEPROMミラー・3層同期・電源OFF一括書戻し は未実装**（下記 T1 残 / §A-2）。書込プリミティブ `flash_erase_program()` は正常動作。
+- プローブ flash **統合ストア `probe_store_t`(512B = 32B×16ページ, Page63 `STORE_AD=0x0801F800`)** 一本（`probe_store.h`, `mlss-calc-reference §12`）。旧 PARAM(Page62) 撤去済。
+- **プローブ側（実装済・ビルドOK）**:
+  - 起動: `store_load()`→ ADC_Span/LED_Out/ID/Name を live へ。無効なら §12 既定。
+  - `RPG`(全16 or `RPG,<N>` 単一ページ読出) / `WPG,<N>,<64hex>`(1ページRAM像更新, XOR検証) / `WSC`(封緘→Page63確定→live反映)。係数は解釈せず 32B ページで保管・転送のみ。
+  - `RPF`→`store_new_probe_init()`(§12既定確定)。`WST`/`RST` はデバッグ用に残置。
+- **本体側（実装済・ビルドOK）**:
+  - `Probe_ReadCoef()`: `RPG`送信→16ページ受信→`probe_store_t`組立→`store_valid`検証→`store_unpack_to_globals()`で **live計算グローバル**(refZR/温度B,B2/SP/2次式ModeCF/SetVal/TR累乗)へ写像→**本体EEPROMミラー(page61-76, §12バイト同一)へ保存**。測定式は不変。
+  - 書戻し(`Adj_Commit`=AWC / `Probe_WriteBackCalibration` / `Probe_MigrateToCoef`=MIGV): `store_pack_from_globals()`→`WPG×16`+`WSC`。調整中の各 `Adj_*` は staging グローバル更新のみ（個別送信は撤去、確定時一括）。
+  - **機差補正 Kiza は §4廃止に伴い完全削除**（グローバル/`Adj_Kiza`/`AKZ`/`sel_kiza`/`adj_calc_kiza`）。
+- **⚠ 残（T1 手順7-8, §A-2）**: **起動時の3層ロード(既定→ミラー→プローブID/最終更新日判定)・電源OFF一括書戻し・`last_update`(本体RTC由来日付)・起動時RPG自動発火**。現状 RPG は相関式切替(`Normal.c`)で発火、起動FSMは未接続(切り分けでコメントアウトのまま)。ミラー保存は動くが「ミラー→live 起動ロード」と ID/日付調停は未実装。
 
 ## 5. 実機の状態（書込み履歴）
 
@@ -82,12 +84,13 @@ CN2（本体 USART1, 9600 8N1）へ A系コマンド:
 ### T1. フラッシュ32B統合＋本体EEPROMミラー＋3層同期（★最優先・2領域問題の本丸）
 > **なぜ最優先（T2と入替）**: T2の実機調整は flash 初期化・確定を伴うが、現状2領域が中途半端でそこが破綻し調整が進められない。
 > **先に統合ストレージを完成させてから調整**する。これを飛ばすと毎回ここで詰まる。
-- **現状（2026-07-22 更新）**: **プローブ側の 512B 1領域化＝途中（未完成）**（§4 参照）。`probe_store_t`(512B/Page63) を `store_load`/`store_commit`/`store_new_probe_init` で起動/WPP/RPF に配線し **PARAM系(span/LED/ID)は 512B ストアで動作**（実機 valid=1）、旧 PARAM(Page62) 撤去済。**だが校正係数が 512B ストアに入っておらず旧 struct で別書き＝1領域化は未完成・`WCFC`衝突バグあり**。**残: 校正係数(RCF/WCFC/WCx)を 512B ストアの係数ページ(§12 Page3-14)へ繋ぎ替え（これが完了条件の本丸）＋ 手順4-8(最終更新日/protocol先行/本体ミラー/3層/OFF書戻し)**。
-- **旧記述（着手前）**: ~~プローブは PARAM(Page62)+VAULT(Page63) の2領域・別ロード。統合の痕跡はコードに無し~~ → 上記のとおり解消済。
+- **現状（2026-07-23 更新）＝コア完了・ビルドOK・未実機検証**（§4 参照）: 係数を **§12 統合ストア(512B/Page63)一本**へ統合。旧 coef サブシステム(`probe_vault_t`/`RCF`/`WCF`…)削除、**衝突根絶**。プローブ=`RPG`/`WPG`/`WSC`(32Bページ転送)、本体=RPG受信→§12↔計算グローバル写像→**EEPROMミラー(page61-76)保存**、書戻し=pack→WPG/WSC。Kiza(§4廃止)完全削除。protocol §3.2.6 も32Bページ転送へ改訂済。両FW `make -j` 成功。
+- **⚠ 残（T1 手順7-8）**: 起動時3層ロード(既定→ミラー→プローブID/最終更新日判定)・電源OFF一括書戻し・`last_update`(RTC日付)・起動時RPG自動発火(現状は相関式切替で発火/起動FSMは未接続)。→ この後は **T2(実機での一連調整・動作確認)**：両基板 rebuild→書込→`RPG`/`WPG`/`WSC` 疎通と調整パイプラインを実機で通す。
+- **旧記述（着手前）**: ~~プローブは PARAM(Page62)+係数(Page63) の2領域・別ロード。統合の痕跡はコードに無し~~ → 上記のとおり解消済。
 - **プローブ側 手順**:
   1. **32B共通レコード構造体を定義**（`Core/Inc/` に新規, `__attribute__((packed))`, 全メンバ4B境界）。レイアウトは `mlss-calc-reference §12` の Page0-14（Page0=ヘッダ magic/ver/Probe_ID/最終更新日/checksum, Page1=ADZero[5]/LED_Out/k_depth, Page3-9=MLSS, Page10-12=SS, Page13-14=TR）。
-  2. **1領域化**: Page62-63 を連続1ブロックとして1構造体で扱う（または新base確保）。**旧2領域からのマイグレーション**を入れる（起動時 magic/ver 判定で旧`Flash_Data`+`probe_vault_t`→新統合へ変換）。
-  3. **load/commit統一**: `store_load()`/`store_commit()` を新設し、既存 `read_Param`/`vault_load`/`write_Param`/`vault_commit` を内部で置換 or ラップ。書込は `flash_erase_program` を流用（2KBページ単位消去→全レコード書込＝OFF時一括と整合）。
+  2. **1領域化**: Page62-63 を連続1ブロックとして1構造体で扱う（または新base確保）。**旧2領域からのマイグレーション**を入れる（起動時 magic/ver 判定で旧`Flash_Data`+旧係数構造→新統合へ変換）。
+  3. **load/commit統一**: `store_load()`/`store_commit()` を新設し、既存 `read_Param`/`coef_load`/`write_Param`/`coef_commit` を内部で置換 or ラップ。書込は `flash_erase_program` を流用（2KBページ単位消去→全レコード書込＝OFF時一括と整合）。
   4. **最終更新日**: 書込時に本体RTC由来の日付を更新（本体→プローブへ日付を渡すコマンドを新設、または本体側ミラーで保持）。
   5. **protocol先行**: 統合レコードの読/書コマンド（`RCF`/`WPP` 拡張 or 新設）を `protocol-rs232c.md` に**先に定義してから**実装（CLAUDE.md §3.1）。
 - **本体側 手順**:

@@ -1,5 +1,7 @@
 ```mlss_formulas.md```
 
+> ※本書のFWシンボル名は移行後表記。実ソースは未リネーム。
+
 ## 1. プローブ出力の生mV正規化
 
 ```
@@ -14,7 +16,7 @@
 
 ```
 adc_mv = Y0 − MLSS_ADZR                         (≤0 は 0.001 にクランプ)
-d      = Ref − MLSS_Vault_ADZR[1]   (= Ref − refZR)
+d      = Ref − MLSS_Coef_ADZR[1]   (= Ref − refZR)
 I(0)   = MLSS_ZR + d × ( TempC[0] + d × TempC[1] )   (I0≤0 は MLSS_ZR)
 ABS    = log10( I(0) / adc_mv )
 ```
@@ -24,7 +26,7 @@ ABS    = log10( I(0) / adc_mv )
 - `MLSS_ADZR`: 受光暗時ゼロ
 - `d`: Refの生mVからrefZRを引いた値
 - `Ref`: MLSS_Refの生mV
-- `MLSS_Vault_ADZR[1]`: Ref基準（20℃清水Ref）
+- `MLSS_Coef_ADZR[1]`: Ref基準（20℃清水Ref）
 - `I(0)`: 温度補正後の受光値
 - `MLSS_ZR`: ゼロ基準（清水/空中の分子基準mV）
 - `TempC[0]`: Ref温度補正傾きB
@@ -104,7 +106,7 @@ Depth[m] = (P − P_atm0) × k_depth
 - `MLSS_ADZR`: 受光暗時ゼロ
 - `d`: Refの生mVからrefZRを引いた値
 - `Ref`: MLSS_Refの生mV
-- `MLSS_Vault_ADZR[1]`: Ref基準（20℃清水Ref）
+- `MLSS_Coef_ADZR[1]`: Ref基準（20℃清水Ref）
 - `I(0)`: 温度補正後の受光値
 - `MLSS_ZR`: ゼロ基準（清水/空中の分子基準mV）
 - `TempC[0]`: Ref温度補正傾きB

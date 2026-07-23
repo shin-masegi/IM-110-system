@@ -58,7 +58,7 @@
 | `ALDA` | `,<start_duty>` | LED duty 自動調整（1700mV 収束 + WPP 保存, 2026-07-21 旧1750） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
 | `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1700mV** にする span傾き記録（空中で実行, ゲート生mV1400-2048）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
 | `ALD` | `,<duty>` | LED duty 手動設定（揮発） | `OK\n`/`NG\n` | 1997 |
-| `AZR` | なし | ADZR 捕捉（遮光ダーク → vault CZ） | `OK\n`/`NG\n` | 2005 |
+| `AZR` | なし | ADZR 捕捉（遮光ダーク → 統合ストア CZ） | `OK\n`/`NG\n` | 2005 |
 | `ATCF` | なし | 温度補正 3 点フィット | `OK\n`/`NG\n` | 2011 |
 | `ATC` | `,<temp>` | 温度補正点捕捉（5/20/35℃） | `OK\n`/`NG\n` | 2017 |
 | `AMCF` | `,<degree>` | Mode_CF 多項式フィット | `AMCF,OK,R2:%.5f\n`/`NG\n` | 2025 |
@@ -79,7 +79,7 @@
 | `PON` | プローブパススルー ON | `P:ON\n` | 237 |
 | `POF` | プローブパススルー OFF | `P:OFF\n` | 243 |
 | `P:<cmd>` | `P:` を外し **LPUART1（プローブ）へ転送**（例 `P:VR` `P:MD`） | `P:OK\n`/`P:DISABLED\n` | 271 |
-| `MIGV` | EEPROM 校正係数 → プローブ vault 手動移行 | `MIGV:OK\n`/`MIGV:NG\n` | 252 |
+| `MIGV` | EEPROM 校正係数 → プローブ 統合ストア 手動移行 | `MIGV:OK\n`/`MIGV:NG\n` | 252 |
 | `VR` | 本体 FW バージョン | `VR,%d.%02d\r\n` | 293 / 761-767 |
 | `BVR` | 電池電圧 | `BVR,%.2f\r\n` | 556 / 1869-1876 |
 | `OFF` | 電源 OFF 要求 | （応答なし） | 286 |

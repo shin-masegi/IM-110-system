@@ -208,7 +208,7 @@ EXTERN uint8_t read_param_common(void);
 EXTERN uint8_t write_param_common(void);
 EXTERN uint8_t read_param_calibration(uint8_t meas_mode, uint8_t corr_idx);
 EXTERN uint8_t write_param_calibration(uint8_t meas_mode, uint8_t corr_idx);
-EXTERN uint8_t read_calibration_page_raw(uint8_t meas_mode, uint8_t corr_idx, float out[7]);	//vault同期用 (グローバル非汚染)
+EXTERN uint8_t read_calibration_page_raw(uint8_t meas_mode, uint8_t corr_idx, float out[7]);	//係数格納同期用 (グローバル非汚染)
 EXTERN uint8_t write_calibration_page_raw(uint8_t meas_mode, uint8_t corr_idx, const float in[7]);
 
 

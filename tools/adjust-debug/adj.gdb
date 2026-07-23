@@ -24,47 +24,47 @@ document adcs
 生 ADC / 移動平均と現モード・相関式 No. を一覧
 end
 
-# MLSS の校正状態 (live 係数 + vault staging)
+# MLSS の校正状態 (live 係数 + 係数格納 staging)
 define mlssv
   printf "MLSS: ZR=%.3f ADZR=%.3f  MLSS_ABSS=%.5f MLSS_FABSS=%.4f MLSS=%.3f\n", \
     MLSS_ZR, MLSS_ADZR, MLSS_ABSS, MLSS_FABSS, MLSS
   printf "  live Mode_CF[%d] = ", MLSS_MODE
   p MLSS_Mode_CF[MLSS_MODE]
-  printf "  vault ModeCF[%d]= ", MLSS_MODE-20
-  p MLSS_Vault_ModeCF[MLSS_MODE-20]
-  printf "  vault ADZR[juko,refZR]=%.3f,%.3f  Kiza=%.5f\n", \
-    MLSS_Vault_ADZR[0], MLSS_Vault_ADZR[1], MLSS_Vault_Kiza[MLSS_MODE-20]
-  printf "  vault TempC(B,B2..)= "
-  p MLSS_Vault_TempC
+  printf "  係数格納 ModeCF[%d]= ", MLSS_MODE-20
+  p MLSS_Coef_ModeCF[MLSS_MODE-20]
+  printf "  係数格納 ADZR[juko,refZR]=%.3f,%.3f  Kiza=%.5f\n", \
+    MLSS_Coef_ADZR[0], MLSS_Coef_ADZR[1], MLSS_Coef_Kiza[MLSS_MODE-20]
+  printf "  係数格納 TempC(B,B2..)= "
+  p MLSS_Coef_TempC
   printf "  SP_A/B/C = %.4g %.4g %.4g\n", MLSS_SP_A, MLSS_SP_B, MLSS_SP_C
 end
 document mlssv
-MLSS の live/vault 校正係数と中間値を一括表示
+MLSS の live/係数格納 校正係数と中間値を一括表示
 end
 
 define ssv
   printf "SS: ZR=%.3f ADZR=%.3f  SS_ABSS=%.5f SS_FABSS=%.4f SS=%.3f\n", \
     SS_ZR, SS_ADZR, SS_ABSS, SS_FABSS, SS
-  printf "  vault ModeCF[%d]= ", SS_MODE-20
-  p SS_Vault_ModeCF[SS_MODE-20]
-  printf "  vault ADZR=%.3f,%.3f Kiza=%.5f  TempC[0]=%.5g\n", \
-    SS_Vault_ADZR[0], SS_Vault_ADZR[1], SS_Vault_Kiza[SS_MODE-20], SS_Vault_TempC[0]
+  printf "  係数格納 ModeCF[%d]= ", SS_MODE-20
+  p SS_Coef_ModeCF[SS_MODE-20]
+  printf "  係数格納 ADZR=%.3f,%.3f Kiza=%.5f  TempC[0]=%.5g\n", \
+    SS_Coef_ADZR[0], SS_Coef_ADZR[1], SS_Coef_Kiza[SS_MODE-20], SS_Coef_TempC[0]
   printf "  SP_A/B/C = %.4g %.4g %.4g\n", SS_SP_A, SS_SP_B, SS_SP_C
 end
 document ssv
-SS の live/vault 校正係数と中間値
+SS の live/係数格納 校正係数と中間値
 end
 
 define trv
   printf "TR: ZR=%.3f ADZR=%.3f  TR_ABSS=%.5f TR_FABSS=%.4f Transparency=%.3f\n", \
     TR_ZR, TR_ADZR, TR_ABSS, TR_FABSS, Transparency
-  printf "  vault ModeCF[a,b,..]= "
-  p TR_Vault_ModeCF
-  printf "  vault Kiza=%.5f  (refZR/B は SS 参照)\n", TR_Vault_Kiza
+  printf "  係数格納 ModeCF[a,b,..]= "
+  p TR_Coef_ModeCF
+  printf "  係数格納 Kiza=%.5f  (refZR/B は SS 参照)\n", TR_Coef_Kiza
   printf "  SP_A/B/C = %.4g %.4g %.4g\n", TR_SP_A, TR_SP_B, TR_SP_C
 end
 document trv
-透視度の live/vault 校正係数と中間値 (累乗 a,b)
+透視度の live/係数格納 校正係数と中間値 (累乗 a,b)
 end
 
 # Mode_CF 回帰の捕捉点 (adj_x=ABS, adj_y=基準器)。AMD コマンドと同内容を機上で確認
@@ -96,11 +96,11 @@ define armfit
   break Adj_CaptureADZR
   break Adj_Kiza
   break Adj_LED_Auto
-  break Apply_Vault_To_Live
+  break Apply_Coef_To_Live
   printf "armed: fit/adjust breakpoints\n"
 end
 document armfit
-A コマンドで呼ばれる算出/vault 反映関数にブレークを張る
+A コマンドで呼ばれる算出/係数格納 反映関数にブレークを張る
 end
 
 # ホットパス (測定ループ) を 1 回だけ捕まえて式を step する

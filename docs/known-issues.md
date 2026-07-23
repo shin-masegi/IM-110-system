@@ -7,7 +7,7 @@
 ## KI-1: 電源OFF時の「保管方法」ガイドが毎回表示される (本来は1日1回)
 
 - **発見**: 2026-07-19。ユーザー報告「電源OFFで保管方法表示が毎回でる。1日1回だけのはず」。
-- **系統**: 本体 UI/EEPROM 永続化。**vault/通信の件とも、私(Claude)の切り分け変更とも無関係**
+- **系統**: 本体 UI/EEPROM 永続化。**統合ストア/通信の件とも、私(Claude)の切り分け変更とも無関係**
   (577a769 起動分離リファクタも該当領域=main.c init 部を未変更、と git 確認済み)。
 
 ### 確定した直接原因 (openocd 実機読取, 電源断なし)
@@ -26,7 +26,7 @@
    保存 `eep_write_setting()`(消費は mainSub.c:925)が電源断前に走っていない可能性。
    - guide 表示経路は2つ: `mainSub.c:567`(shutt_down) と `Normal.c:3589`。
      Normal.c:3780-3781 は flag=1 + Req_Write をセット。どちらが実際に保存まで到達するか要確認。
-2. vault 対応(e933955 / 57171eb)で EEPROM SetupData の offset がずれ、
+2. 統合ストア対応(e933955 / 57171eb)で EEPROM SetupData の offset がずれ、
    `guide_disp_flag`/`LastDate` の読み書き位置が不一致になった可能性(Eeprom.c:726-729 / 1386-1389)。
 
 ### デバッグ手段

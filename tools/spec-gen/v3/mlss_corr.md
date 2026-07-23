@@ -9,7 +9,9 @@ FABSS = Σ(k=0..6) MLSS_Mode_CF[MLSS_MODE][k] × ABS^k
 - `MLSS_MODE` = 選択中の相関式テーブル index（0=No.1 … 19=No.20 … 29=No.30）
 - **現状テーブルは全て「1次直線」**（`MLSS_Mode_CF[..][1]=傾き`, 他 0）⇒ 実質 `FABSS = C1 × ABS`
 - **No.1-20 = FW 固定・校正不可**（等間隔グラデ, C1: No.1=21315 … No.11=42494.4572(=従来黒No.5) … No.20=61555.97）
-- **No.21-30 = 校正可**（初期 C1=21315=No.1 傾き, ADBOAD 校正で vault modecf を上書き → `Apply_Vault_To_Live` で反映, `:956`）
+- **No.21-30 = 校正可**（初期 C1=21315=No.1 傾き, ADBOAD 校正で統合ストア modecf を上書き → `Apply_Coef_To_Live` で反映, `:956`）
+
+> ※本書のFWシンボル名は移行後表記。実ソースは未リネーム。
 
 （テーブル全体は `IM_110.c:109-143`）
 
@@ -20,7 +22,7 @@ FABSS = Σ(k=0..6) MLSS_Mode_CF[MLSS_MODE][k] × ABS^k
 プローブ調整（LED PWM → ADZero）の後に実施する。
 
 - **動作は現行「MLSS 校正モード, 相関式 No.21〜30」と全く同じ** 3 点校正機構
-  （[adj_fit_poly](../../IM-110/Core/Src/IM_110.c#L1244) 多項式フィット → `*_Vault_ModeCF` → `WCM` → `WCFC` 確定）。
+  （[adj_fit_poly](../../IM-110/Core/Src/IM_110.c#L1244) 多項式フィット → `*_Coef_ModeCF` → `WPG`(§3.2.6) → `WSC` 確定）。
 - **この校正機能を ADBOAD にも追加**する（現状は CAL/校正モードのみ）。**MLSS / SS / TR すべて対象**。
 - **出荷時補正係数 = MLSS / SS / TR それぞれ 1 式ずつ持つ**（＝出荷初期値係数）。
   - **実質 2 次式**（3 点で一意に決まるのは 2 次まで）。格納は `modecf[7]` 枠（最大6次）だが **3 次以上は 0**。
@@ -77,8 +79,8 @@ FABSS = Σ(k=0..6) MLSS_Mode_CF[MLSS_MODE][k] × ABS^k
 - **コード変更（予定・未実施）**: ① `MLSS_Mode_CF`/`SS_Mode_CF` No.1-20 を上記 `k_No` へ置換、
   ② 出力計算を `出荷時4次式(ABS) × k_No` に変更（現行の `Σ Mode_CF[k]·ABS^k` 直接評価から）。
 
-### vault レイアウト影響
+### 統合ストア レイアウト影響
 - 新設: 出荷時4次式 × 3 mode（MLSS/SS/TR 各1式）。
 - 据置: `modecf[10]`(MLSS No.21-30) / `modecf[10]`(SS) / TR。
-- ⇒ vault ver2 → **ver3** 相当の拡張＋ protocol §3.2.6 の行種/読書コマンド追加が必要（別途）。
+- ⇒ 統合ストアへ吸収(旧ver拡張は廃止)＋ protocol §3.2.6 の行種/読書コマンド追加が必要（別途）。
 
