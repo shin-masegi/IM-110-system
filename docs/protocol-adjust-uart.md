@@ -52,11 +52,12 @@
 | コマンド | 引数 | 機能 | 応答例 | 根拠 |
 |---|---|---|---|---|
 | `AST` | なし | ステータス表示 | `AST,mode:%d,eq:%d,cf_pts:%d,tc:0x%X\n` | 2088 |
+| `AMIR` | なし | **統合ストア/ミラー/起動時3層ロード結果 ダンプ**（2026-07-25 追加, T1検証用）。`BOOT` 0:プローブ採用 1:ミラー維持+再同期 2:読取失敗→ミラー継続 3:実行中 255:未実行 ／ `L2` 層2(ミラー)を live へ適用したか ／ `MIR`/`PRB` の valid・probe_id・last_update | `AMIR,BOOT:%u,L2:%u,CONN:%u\n` ほか計4行 | `Probe_Store_DebugStatus` |
 | `AMV` | なし | 受光/Ref mV・ABS・最終値の生値表示 | `AMV,%d,J:%.2f,R:%.2f,ABS:%.5f,F:%.4f,V:%.3f\n` | 1959 |
 | `AMODE` | `,<0/1/2>` | 測定モード設定（0:MLSS / 1:SS / 2:TR透視度） | `OK\n`/`NG\n` | 1969 |
 | `AEQ` | `,<21-30>` | 相関式 No. 選択（MLSSのみ） | `OK\n`/`NG\n` | 1977 |
-| `ALDA` | `,<start_duty>` | LED duty 自動調整（1700mV 収束 + WPP 保存, 2026-07-21 旧1750） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
-| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1700mV** にする span傾き記録（空中で実行, ゲート生mV1400-2048）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
+| `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（1700mV 収束 + WPP 保存, 2026-07-21 旧1750）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=1700。**開始 duty はプローブ現値を `RPP` から読む**（`6ca22ee` で開始duty引数を廃止。旧記載 `,<start_duty>` は誤り） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
+| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1700mV** にする span傾き記録（空中で実行）。**電圧範囲ゲートは撤廃**（2026-07-25。旧 生mV1400-2048。ch毎に空中生mVが大きく異なり ch1 以外が調整不能だったため。プローブ側は 0以下のみ NG）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
 | `ALD` | `,<duty>` | LED duty 手動設定（揮発） | `OK\n`/`NG\n` | 1997 |
 | `AZR` | なし | ADZR 捕捉（遮光ダーク → 統合ストア CZ） | `OK\n`/`NG\n` | 2005 |
 | `ATCF` | なし | 温度補正 3 点フィット | `OK\n`/`NG\n` | 2011 |

@@ -89,6 +89,16 @@
 - 校正/調整は運用中 RAM キャッシュに反映 → OFF時に一括書戻し（flash-busy 窓を測定中にまたがない＝統合ストア不安定の緩和）。
 - 急電断で当セッション変更が失われる点は 1Wire と同性質（通常はボタンOFFの制御シャットダウンで書戻し窓を確保）。
 
+**実装確定した細則（2026-07-25、本体 `IM_110.c` / `mainSub.c`）**:
+
+1. **層1（既定値）に追加処理は不要**。本体 live 計算グローバルは起動時ハードコード INI（§12.1 と同値）で立ち上がるため、`mirror_ensure_valid()` は「ミラーが無効なら §12 既定を seed する」だけでよい。
+2. **seed 直後のミラーは live へ適用しない**（`last_update == 0` を未同期マーカーとして扱う）。適用してしまうと、既定値が `eep_read_calhis()` で復帰した legacy EEPROM 校正を上書きし、実運用機の校正が飛ぶ。**一度でもプローブ同期または校正確定を経たミラー（`last_update != 0`）のみ**層2として live へ載せる。
+3. **RPF 直後の新品プローブはプローブ採用**。ID 未割当（`probe_id == 0xFFFFFFFF`）かつ日付未設定（`last_update == 0`）のプローブは、日付比較では必ず「本体が新しい」となり RPF（新品化）の意図が再同期で打ち消される。RPF は利用者の明示操作なのでプローブを採用する。ID を `SID` で割当済みの運用機ではこの分岐に入らない。
+4. **`last_update` は本体 RTC 由来の packed `YYYYMMDD`**。`Probe_SyncStore()` が書戻しのたびに更新し、プローブ flash と本体ミラーへ同一値が入る。RTC 取得不能・日付不正のときは **0 を書かず既存値を維持**する（日付の退行を防ぐ）。
+5. **電源OFF 書戻しの発火判定は dirty フラグではなく突合**。「現在の live を詰めた像」と「現ミラー」を封緘後に `memcmp` し、差分があるときだけ書く。各 `Adj_*` に dirty フラグを配る方式は取りこぼしが出るため採らない。**変更が無ければ flash を消費しない**。
+6. **ADBOAD（基板調整）は OFF 時自動書戻しの対象外**。起動時ハンドシェイクを省略し `Probe_Conn_Status == 0` のままのため。調整値の確定は従来どおり明示 `AWC`。
+7. **IWDG に注意**。本体 IWDG は LSI32kHz/16 分周・reload 4095 = **約 2.05s** でリセットする。`RPG` 全体（3s）や `WPG`×16 はこれを超えうるため、受信待ちループと WPG ループで `WatchDog_reset()` を蹴る。
+
 ## 1. プローブ側: ADC digit → 送信 mV（①生 mV 正規化）
 
 `IM-110_Probe/Core/Src/IM_110.c:205`（ch0-3 通常）:
@@ -112,7 +122,7 @@ MCP3424_AD_mV[ch] = ( digit × LSB ) × ADC_SPAN_INI / ADC_Span[ch]        （AD
 | `LED_Out[0]` | **LED PWM duty**（別機能, ALDA/手順2） | `LED_OUT_INI=0.36` | **SP,duty** (`:509`) | WPP→flash |
 | `ADC_CH4_VREF` | ch4 IN- 1V オフセット補正 | 1000.0 mV | 定数 | — |
 
-- **SADS,ch**（`:726`）【能動・MLSS AD0】: `ADC_Span[ch] = 生mV`（空中の生値, +VREF ch4）… **取得ゲート 生mV 1400〜2048mV, 範囲外 NG**。空中でこの ch を span 基準に採用 → 空中出力 = 1700mV。
+- **SADS,ch**（`:726`）【能動・MLSS AD0】: `ADC_Span[ch] = 生mV`（空中の生値, +VREF ch4）… **電圧範囲ゲートは撤廃**（2026-07-25。旧 1400〜2048mV）。**0以下のみ NG**（除数のため）。空中でこの ch を span 基準に採用 → 空中出力 = 1700mV。
 - **SADZ,ch**（`:689`）【残置・計算未使用】: `ADC_Zero[ch]` を設定するが正規化式では不使用。
 
 > 意味: プローブは「生 mV を空中基準 `ADC_Span` で割って ADC_SPAN_INI 倍」＝ **AD 値を空中 = ADC_SPAN_INI(=1700) となる傾きに正規化**して送る（原点を通る傾き調整）。
@@ -292,7 +302,7 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 - **ADSpan** = **空気中**で受光出力を **1700mV にする傾き(span)基準**。プローブフラッシュ**第1領域(PARAM)**。空中の生 mV を `ADC_Span[ch]` に記録し、`出力=生mV×1700/ADC_Span` で正規化 → 空中 1700mV。**2026-07-21 に ADZero オフセット→span 傾きへ変更**。
 - **対象 ch = ch1〜5（index `[0]`〜`[4]`）を個別に**。ch5(透視度)も A/DC 別途入力ゆえ ADSpan 要（LED PWM は ch1〜4 のみ）。
 - ID-200T ADZERO（[Calc.c:432](../../IM-110/Core/Src/Calc.c#L432) `calc20` case0 `ADzr[0]=R`）と類似操作だが、ID-200T は **0mV オフセット**、IM-110 は **空中1700mV への傾き正規化**。
-- 取得ゲート: **生 mV 1400〜2048mV**（範囲外は取得しない＝NG）。
+- 取得ゲート: **電圧範囲ゲートは撤廃**（2026-07-25）。ch ごとに空中生mVが大きく異なり（実測 ch1:1725 / ch2:1069 / ch3:1339 / ch4:968）、旧ゲート 1400〜2048mV では ch1 以外が調整不能だったため。**0以下のみ NG**（`ADC_Span` は正規化の除数）。
 - 画面タイトル **「MLSS AD0」**（基板調整側。校正側「MLSS 0」とは別物）。
 
 ### 廃止
@@ -443,7 +453,7 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 - **実装状況（2026-07-20, ビルド確認済み・動作確認は後）**:
   - ✅ 本体計算: 暗時ADZR撤去 ／ kiza撤去 ／ MLSS No.1-20 を k_No化（`eval_modecf×k_No`, `k_No_MLSS[20]`表）／ SS/TR も暗時撤去・kiza撤去（[IM_110.c MLSS/SS/TR_FABSS]）
   - ✅ 温度補正2次化: `adj_calc_tempc` を **相対mV・原点通過の2次**へ（B/B2, §8-T）
-  - ✅ プローブ: **span傾き正規化**（正規化=生mV×1700/ADC_Span, 2026-07-21 に ADZero オフセットから巻き戻し）／ **SADS=空中1700 span基準＋ゲート1400-2048**（MLSS AD0）／ SADZ/ADC_Zero は残置・計算未使用
+  - ✅ プローブ: **span傾き正規化**（正規化=生mV×1700/ADC_Span, 2026-07-21 に ADZero オフセットから巻き戻し）／ **SADS=空中1700 span基準**（MLSS AD0。電圧範囲ゲートは 2026-07-25 撤廃、0以下のみ NG）／ SADZ/ADC_Zero は残置・計算未使用
   - ✅ 水深: `Calc_Depth` を `×Depth_k`（初期1/100）＋ `Depth_Calib_Span6m`＋UART `AWD6`
   - ✅ UARTコマンド追加: `AZC`(清水ゼロ→*_ZR) ／ `ACRI`(相関式初期化 No.21-30←出荷時)
   - ✅ ADBOAD 仮画面: `adj_probe()`（DO系スロット流用・タイトル据置）。MEM=実行/DISP=次。MLSS AD0/LED PWM/清水ゼロ/水深6m/相関式初期化/温度フィット/温度点5-35℃ を Adj_* へ配線。`Adj_MLSS_AD0`（**SADS** ch0-4+WPP）
