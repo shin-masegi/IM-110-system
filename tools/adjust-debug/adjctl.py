@@ -2,9 +2,12 @@
 """
 adjctl.py — IM-110 本体 調整機能A シリアル駆動 (依存なし: 標準ライブラリ termios のみ)
 
-本体 USART1 (CN2/BLE 経由の PC 直結) は 115200 8N1、行終端 LF。
-調整機能A のコマンド (AMV/ALD/ALDA/AZR/ATC/ATCF/AMC/AMD/AMCF/AMCP/AKZ/AWC/AMR/AST) を送り、
-応答行を読む。既存コマンド (VR/AD/MIGV 等) もそのまま送れる。
+本体 USART1 (CN2 直結) は 9600 8N1、行終端 LF。
+  ※ 2026-07-26 訂正: 既定を 115200 としていたが FW は 9600 (main.c UART1_BPS)。
+     115200 のままでは通信できない。protocol-adjust-uart.md §1 も 9600。
+調整機能A のコマンド (AMV/ALD/ALDA/AZR/AZC/AZCS/AZRI/ATC/ATCF/AMC/AMD/AMCF/AMCU/AMCP/AWC/AMR/AST)
+を送り、応答行を読む。既存コマンド (VR/AD/MIGV/P_<cmd> 等) もそのまま送れる。
+  ※ AKZ (機差補正) は廃止済みでハンドラが存在しない (NG が返る)。
 
 使い方:
   # 単発
@@ -29,14 +32,14 @@ def find_port():
     sys.exit("複数のポートが見つかりました。-p で指定:\n  " + "\n  ".join(cands))
 
 
-def open_port(dev, baud=115200):
+def open_port(dev, baud=9600):
     fd = os.open(dev, os.O_RDWR | os.O_NOCTTY | os.O_NONBLOCK)
     a = termios.tcgetattr(fd)          # [iflag, oflag, cflag, lflag, ispeed, ospeed, cc]
     a[0] = 0                            # iflag: raw (パリティ/変換なし)
     a[1] = 0                            # oflag: raw
     a[3] = 0                            # lflag: 非カノニカル・エコーなし
     a[2] = termios.CS8 | termios.CREAD | termios.CLOCAL   # 8bit, 受信有効, モデム制御無視
-    spd = termios.B115200 if baud == 115200 else getattr(termios, "B%d" % baud)
+    spd = getattr(termios, "B%d" % baud)
     a[4] = spd
     a[5] = spd
     termios.tcsetattr(fd, termios.TCSANOW, a)
@@ -65,7 +68,7 @@ def send_cmd(fd, cmd, wait=1.5):
 def main():
     ap = argparse.ArgumentParser(description="IM-110 調整機能A シリアル駆動")
     ap.add_argument("-p", "--port", help="/dev/cu.usbserial-XXXX (省略時は自動検出)")
-    ap.add_argument("-b", "--baud", type=int, default=115200)
+    ap.add_argument("-b", "--baud", type=int, default=9600)   # FW は 9600 (main.c UART1_BPS)
     ap.add_argument("-w", "--wait", type=float, default=1.5, help="応答待ち秒 (ALDA 等は長め)")
     ap.add_argument("-i", "--interactive", action="store_true")
     ap.add_argument("cmds", nargs="*", help="送信コマンド (複数可)")

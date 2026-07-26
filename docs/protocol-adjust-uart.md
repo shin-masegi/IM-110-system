@@ -46,16 +46,24 @@
 
 ### 4.1 調整機能 A系（`Handle_Adjust_CMD`, `LinkSerial.c:1953-2098`）
 
-`CheckSerialCMD` 冒頭で `RecvData[0]=='A'` の場合に先に委譲される（`LinkSerial.c:265-268`）。
-接頭辞衝突回避のため長い接頭辞から判定（ALDA→ALD, ATCF→ATC, AMCF/AMCP→AMC。`LinkSerial.c:1950-1951`）。
+`RecvData[0]=='A'` の場合に `Handle_Adjust_CMD()` へ委譲される（`LinkSerial.c:271`）。ただし**冒頭ではなく4番目**の判定で、
+先に `P_`(241) → `FUP,45063`(250) → `MIGV`(258) が処理される（A 系と前方一致しないため実害は無い）。
+接頭辞衝突回避のため長い接頭辞から判定する。実際の判定順（`LinkSerial.c:1951`〜`2124`）:
+
+```
+AMIR / AMV / AMODE / AEQ / ALDA / AAD0 / ALD / AZRI / AZR / AWD6 / ACRI / AZCS / AZC
+     / ATCF / ATC / AMCF / AMCU / AMCP / AMD / AMC / AWC / AMR / AST
+```
+
+衝突ペアは `ALDA→ALD`, `AZRI→AZR`, `ACRI`/`AZCS`→`AZC`, `ATCF→ATC`, `AMCF`/`AMCU`/`AMCP`/`AMD`→`AMC`。
 
 | コマンド | 引数 | 機能 | 応答例 | 根拠 |
 |---|---|---|---|---|
-| `AST` | なし | ステータス表示 | `AST,mode:%d,eq:%d,cf_pts:%d,tc:0x%X\n` | 2088 |
+| `AST` | なし | ステータス表示 | `AST,mode:%d,eq:%d,cf_pts:%d,tc:0x%X\n` | 2124 |
 | `AMIR` | なし | **統合ストア/ミラー/起動時3層ロード結果 ダンプ**（2026-07-25 追加, T1検証用）。`BOOT` 0:プローブ採用 1:ミラー維持+再同期 2:読取失敗→ミラー継続 3:実行中 255:未実行 ／ `L2` 層2(ミラー)を live へ適用したか ／ `MIR`/`PRB` の valid・probe_id・last_update | `AMIR,BOOT:%u,L2:%u,CONN:%u\n` ほか計4行 | `Probe_Store_DebugStatus` |
-| `AMV` | なし | 受光/Ref mV・ABS・最終値の生値表示 | `AMV,%d,J:%.2f,R:%.2f,ABS:%.5f,F:%.4f,V:%.3f\n` | 1959 |
-| `AMODE` | `,<0/1/2>` | 測定モード設定（0:MLSS / 1:SS / 2:TR透視度） | `OK\n`/`NG\n` | 1969 |
-| `AEQ` | `,<21-30>` | 相関式 No. 選択（MLSSのみ） | `OK\n`/`NG\n` | 1977 |
+| `AMV` | なし | 受光/Ref mV・ABS・最終値の生値表示 | `AMV,%d,J:%.2f,R:%.2f,ABS:%.5f,F:%.4f,V:%.3f\n` | 1956 |
+| `AMODE` | `,<0/1/2>` | 測定モード設定（0:MLSS / 1:SS / 2:TR透視度） | `OK\n`/`NG\n` | 1966 |
+| `AEQ` | `,<21-30>` | 相関式 No. 選択（MLSSのみ） | `OK\n`/`NG\n` | 1974 |
 | `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（1700mV 収束 + WPP 保存, 2026-07-21 旧1750）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=1700。**開始 duty はプローブ現値を `RPP` から読む**（`6ca22ee` で開始duty引数を廃止。旧記載 `,<start_duty>` は誤り） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
 | `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1700mV** にする span傾き記録（空中で実行）。**電圧範囲ゲートは撤廃**（2026-07-25。旧 生mV1400-2048。ch毎に空中生mVが大きく異なり ch1 以外が調整不能だったため。プローブ側は 0以下のみ NG）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
 | `ALD` | `,<duty>` | LED duty 手動設定（揮発） | `OK\n`/`NG\n` | 1997 |
