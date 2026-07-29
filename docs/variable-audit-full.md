@@ -2,7 +2,7 @@
 
 > **生成日: 2026-07-27。ID-200T DO / 1Wire 撤去後のツリーから全面再取得したもの**（前版の手直し版は破棄）。
 > 対象コミット: 本体 `f7fa7c4`（DO 計算・1Wire センサー管理 全撤去）/ プローブ `81ceb30`（STORE_VER=2）。
-> **本体 361 変数・プローブ 52 変数を 1 件も省略せず掲載する**（§6 / §7）。
+> **本体 360 変数・プローブ 52 変数を 1 件も省略せず掲載する**（§6 / §7）。
 > 母数は ELF のシンボルテーブル。ソースの正規表現抽出は母数に使っていない。
 >
 > **追記 (同日・第2次)**: DO 残渣に続き、**1Wire / WAG レガシー一式を全撤去**した（本体のみ、`make clean && make -j` 通過）。
@@ -24,7 +24,7 @@
 ```bash
 cd ../IM-110       && make clean && make -j
 cd ../IM-110_Probe && make -j
-arm-none-eabi-nm --defined-only -S -l build/IM-110.elf       | grep -E '^20[0-9a-f]{6} '   # 370 行
+arm-none-eabi-nm --defined-only -S -l build/IM-110.elf       | grep -E '^20[0-9a-f]{6} '   # 369 行
 arm-none-eabi-nm --defined-only -S -l build/IM-110_Probe.elf | grep -E '^20[0-9a-f]{6} '   # 61 行
 ```
 
@@ -34,7 +34,7 @@ RAM 帯 (`0x20xxxxxx`) に実体を持つ定義済みシンボルが母数。こ
 
 | | ELF 行数 | リンカ記号 | **変数として掲載** |
 |---|---|---|---|
-| 本体 IM-110 | 370 | −9 | **361** |
+| 本体 IM-110 | 369 | −9 | **360** |
 | プローブ IM-110_Probe | 61 | −9 | **52** |
 
 `nm` がサイズを出さない 2 個（`completed.1` / `object.0` = newlib の crtstuff 内部）も
@@ -106,9 +106,9 @@ HAL ドライバ (`Drivers/`) は走査対象外（CMSIS 配布物に無関係�
 | 通信バッファ/状態 | 17 | 揮発で正しい |
 | ポインタ経由で書込 | 6 | 揮発で正しい |
 | **★ポインタ出力のみ・読出0** | 3 | §2-5 |
-| FW固定テーブル/読出専用 | 2 | `adc_data`(DMA書込) / `Cal_Type`(§2-4) |
+| FW固定テーブル/読出専用 | 1 | `adc_data`(DMA が直接書込。§2-4) |
 | **★未参照（デッド）** | **0** | ― |
-| **合計** | **361** | |
+| **合計** | **360** | |
 
 保存済 62 件の保存先内訳（**legacy 1Wire の 41 件は撤去済みで消滅**）:
 
@@ -200,7 +200,9 @@ HAL ドライバ (`Drivers/`) は走査対象外（CMSIS 配布物に無関係�
 → **校正履歴の表示は常にゼロ埋めの初期値を出している**。`WAG_SNo_CAL`（`mainSub.h:283`, W=0/R=1）も同様で、
 `LinkSerial.c:524` の応答電文に常に 0 が乗る。UI/電文ごと撤去するか、書込を実装するかの決めが要る。
 
-### 2-4. `Cal_Type` / `Stbl_sel` — 一度も書かれないまま分岐条件に使われている
+### 2-4. 【解決済】`Cal_Type` / `Stbl_sel` — 一度も書かれないまま分岐条件に使われていた
+
+> **どちらも撤去済み。** `Stbl_sel` は §2-8、`Cal_Type` は §2-12 で削除した。以下は撤去前の記録。
 
 | 変数 | 宣言 | 読出箇所 | 帰結 |
 |---|---|---|---|
@@ -528,6 +530,26 @@ WV コマンド `5244`(RD) / `4444`(DD) / `5253`(RS) / `5753`(WS) がロガー�
 `text` / `bss` の減りが小さいのは、**削除対象がすでにリンカに除去されていた**ため（ソースからの
 除去であって、バイナリからの除去ではない）。`make clean && make -j` で error 0。**実機未検証。**
 
+### 2-12. `Cal_Type` 撤去 — **本セッションで実施**
+
+**訂正**: §2-4 で「`switch(Cal_Type)` の分岐が常に 0 しか通らない」と書いたが、
+**2点/3点校正の切替そのものは正常**である。切替は `operation_mode`（`ADCAL` = 2点スパン /
+`MCAL` = 3点中間）が担っており、`Cal_Type` は無関係。
+
+`Cal_Type` を読む箇所は最終的に 1 つだけだった（もう 1 つは自動校正撤去 §2-10 で消えた）。
+
+| 箇所 | 内容 |
+|---|---|
+| `Normal.c` 相関式選択画面 (`C_S_CORR`) | `switch(Cal_Type)` で抜けた先を `ZCAL` / `ADCAL` / `MCAL` に振り分けていた |
+
+代入が 1 箇所も無いため常に `case 0` = `ZCAL` へ抜けていた。**影響は「相関式を変えた後の戻り先が
+常にゼロ校正になる」ことだけ**で、これは動作としても妥当（相関式を変えたらゼロ校正からやり直す）。
+
+→ `switch` を `operation_mode = ZCAL;` に畳み込み、`Cal_Type` の定義（`IM_110.c`）と
+extern 宣言（`IM_110.h`）を削除した。
+
+`text` 430,968 → **430,936 B**。RAM 変数 361 → **360**。`make clean && make -j` で error 0。**実機未検証。**
+
 ## 3. 保存が必要なのに保存されていないもの
 
 | 変数 | B | 宣言 | 現状 | 必要な対応 |
@@ -654,7 +676,7 @@ arm-none-eabi-nm --defined-only -S -l build/IM-110.elf | grep -E '^20[0-9a-f]{6}
 
 ---
 
-## 6. 本体 IM-110 — 全 361 件 一覧
+## 6. 本体 IM-110 — 全 360 件 一覧
 
 判定分類順 → サイズ降順 → 名前順。`B` 欄の `-` は nm がサイズを出さないシンボル。
 `W`=書込回数 / `R`=読出回数 / `&`=アドレス渡し回数（定義は §0-2）。
@@ -825,203 +847,202 @@ arm-none-eabi-nm --defined-only -S -l build/IM-110.elf | grep -E '^20[0-9a-f]{6}
 | 162 | `Probe_RxData` | 1 | Core/Src/IM_110.c:308 | 0 | 1 | 3 | W:- / R:Probe_RxCallback | ポインタ経由で書込 (&渡し) 揮発で正しい |
 | 163 | `RxData` | 1 | Core/Inc/LinkSerial.h:19 | 0 | 8 | 5 | W:- / R:uart_init,HAL_UART_RxCpltCallback,HAL_UART_ErrorCallback | ポインタ経由で書込 (&渡し) 揮発で正しい |
 | 164 | `adc_data` | 2 | Core/Inc/Adc.h:27 | 0 | 2 | 0 | A/Dデータ格納用 0:電池 | FW固定テーブル/読出専用 書込0 → 保存不要 |
-| 165 | `Cal_Type` | 1 | Core/Src/IM_110.c:88 | 0 | 1 | 0 | 校正種別(0:ゼロ, 1:2pスパン, 2:3p中間) | FW固定テーブル/読出専用 書込0 → 保存不要 |
-| 166 | `SYS_ErrorNo` | 4 | Core/Inc/mainSub.h:57 | 7 | 4 | 0 | IC操作エラー番号 | エラーカウンタ 揮発 or page4集約 |
-| 167 | `timer_errdisp` | 4 | Core/Inc/Timer.h:59 | 2 | 2 | 3 | エラー自動解除タイマー | エラーカウンタ 揮発 or page4集約 |
-| 168 | `EComm_Err` | 2 | Core/Inc/mainSub.h:87 | 2 | 2 | 0 | EEPROM通信初期化エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 169 | `EEP_Comm_Err` | 2 | Core/Inc/mainSub.h:81 | 4 | 4 | 0 | EEPROM通信NG エラー回数 (総計) | エラーカウンタ 揮発 or page4集約 |
-| 170 | `ERead_Err` | 2 | Core/Inc/mainSub.h:89 | 6 | 2 | 0 | EEPROM読込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 171 | `EWrite_Err` | 2 | Core/Inc/mainSub.h:91 | 14 | 2 | 0 | EEPROM書込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 172 | `RComm_Err` | 2 | Core/Inc/mainSub.h:69 | 2 | 2 | 0 | RTC通信初期化エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 173 | `RRead_Err` | 2 | Core/Inc/mainSub.h:71 | 2 | 2 | 0 | RTC読込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 174 | `RTC_Comm_Err` | 2 | Core/Inc/mainSub.h:63 | 4 | 4 | 0 | RTC通信NG エラー回数 (総計) | エラーカウンタ 揮発 or page4集約 |
-| 175 | `RWrite_Err` | 2 | Core/Inc/mainSub.h:73 | 2 | 2 | 0 | RTC書込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
-| 176 | `ERROR_CLOCK_PON_Flag` | 1 | Core/Inc/mainSub.h:127 | 1 | 1 | 0 | PONエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 177 | `ERROR_CLOCK_PON_Flag_sub` | 1 | Core/Inc/mainSub.h:130 | 1 | 1 | 0 | PONエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 178 | `ERROR_CLOCK_VDET_Flag` | 1 | Core/Inc/mainSub.h:125 | 1 | 1 | 0 | VDETエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 179 | `ERROR_CLOCK_VDET_Flag_sub` | 1 | Core/Inc/mainSub.h:128 | 1 | 1 | 0 | VDETエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 180 | `ERROR_CLOCK_XST_Flag` | 1 | Core/Inc/mainSub.h:126 | 1 | 1 | 0 | XSTエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 181 | `ERROR_CLOCK_XST_Flag_sub` | 1 | Core/Inc/mainSub.h:129 | 1 | 1 | 0 | XSTエラー判別 | エラーカウンタ 揮発 or page4集約 |
-| 182 | `ERROR_REG` | 1 | Core/Inc/mainSub.h:131 | 1 | 1 | 0 | RTCエラーフラグ | エラーカウンタ 揮発 or page4集約 |
-| 183 | `f_IC_err` | 1 | Core/Inc/mainSub.h:55 | 23 | 2 | 0 | ICのエラーフラグ | エラーカウンタ 揮発 or page4集約 |
-| 184 | `oc_err_num` | 1 | Core/Inc/Normal.h:51 | 21 | 2 | 0 | 発生エラー番号 | エラーカウンタ 揮発 or page4集約 |
-| 185 | `ad_ave_num` | 6 | Core/Src/IM_110.c:44 | 1 | 3 | 0 | バッファに格納済みのサンプル数 (0..MAIN_AD_AVE_COUNT) | タイマ/カウンタ 揮発で正しい |
-| 186 | `adc_dis_timer` | 4 | Core/Inc/Timer.h:45 | 2 | 2 | 0 | レンジ切替後A/DC変換禁止タイマー | タイマ/カウンタ 揮発で正しい |
-| 187 | `auto_power_off_timer` | 4 | Core/Inc/Timer.h:60 | 2 | 2 | 4 | オートパワーオフタイマー | タイマ/カウンタ 揮発で正しい |
-| 188 | `batt_timer` | 4 | Core/Inc/Timer.h:51 | 2 | 2 | 3 | 電池電圧取得タイマー | タイマ/カウンタ 揮発で正しい |
-| 189 | `cal_timer` | 4 | Core/Inc/Timer.h:47 | 2 | 6 | 2 | 校正用タイマー（センサー不安定） | タイマ/カウンタ 揮発で正しい |
-| 190 | `check_wag_timer` | 4 | Core/Inc/Timer.h:80 | 2 | 1 | 0 | センサー挿抜識別タイマー | タイマ/カウンタ 揮発で正しい |
-| 191 | `cnt_stable` | 4 | Core/Src/AutoStable.c:31 | 3 | 9 | 0 | 安定判断のデータ位置 | タイマ/カウンタ 揮発で正しい |
-| 192 | `disp_hold_timer` | 4 | Core/Inc/Timer.h:61 | 2 | 1 | 0 | ホールド表示タイマー | タイマ/カウンタ 揮発で正しい |
-| 193 | `disp_timer` | 4 | Core/Inc/Timer.h:52 | 51 | 32 | 32 | LCD表示更新タイマー | タイマ/カウンタ 揮発で正しい |
-| 194 | `ecomode_timer` | 4 | Core/Inc/Timer.h:69 | 2 | 1 | 0 | 省電力測定中表示タイマー | タイマ/カウンタ 揮発で正しい |
-| 195 | `first_LOW_timer` | 4 | Core/Inc/Timer.h:63 | 1 | 1 | 0 | 切替直後の低レンジ変換処理タイマー | タイマ/カウンタ 揮発で正しい |
-| 196 | `flash_timer` | 4 | Core/Inc/Timer.h:48 | 9 | 18 | 26 | 数値、電池残量点滅タイマー | タイマ/カウンタ 揮発で正しい |
-| 197 | `hold_update_timer` | 4 | Core/Inc/Timer.h:62 | 2 | 2 | 1 | 測定値表示アップデートタイマー | タイマ/カウンタ 揮発で正しい |
-| 198 | `ident_wag_timer` | 4 | Core/Inc/Timer.h:81 | 2 | 1 | 0 | センサー識別タイマー | タイマ/カウンタ 揮発で正しい |
-| 199 | `lcd_off_timer` | 4 | Core/Inc/Timer.h:46 | 2 | 15 | 14 | 画面表示OFFタイマー | タイマ/カウンタ 揮発で正しい |
-| 200 | `lcd_power_off_timer` | 4 | Core/Inc/Timer.h:66 | 2 | 1 | 0 | LCD電源OFFタイマー | タイマ/カウンタ 揮発で正しい |
-| 201 | `logger_rtc_timer` | 4 | Core/Inc/Timer.h:71 | 2 | 1 | 0 | ロガー測定日時更新タイマー | タイマ/カウンタ 揮発で正しい |
-| 202 | `logger_sw_timer` | 4 | Core/Inc/Timer.h:72 | 2 | 2 | 0 | 省電力測定復帰後SW無効タイマー | タイマ/カウンタ 揮発で正しい |
-| 203 | `logger_wake_timer` | 4 | Core/Inc/Timer.h:56 | 2 | 1 | 0 | ロガー測定用タイマー | タイマ/カウンタ 揮発で正しい |
-| 204 | `power_on_wait_timer` | 4 | Core/Inc/Timer.h:70 | 2 | 1 | 1 | 電源ON後測定待ちタイマー | タイマ/カウンタ 揮発で正しい |
-| 205 | `power_sw_timer` | 4 | Core/Inc/Timer.h:53 | 4 | 3 | 1 | POWER SW判定禁止タイマー | タイマ/カウンタ 揮発で正しい |
-| 206 | `Probe_MD_Timer` | 4 | Core/Inc/Timer.h:83 | 2 | 1 | 0 | ProbeコマンドMD送信間隔タイマー | タイマ/カウンタ 揮発で正しい |
-| 207 | `Probe_Stream_Timer` | 4 | Core/Inc/Timer.h:84 | 1 | 1 | 1 | Probe測定ストリーム鮮度タイマ (0=鮮度切れ→"----") | タイマ/カウンタ 揮発で正しい |
-| 208 | `qr_update_cnt` | 4 | Core/Inc/mainSub.h:167 | 3 | 1 | 0 | LCD表示更新用カウント | タイマ/カウンタ 揮発で正しい |
-| 209 | `range_hold_timer` | 4 | Core/Inc/Timer.h:64 | 2 | 4 | 1 | 電源ON直後強制レンジ固定タイマー | タイマ/カウンタ 揮発で正しい |
-| 210 | `setting_fl_timer` | 4 | Core/Inc/Timer.h:49 | 2 | 1 | 0 | メニューカーソル点滅タイマー | タイマ/カウンタ 揮発で正しい |
-| 211 | `stable_cnt` | 4 | Core/Src/AutoStable.c:33 | 4 | 2 | 0 | 安定状態カウント用 | タイマ/カウンタ 揮発で正しい |
-| 212 | `stbblank_timer` | 4 | Core/Inc/Timer.h:55 | 2 | 1 | 0 | 安定判断禁止タイマー | タイマ/カウンタ 揮発で正しい |
-| 213 | `stbdisp_timer` | 4 | Core/Inc/Timer.h:54 | 2 | 2 | 1 | 安定時表示更新間隔タイマー | タイマ/カウンタ 揮発で正しい |
-| 214 | `timer1sec` | 4 | Core/Inc/Timer.h:44 | 5 | 2 | 0 | 1secカウントアップタイマー | タイマ/カウンタ 揮発で正しい |
-| 215 | `timer_EXTCOMIN` | 4 | Core/Inc/Timer.h:58 | 2 | 2 | 2 | LCD EXTCOMIN信号タイマー | タイマ/カウンタ 揮発で正しい |
-| 216 | `Timer_Stable` | 4 | Core/Inc/AutoStable.h:20 | 3 | 2 | 0 | 安定までかかった時間（測定用変数） | タイマ/カウンタ 揮発で正しい |
-| 217 | `v33_power_off_timer` | 4 | Core/Inc/Timer.h:68 | 2 | 1 | 0 | 3.3V電源OFFタイマー | タイマ/カウンタ 揮発で正しい |
-| 218 | `v33_power_on_timer` | 4 | Core/Inc/Timer.h:67 | 2 | 1 | 0 | 3.3V電源ONタイマー | タイマ/カウンタ 揮発で正しい |
-| 219 | `cal_hsel_count` | 2 | Core/Src/Normal.c:66 | 3 | 5 | 0 | 有効な履歴件数 | タイマ/カウンタ 揮発で正しい |
-| 220 | `EComm_Retry` | 2 | Core/Inc/mainSub.h:86 | 2 | 2 | 0 | EEPROM通信初期化リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 221 | `EEP_Comm_Retry` | 2 | Core/Inc/mainSub.h:80 | 4 | 4 | 0 | EEPROM通信NG リトライ回数 (総計) | タイマ/カウンタ 揮発で正しい |
-| 222 | `ERead_Retry` | 2 | Core/Inc/mainSub.h:88 | 6 | 2 | 0 | EEPROM読込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 223 | `EWrite_Retry` | 2 | Core/Inc/mainSub.h:90 | 14 | 2 | 0 | EEPROM書込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 224 | `RComm_Retry` | 2 | Core/Inc/mainSub.h:68 | 2 | 2 | 0 | RTC通信初期化リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 225 | `RRead_Retry` | 2 | Core/Inc/mainSub.h:70 | 2 | 2 | 0 | RTC読込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 226 | `RTC_Comm_Retry` | 2 | Core/Inc/mainSub.h:62 | 4 | 4 | 0 | RTC通信NG リトライ回数 (総計) | タイマ/カウンタ 揮発で正しい |
-| 227 | `RWrite_Retry` | 2 | Core/Inc/mainSub.h:72 | 2 | 2 | 0 | RTC書込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
-| 228 | `cnt_OverWrite` | 1 | Core/Src/AutoStable.c:32 | 2 | 9 | 0 | cnt_stableのリセット有無 | タイマ/カウンタ 揮発で正しい |
-| 229 | `DISP_l_sw_cnt` | 1 | Core/Inc/mainSub.h:186 | 2 | 1 | 0 | DISP SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
-| 230 | `EEP_RetryCount_Read` | 1 | Core/Inc/mainSub.h:77 | 6 | 8 | 0 | 読み込みリトライの発生回数 | タイマ/カウンタ 揮発で正しい |
-| 231 | `EEP_RetryCount_Write` | 1 | Core/Inc/mainSub.h:78 | 5 | 24 | 0 | 書き込みリトライの発生回数 | タイマ/カウンタ 揮発で正しい |
-| 232 | `MEM_l_sw_cnt` | 1 | Core/Inc/mainSub.h:185 | 3 | 1 | 0 | MEM SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
-| 233 | `POW_l_sw_cnt` | 1 | Core/Inc/mainSub.h:187 | 2 | 1 | 0 | POW SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
-| 234 | `probe_hs_retry` | 1 | Core/Src/IM_110.c:989 | 3 | 1 | 0 | W:(ファイルスコープ),Probe_Boot_Start,Probe_Boot_Tick / R:Probe_Boot_Tick | タイマ/カウンタ 揮発で正しい |
-| 235 | `RTC_ResetCount` | 1 | Core/Inc/mainSub.h:112 | 1 | 0 | 0 | RTCリセット回数 | タイマ/カウンタ 揮発で正しい |
-| 236 | `disp_buf` | 12482 | Core/Inc/Lcd.h:36 | 6 | 3 | 3 | (cmd + adr + 50バイト) x 240ライン + dummyx2=12482バイト | UI状態 揮発で正しい |
-| 237 | `TR_Mode_CF` | 840 | Core/Src/IM_110.c:204 | 1 | 1 | 0 | TR 相関式テーブル ([] と No. の対応は MLSS_Mode_CF と同じ規則) | UI状態 揮発で正しい |
-| 238 | `guide_disp_flag` | 5 | Core/Inc/mainSub.h:51 | 7 | 7 | 0 | ガイダンス表示フラグ（0:表示 1:非表示） | UI状態 揮発で正しい |
-| 239 | `cal_sel_raw_full` | 4 | Core/Src/Normal.c:67 | 3 | 2 | 0 | 選択したフルスパン点 raw mV (ゼロ校正前) | UI状態 揮発で正しい |
-| 240 | `cal_sel_raw_mid` | 4 | Core/Src/Normal.c:68 | 2 | 1 | 0 | 選択した中間点 raw mV (ゼロ校正前) | UI状態 揮発で正しい |
-| 241 | `DISP_CYCLE` | 4 | Core/Inc/mainSub.h:206 | 1 | 56 | 0 | 測定中LCD表示間隔 Nx50mS = 2s | UI状態 揮発で正しい |
-| 242 | `adjust_mode` | 2 | Core/Inc/mainSub.h:198 | 28 | 2 | 0 | 基板自動調整時の設定モード (内容はAllDef.h参照(operation_mode準拠))	2019/12/17追加　三浦 | UI状態 揮発で正しい |
-| 243 | `operation_mode` | 2 | Core/Inc/mainSub.h:53 | 326 | 50 | 0 | 操作表示モード（内容はAllDef.h参照） | UI状態 揮発で正しい |
-| 244 | `ret_mode` | 2 | Core/Inc/Normal.h:52 | 16 | 6 | 0 | エラー解除後表示モード | UI状態 揮発で正しい |
-| 245 | `adj_buf_mode` | 1 | Core/Src/IM_110.c:1646 | 3 | 5 | 0 | Mode_CF 捕捉のモード (混在検出用) | UI状態 揮発で正しい |
-| 246 | `adj_tc_mode` | 1 | Core/Src/IM_110.c:1650 | 3 | 3 | 0 | 温度補正 捕捉のモード | UI状態 揮発で正しい |
-| 247 | `App_DL_disp_flag` | 1 | Core/Inc/mainSub.h:163 | 2 | 0 | 0 | アプリDL表示フラグ（0:表示 1:表示無し） | UI状態 揮発で正しい |
-| 248 | `batt_flash_flag` | 1 | Core/Src/Normal.c:34 | 5 | 1 | 0 | 変数 | UI状態 揮発で正しい |
-| 249 | `cal_setting_sel` | 1 | Core/Src/Normal.c:766 | 13 | 8 | 0 | 校正モード選択: 0=ZCAL, 1=ADCAL(2点), 2=MCAL(3点) | UI状態 揮発で正しい |
-| 250 | `corr_sel` | 1 | Core/Src/Normal.c:35 | 3 | 7 | 0 | 相関式選択: 0〜9 | UI状態 揮発で正しい |
-| 251 | `cur_sel_item` | 1 | Core/Src/Setting.c:23 | 3 | 3 | 0 | W:(ファイルスコープ),set_menu / R:set_menu | UI状態 揮発で正しい |
-| 252 | `disp_colon_flag` | 1 | Core/Inc/mainSub.h:191 | 1 | 1 | 0 | 時計：表示フラグ | UI状態 揮発で正しい |
-| 253 | `disp_lr_yajirushi` | 1 | Core/Inc/Display.h:37 | 13 | 12 | 0 | 矢印アイコン（左右） | UI状態 揮発で正しい |
-| 254 | `DISP_sw_mem` | 1 | Core/Inc/mainSub.h:189 | 41 | 10 | 0 | DISP短押し判別のための記憶 | UI状態 揮発で正しい |
-| 255 | `DISP_sw_step` | 1 | Core/Inc/mainSub.h:183 | 65 | 3 | 0 | DISP SWの判定用 | UI状態 揮発で正しい |
-| 256 | `lcd_extcomin` | 1 | Core/Inc/mainSub.h:171 | 3 | 2 | 0 | LCD交流化信号用フラグ | UI状態 揮発で正しい |
-| 257 | `lcd_off_cmd` | 1 | Core/Inc/mainSub.h:213 | 1 | 0 | 0 | LCD電源OFF処理フラグ | UI状態 揮発で正しい |
-| 258 | `lcd_on_cmd` | 1 | Core/Inc/mainSub.h:212 | 2 | 0 | 0 | LCD電源ON処理フラグ | UI状態 揮発で正しい |
-| 259 | `lcd_on_flag` | 1 | Core/Inc/mainSub.h:208 | 3 | 4 | 0 | LCD電源 ONフラグ | UI状態 揮発で正しい |
-| 260 | `logger_sw_stop_flag` | 1 | Core/Inc/mainSub.h:216 | 1 | 0 | 0 | SW操作でのロガー測定終了フラグ 0:2000点終了 1:SW終了 | UI状態 揮発で正しい |
-| 261 | `meas_flash_flag` | 1 | Core/Inc/mainSub.h:244 | 6 | 3 | 0 | センサー名称表示フラグ（0:表示無し, 表示有り） | UI状態 揮発で正しい |
-| 262 | `MEM_sw_mem` | 1 | Core/Inc/mainSub.h:188 | 22 | 9 | 0 | MEM短押し判別のための記憶 | UI状態 揮発で正しい |
-| 263 | `MEM_sw_step` | 1 | Core/Inc/mainSub.h:182 | 63 | 3 | 0 | MEM SWの判定用 | UI状態 揮発で正しい |
-| 264 | `POW_sw_step` | 1 | Core/Inc/mainSub.h:184 | 10 | 3 | 0 | POW SWの判定用 | UI状態 揮発で正しい |
-| 265 | `qr_update_flag` | 1 | Core/Inc/mainSub.h:166 | 2 | 1 | 0 | LCD表示更新用フラグ（2sec） | UI状態 揮発で正しい |
-| 266 | `tansui_sw_flag` | 1 | Core/Inc/mainSub.h:47 | 2 | 4 | 0 | 淡水／海水設定（0:淡水 1:海水） | UI状態 揮発で正しい |
-| 267 | `data_stable` | 1020 | Core/Src/AutoStable.c:30 | 2 | 14 | 4 | 安定判断サンプル ("MAX: 60秒×2(件／秒)" ×2倍 ＋15件) | 通信バッファ/状態 揮発で正しい |
-| 268 | `Probe_RecvData` | 128 | Core/Src/IM_110.c:306 | 3 | 10 | 0 | Probe communication variables | 通信バッファ/状態 揮発で正しい |
-| 269 | `RecvData` | 128 | Core/Inc/LinkSerial.h:17 | 6 | 85 | 1 | 受信バッファ | 通信バッファ/状態 揮発で正しい |
-| 270 | `CalTimeStable` | 4 | Core/Inc/AutoStable.h:19 | 3 | 0 | 0 | 安定までかかった時間 | 通信バッファ/状態 揮発で正しい |
-| 271 | `stable_now` | 4 | Core/Src/AutoStable.c:35 | 3 | 2 | 0 | 安定状態カウント用 | 通信バッファ/状態 揮発で正しい |
-| 272 | `stable_old` | 4 | Core/Src/AutoStable.c:34 | 4 | 1 | 0 | 安定状態カウント用 | 通信バッファ/状態 揮発で正しい |
-| 273 | `TimeStable` | 4 | Core/Inc/AutoStable.h:19 | 2 | 1 | 0 | 安定までかかった時間 | 通信バッファ/状態 揮発で正しい |
-| 274 | `UART1_BPS` | 4 | Core/Inc/mainSub.h:201 | 2 | 1 | 0 | UART通信速度 | 通信バッファ/状態 揮発で正しい |
-| 275 | `chk_stable` | 1 | Core/Inc/AutoStable.h:16 | 2 | 0 | 0 | 安定データの有無 | 通信バッファ/状態 揮発で正しい |
-| 276 | `f_stable` | 1 | Core/Inc/AutoStable.h:15 | 5 | 4 | 0 | 安定状態の指示 (0/1： 不安定／安定） | 通信バッファ/状態 揮発で正しい |
-| 277 | `Probe_Conn_Status` | 1 | Core/Src/IM_110.c:315 | 4 | 2 | 0 | 0=unknown / 1=connected / 2=NG(未応答) | 通信バッファ/状態 揮発で正しい |
-| 278 | `Probe_Data_Valid` | 1 | Core/Src/IM_110.c:316 | 2 | 1 | 0 | 1=測定値有効 / 0=未受信 or 鮮度切れ(→ "----" 表示) | 通信バッファ/状態 揮発で正しい |
-| 279 | `Probe_RecvDataP` | 1 | Core/Src/IM_110.c:307 | 2 | 2 | 0 | W:Probe_clear_RecvData,Probe_RxCallback / R:Probe_RxCallback | 通信バッファ/状態 揮発で正しい |
-| 280 | `Probe_uart_end` | 1 | Core/Src/IM_110.c:309 | 4 | 3 | 0 | W:(ファイルスコープ),Probe_clear_RecvData,Probe_RxCallback / R:Probe_WaitLine,Probe_… | 通信バッファ/状態 揮発で正しい |
-| 281 | `RecvDataP` | 1 | Core/Inc/LinkSerial.h:18 | 3 | 5 | 0 | W:clear_RecvData,HAL_UART_RxCpltCallback / R:HAL_UART_RxCpltCallback | 通信バッファ/状態 揮発で正しい |
-| 282 | `uart_end` | 1 | Core/Inc/LinkSerial.h:20 | 4 | 1 | 0 | UART文字列受信フラグ | 通信バッファ/状態 揮発で正しい |
-| 283 | `use_UART_flag` | 1 | Core/Inc/mainSub.h:195 | 3 | 6 | 0 | UART使用可能フラグ | 通信バッファ/状態 揮発で正しい |
-| 284 | `num.0` | 5 | Core/Src/Display.c:475 | 24 | 75 | 0 | 表示中の数値(整数部5桁) | 関数内static 揮発で正しい |
-| 285 | `num.14` | 5 | Core/Src/Normal.c:612 | 56 | 110 | 0 | 表示中の数値(整数部5桁) | 関数内static 揮発で正しい |
-| 286 | `num.18` | 5 | Core/Src/Normal.c:401 | 56 | 110 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 287 | `num.22` | 5 | Core/Src/Normal.c:220 | 56 | 110 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 288 | `num.4` | 5 | Core/Src/Display.c:278 | 24 | 75 | 0 | TR: 4桁 + 小数点 (100/10/1/0.1 の位、num[1..4] 使用、x=29/32/35/41 に配置し x=38 に "." アイコン) | 関数内static 揮発で正しい |
-| 289 | `Cal_SetVal_1_tmp.23` | 4 | Core/Src/Normal.c:221 | 8 | 17 | 0 | W:nrm_span_setting / R:nrm_span_setting | 関数内static 揮発で正しい |
-| 290 | `Cal_SetVal_2_tmp.19` | 4 | Core/Src/Normal.c:402 | 2 | 7 | 0 | W:nrm_span_setting_mid / R:nrm_span_setting_mid | 関数内static 揮発で正しい |
-| 291 | `calexec_time.9` | 4 | Core/Src/Normal.c:1111 | 5 | 5 | 0 | W:nrm_adjust_zero,nrm_adjust_span_m,nrm_adjust_span / R:nrm_adjust_zero,nrm_… | 関数内static 揮発で正しい |
-| 292 | `Interface_Threshold_tmp.15` | 4 | Core/Src/Normal.c:613 | 2 | 7 | 0 | W:nrm_depth_setting / R:nrm_depth_setting | 関数内static 揮発で正しい |
-| 293 | `EEP_Tadrs.5` | 2 | Core/Src/Adjust.c:562 | 24 | 32 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
-| 294 | `EEP_Tadrs.7` | 2 | Core/Src/Adjust.c:197 | 24 | 32 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
-| 295 | `index.6` | 2 | Core/Src/Normal.c:2393 | 4 | 4 | 0 | W:set_disp_his / R:set_disp_his | 関数内static 揮発で正しい |
-| 296 | `last_idx.3` | 2 | Core/Src/Adjust.c:843 | 2 | 1 | 0 | W:adb_apply_adc_mask / R:adb_apply_adc_mask | 関数内static 揮発で正しい |
-| 297 | `num.5` | 2 | Core/Src/Normal.c:1882 | 56 | 110 | 0 | 確定時 00 → 01 にクランプ、表示値 (1..30) - 1 で内部値 (0..29) に変換して MODE へ保存。 | 関数内static 揮発で正しい |
-| 298 | `tim1_counter.0` | 2 | Core/Src/Timer.c:81 | 3 | 4 | 0 | W:HAL_TIM_PeriodElapsedCallback / R:HAL_TIM_PeriodElapsedCallback | 関数内static 揮発で正しい |
-| 299 | `cal_menu_sel.12` | 1 | Core/Src/Normal.c:826 | 8 | 9 | 0 | W:nrm_cal_menu / R:nrm_cal_menu | 関数内static 揮発で正しい |
-| 300 | `corr_num_sel.4` | 1 | Core/Src/Normal.c:1883 | 2 | 3 | 0 | W:nrm_corr_setting / R:nrm_corr_setting | 関数内static 揮発で正しい |
-| 301 | `cur_sel_item2.0` | 1 | Core/Src/Setting.c:330 | 4 | 3 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
-| 302 | `cur_sel_item2.0` | 1 | Core/Src/Adjust.c:1430 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
-| 303 | `cur_sel_item2.1` | 1 | Core/Src/Adjust.c:1218 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
-| 304 | `cur_sel_item2.2` | 1 | Core/Src/Adjust.c:1080 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
-| 305 | `disp_sw_mem.1` | 1 | Core/Src/Setting.c:230 | 4 | 1 | 0 | W:set_menu / R:set_menu | 関数内static 揮発で正しい |
-| 306 | `disp_sw_mem.11` | 1 | Core/Src/Normal.c:827 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 307 | `disp_sw_mem.13` | 1 | Core/Src/Normal.c:614 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 308 | `disp_sw_mem.17` | 1 | Core/Src/Normal.c:403 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 309 | `disp_sw_mem.21` | 1 | Core/Src/Normal.c:222 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 310 | `disp_sw_mem.3` | 1 | Core/Src/Normal.c:1884 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 311 | `empty_bat.0` | 1 | Core/Src/Normal.c:2929 | 2 | 2 | 0 | 電池点滅用 | 関数内static 揮発で正しい |
-| 312 | `first_check.1` | 1 | Core/Src/Normal.c:2899 | 2 | 1 | 0 | W:battery_check / R:battery_check | 関数内static 揮発で正しい |
-| 313 | `fl_flag.10` | 1 | Core/Src/Normal.c:1112 | 43 | 24 | 0 | W:nrm_span_setting,nrm_span_setting_mid,set_cal_his_select / R:nrm_span_sett… | 関数内static 揮発で正しい |
-| 314 | `initialized.1` | 1 | Core/Src/IM_110.c:1115 | 2 | 1 | 0 | W:Update_Interface_Hold / R:Update_Interface_Hold | 関数内static 揮発で正しい |
-| 315 | `meas_menu_sel.2` | 1 | Core/Src/Normal.c:2005 | 4 | 4 | 0 | W:nrm_meas_menu / R:nrm_meas_menu | 関数内static 揮発で正しい |
-| 316 | `prev_above.0` | 1 | Core/Src/IM_110.c:1114 | 3 | 1 | 0 | W:Update_Interface_Hold / R:Update_Interface_Hold | 関数内static 揮発で正しい |
-| 317 | `result.4` | 1 | Core/Src/Adjust.c:563 | 16 | 2 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
-| 318 | `result.6` | 1 | Core/Src/Adjust.c:198 | 16 | 2 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
-| 319 | `span_num_sel.16` | 1 | Core/Src/Normal.c:611 | 6 | 23 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
-| 320 | `span_num_sel.20` | 1 | Core/Src/Normal.c:400 | 6 | 23 | 0 | MLSS: 5桁 (10000/1000/100/10/1)、num[0..4] 全使用、span_num_sel 0..4 (5 で確定) | 関数内static 揮発で正しい |
-| 321 | `span_num_sel.24` | 1 | Core/Src/Normal.c:219 | 6 | 23 | 0 | "." は固定表示 (x=38) で num_sel は飛ばす、value = num[1]*100 + num[2]*10 + num[3] + nu… | 関数内static 揮発で正しい |
-| 322 | `__global_locale` | 364 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 323 | `__sf` | 312 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 324 | `hlpuart1` | 136 | Core/Src/main.c:66 | 15 | 10 | 11 | W:ProbeRelay_Run,ProbeFupBridge_Run,MX_LPUART1_UART_Init / R:(ファイルスコープ),Prob… | HAL/libc 対象外 |
-| 325 | `huart1` | 136 | Core/Src/main.c:67 | 65 | 13 | 21 | W:Change_uart_bps,ProbeRelay_Run,ProbeFupBridge_Run / R:(ファイルスコープ),ProbeRela… | HAL/libc 対象外 |
-| 326 | `hadc1` | 104 | Core/Src/main.c:61 | 15 | 3 | 6 | Private variables --------------------------------------------------------- | HAL/libc 対象外 |
-| 327 | `hspi1` | 100 | Core/Src/main.c:71 | 14 | 3 | 4 | W:MX_SPI1_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 328 | `hspi2` | 100 | Core/Src/main.c:72 | 42 | 4 | 23 | W:eep_SPI_Configuration,rtc_SPI_Configuration,MX_SPI2_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 329 | `tzinfo` | 88 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 330 | `_impure_data` | 76 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 331 | `htim1` | 76 | Core/Src/main.c:75 | 28 | 4 | 16 | W:MX_TIM1_Init,SystemClock_SLEEP,SystemClock_4MHz / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 332 | `hdma_adc1` | 72 | Core/Src/main.c:62 | 9 | 4 | 2 | W:HAL_ADC_MspInit / R:(ファイルスコープ),HAL_ADC_MspInit | HAL/libc 対象外 |
-| 333 | `hdma_lpuart_rx` | 72 | Core/Src/main.c:68 | 9 | 4 | 2 | W:HAL_UART_MspInit / R:(ファイルスコープ),HAL_UART_MspInit | HAL/libc 対象外 |
-| 334 | `hdma_spi1_tx` | 72 | Core/Src/main.c:73 | 9 | 4 | 2 | W:HAL_SPI_MspInit / R:(ファイルスコープ),HAL_SPI_MspInit | HAL/libc 対象外 |
-| 335 | `hdma_usart1_rx` | 72 | Core/Src/main.c:69 | 9 | 4 | 2 | W:HAL_UART_MspInit / R:(ファイルスコープ),HAL_UART_MspInit | HAL/libc 対象外 |
-| 336 | `hiwdg` | 16 | Core/Src/main.c:64 | 4 | 2 | 2 | W:MX_IWDG_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 337 | `__sglue` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 338 | `__tzname_dst` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 339 | `__tzname_std` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 340 | `_tzname` | 8 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 341 | `__env` | 4 | Core/Src/syscalls.c:39 | 1 | 1 | 0 | W:(ファイルスコープ) / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 342 | `__malloc_free_list` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 343 | `__malloc_sbrk_start` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 344 | `__sbrk_heap_end` | 4 | Core/Src/sysmem.c:31 | 3 | 3 | 0 | / | HAL/libc 対象外 |
-| 345 | `__stdio_exit_handler` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 346 | `_daylight` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 347 | `_impure_ptr` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 348 | `_timezone` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 349 | `environ` | 4 | Core/Src/syscalls.c:40 | 1 | 0 | 0 | W:(ファイルスコープ) / R:- | HAL/libc 対象外 |
-| 350 | `errno` | 4 | (libc) | 45 | 9 | 0 | W:_kill,_wait,_unlink / R:(ファイルスコープ) | HAL/libc 対象外 |
-| 351 | `prev_tzenv` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 352 | `SystemCoreClock` | 4 | Core/Src/system_stm32l4xx.c:172 | 7 | 0 | 0 | / | HAL/libc 対象外 |
-| 353 | `uwTick` | 4 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:90 | 0 | 0 | 0 | / | HAL/libc 対象外 |
-| 354 | `uwTickPrio` | 4 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:91 | 0 | 0 | 0 | Invalid priority | HAL/libc 対象外 |
-| 355 | `__lock___env_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 356 | `__lock___malloc_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 357 | `__lock___sfp_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 358 | `__lock___tz_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 359 | `uwTickFreq` | 1 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:92 | 0 | 0 | 0 | 1KHz | HAL/libc 対象外 |
-| 360 | `completed.1` | - | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
-| 361 | `object.0` | - | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 165 | `SYS_ErrorNo` | 4 | Core/Inc/mainSub.h:57 | 7 | 4 | 0 | IC操作エラー番号 | エラーカウンタ 揮発 or page4集約 |
+| 166 | `timer_errdisp` | 4 | Core/Inc/Timer.h:59 | 2 | 2 | 3 | エラー自動解除タイマー | エラーカウンタ 揮発 or page4集約 |
+| 167 | `EComm_Err` | 2 | Core/Inc/mainSub.h:87 | 2 | 2 | 0 | EEPROM通信初期化エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 168 | `EEP_Comm_Err` | 2 | Core/Inc/mainSub.h:81 | 4 | 4 | 0 | EEPROM通信NG エラー回数 (総計) | エラーカウンタ 揮発 or page4集約 |
+| 169 | `ERead_Err` | 2 | Core/Inc/mainSub.h:89 | 6 | 2 | 0 | EEPROM読込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 170 | `EWrite_Err` | 2 | Core/Inc/mainSub.h:91 | 14 | 2 | 0 | EEPROM書込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 171 | `RComm_Err` | 2 | Core/Inc/mainSub.h:69 | 2 | 2 | 0 | RTC通信初期化エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 172 | `RRead_Err` | 2 | Core/Inc/mainSub.h:71 | 2 | 2 | 0 | RTC読込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 173 | `RTC_Comm_Err` | 2 | Core/Inc/mainSub.h:63 | 4 | 4 | 0 | RTC通信NG エラー回数 (総計) | エラーカウンタ 揮発 or page4集約 |
+| 174 | `RWrite_Err` | 2 | Core/Inc/mainSub.h:73 | 2 | 2 | 0 | RTC書込エラー回数 (電源OFFまでの累計) | エラーカウンタ 揮発 or page4集約 |
+| 175 | `ERROR_CLOCK_PON_Flag` | 1 | Core/Inc/mainSub.h:127 | 1 | 1 | 0 | PONエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 176 | `ERROR_CLOCK_PON_Flag_sub` | 1 | Core/Inc/mainSub.h:130 | 1 | 1 | 0 | PONエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 177 | `ERROR_CLOCK_VDET_Flag` | 1 | Core/Inc/mainSub.h:125 | 1 | 1 | 0 | VDETエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 178 | `ERROR_CLOCK_VDET_Flag_sub` | 1 | Core/Inc/mainSub.h:128 | 1 | 1 | 0 | VDETエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 179 | `ERROR_CLOCK_XST_Flag` | 1 | Core/Inc/mainSub.h:126 | 1 | 1 | 0 | XSTエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 180 | `ERROR_CLOCK_XST_Flag_sub` | 1 | Core/Inc/mainSub.h:129 | 1 | 1 | 0 | XSTエラー判別 | エラーカウンタ 揮発 or page4集約 |
+| 181 | `ERROR_REG` | 1 | Core/Inc/mainSub.h:131 | 1 | 1 | 0 | RTCエラーフラグ | エラーカウンタ 揮発 or page4集約 |
+| 182 | `f_IC_err` | 1 | Core/Inc/mainSub.h:55 | 23 | 2 | 0 | ICのエラーフラグ | エラーカウンタ 揮発 or page4集約 |
+| 183 | `oc_err_num` | 1 | Core/Inc/Normal.h:51 | 21 | 2 | 0 | 発生エラー番号 | エラーカウンタ 揮発 or page4集約 |
+| 184 | `ad_ave_num` | 6 | Core/Src/IM_110.c:44 | 1 | 3 | 0 | バッファに格納済みのサンプル数 (0..MAIN_AD_AVE_COUNT) | タイマ/カウンタ 揮発で正しい |
+| 185 | `adc_dis_timer` | 4 | Core/Inc/Timer.h:45 | 2 | 2 | 0 | レンジ切替後A/DC変換禁止タイマー | タイマ/カウンタ 揮発で正しい |
+| 186 | `auto_power_off_timer` | 4 | Core/Inc/Timer.h:60 | 2 | 2 | 4 | オートパワーオフタイマー | タイマ/カウンタ 揮発で正しい |
+| 187 | `batt_timer` | 4 | Core/Inc/Timer.h:51 | 2 | 2 | 3 | 電池電圧取得タイマー | タイマ/カウンタ 揮発で正しい |
+| 188 | `cal_timer` | 4 | Core/Inc/Timer.h:47 | 2 | 6 | 2 | 校正用タイマー（センサー不安定） | タイマ/カウンタ 揮発で正しい |
+| 189 | `check_wag_timer` | 4 | Core/Inc/Timer.h:80 | 2 | 1 | 0 | センサー挿抜識別タイマー | タイマ/カウンタ 揮発で正しい |
+| 190 | `cnt_stable` | 4 | Core/Src/AutoStable.c:31 | 3 | 9 | 0 | 安定判断のデータ位置 | タイマ/カウンタ 揮発で正しい |
+| 191 | `disp_hold_timer` | 4 | Core/Inc/Timer.h:61 | 2 | 1 | 0 | ホールド表示タイマー | タイマ/カウンタ 揮発で正しい |
+| 192 | `disp_timer` | 4 | Core/Inc/Timer.h:52 | 51 | 32 | 32 | LCD表示更新タイマー | タイマ/カウンタ 揮発で正しい |
+| 193 | `ecomode_timer` | 4 | Core/Inc/Timer.h:69 | 2 | 1 | 0 | 省電力測定中表示タイマー | タイマ/カウンタ 揮発で正しい |
+| 194 | `first_LOW_timer` | 4 | Core/Inc/Timer.h:63 | 1 | 1 | 0 | 切替直後の低レンジ変換処理タイマー | タイマ/カウンタ 揮発で正しい |
+| 195 | `flash_timer` | 4 | Core/Inc/Timer.h:48 | 9 | 18 | 26 | 数値、電池残量点滅タイマー | タイマ/カウンタ 揮発で正しい |
+| 196 | `hold_update_timer` | 4 | Core/Inc/Timer.h:62 | 2 | 2 | 1 | 測定値表示アップデートタイマー | タイマ/カウンタ 揮発で正しい |
+| 197 | `ident_wag_timer` | 4 | Core/Inc/Timer.h:81 | 2 | 1 | 0 | センサー識別タイマー | タイマ/カウンタ 揮発で正しい |
+| 198 | `lcd_off_timer` | 4 | Core/Inc/Timer.h:46 | 2 | 15 | 14 | 画面表示OFFタイマー | タイマ/カウンタ 揮発で正しい |
+| 199 | `lcd_power_off_timer` | 4 | Core/Inc/Timer.h:66 | 2 | 1 | 0 | LCD電源OFFタイマー | タイマ/カウンタ 揮発で正しい |
+| 200 | `logger_rtc_timer` | 4 | Core/Inc/Timer.h:71 | 2 | 1 | 0 | ロガー測定日時更新タイマー | タイマ/カウンタ 揮発で正しい |
+| 201 | `logger_sw_timer` | 4 | Core/Inc/Timer.h:72 | 2 | 2 | 0 | 省電力測定復帰後SW無効タイマー | タイマ/カウンタ 揮発で正しい |
+| 202 | `logger_wake_timer` | 4 | Core/Inc/Timer.h:56 | 2 | 1 | 0 | ロガー測定用タイマー | タイマ/カウンタ 揮発で正しい |
+| 203 | `power_on_wait_timer` | 4 | Core/Inc/Timer.h:70 | 2 | 1 | 1 | 電源ON後測定待ちタイマー | タイマ/カウンタ 揮発で正しい |
+| 204 | `power_sw_timer` | 4 | Core/Inc/Timer.h:53 | 4 | 3 | 1 | POWER SW判定禁止タイマー | タイマ/カウンタ 揮発で正しい |
+| 205 | `Probe_MD_Timer` | 4 | Core/Inc/Timer.h:83 | 2 | 1 | 0 | ProbeコマンドMD送信間隔タイマー | タイマ/カウンタ 揮発で正しい |
+| 206 | `Probe_Stream_Timer` | 4 | Core/Inc/Timer.h:84 | 1 | 1 | 1 | Probe測定ストリーム鮮度タイマ (0=鮮度切れ→"----") | タイマ/カウンタ 揮発で正しい |
+| 207 | `qr_update_cnt` | 4 | Core/Inc/mainSub.h:167 | 3 | 1 | 0 | LCD表示更新用カウント | タイマ/カウンタ 揮発で正しい |
+| 208 | `range_hold_timer` | 4 | Core/Inc/Timer.h:64 | 2 | 4 | 1 | 電源ON直後強制レンジ固定タイマー | タイマ/カウンタ 揮発で正しい |
+| 209 | `setting_fl_timer` | 4 | Core/Inc/Timer.h:49 | 2 | 1 | 0 | メニューカーソル点滅タイマー | タイマ/カウンタ 揮発で正しい |
+| 210 | `stable_cnt` | 4 | Core/Src/AutoStable.c:33 | 4 | 2 | 0 | 安定状態カウント用 | タイマ/カウンタ 揮発で正しい |
+| 211 | `stbblank_timer` | 4 | Core/Inc/Timer.h:55 | 2 | 1 | 0 | 安定判断禁止タイマー | タイマ/カウンタ 揮発で正しい |
+| 212 | `stbdisp_timer` | 4 | Core/Inc/Timer.h:54 | 2 | 2 | 1 | 安定時表示更新間隔タイマー | タイマ/カウンタ 揮発で正しい |
+| 213 | `timer1sec` | 4 | Core/Inc/Timer.h:44 | 5 | 2 | 0 | 1secカウントアップタイマー | タイマ/カウンタ 揮発で正しい |
+| 214 | `timer_EXTCOMIN` | 4 | Core/Inc/Timer.h:58 | 2 | 2 | 2 | LCD EXTCOMIN信号タイマー | タイマ/カウンタ 揮発で正しい |
+| 215 | `Timer_Stable` | 4 | Core/Inc/AutoStable.h:20 | 3 | 2 | 0 | 安定までかかった時間（測定用変数） | タイマ/カウンタ 揮発で正しい |
+| 216 | `v33_power_off_timer` | 4 | Core/Inc/Timer.h:68 | 2 | 1 | 0 | 3.3V電源OFFタイマー | タイマ/カウンタ 揮発で正しい |
+| 217 | `v33_power_on_timer` | 4 | Core/Inc/Timer.h:67 | 2 | 1 | 0 | 3.3V電源ONタイマー | タイマ/カウンタ 揮発で正しい |
+| 218 | `cal_hsel_count` | 2 | Core/Src/Normal.c:66 | 3 | 5 | 0 | 有効な履歴件数 | タイマ/カウンタ 揮発で正しい |
+| 219 | `EComm_Retry` | 2 | Core/Inc/mainSub.h:86 | 2 | 2 | 0 | EEPROM通信初期化リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 220 | `EEP_Comm_Retry` | 2 | Core/Inc/mainSub.h:80 | 4 | 4 | 0 | EEPROM通信NG リトライ回数 (総計) | タイマ/カウンタ 揮発で正しい |
+| 221 | `ERead_Retry` | 2 | Core/Inc/mainSub.h:88 | 6 | 2 | 0 | EEPROM読込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 222 | `EWrite_Retry` | 2 | Core/Inc/mainSub.h:90 | 14 | 2 | 0 | EEPROM書込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 223 | `RComm_Retry` | 2 | Core/Inc/mainSub.h:68 | 2 | 2 | 0 | RTC通信初期化リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 224 | `RRead_Retry` | 2 | Core/Inc/mainSub.h:70 | 2 | 2 | 0 | RTC読込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 225 | `RTC_Comm_Retry` | 2 | Core/Inc/mainSub.h:62 | 4 | 4 | 0 | RTC通信NG リトライ回数 (総計) | タイマ/カウンタ 揮発で正しい |
+| 226 | `RWrite_Retry` | 2 | Core/Inc/mainSub.h:72 | 2 | 2 | 0 | RTC書込リトライ回数 (電源OFFまでの累計) | タイマ/カウンタ 揮発で正しい |
+| 227 | `cnt_OverWrite` | 1 | Core/Src/AutoStable.c:32 | 2 | 9 | 0 | cnt_stableのリセット有無 | タイマ/カウンタ 揮発で正しい |
+| 228 | `DISP_l_sw_cnt` | 1 | Core/Inc/mainSub.h:186 | 2 | 1 | 0 | DISP SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
+| 229 | `EEP_RetryCount_Read` | 1 | Core/Inc/mainSub.h:77 | 6 | 8 | 0 | 読み込みリトライの発生回数 | タイマ/カウンタ 揮発で正しい |
+| 230 | `EEP_RetryCount_Write` | 1 | Core/Inc/mainSub.h:78 | 5 | 24 | 0 | 書き込みリトライの発生回数 | タイマ/カウンタ 揮発で正しい |
+| 231 | `MEM_l_sw_cnt` | 1 | Core/Inc/mainSub.h:185 | 3 | 1 | 0 | MEM SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
+| 232 | `POW_l_sw_cnt` | 1 | Core/Inc/mainSub.h:187 | 2 | 1 | 0 | POW SWの長押し判定カウント | タイマ/カウンタ 揮発で正しい |
+| 233 | `probe_hs_retry` | 1 | Core/Src/IM_110.c:989 | 3 | 1 | 0 | W:(ファイルスコープ),Probe_Boot_Start,Probe_Boot_Tick / R:Probe_Boot_Tick | タイマ/カウンタ 揮発で正しい |
+| 234 | `RTC_ResetCount` | 1 | Core/Inc/mainSub.h:112 | 1 | 0 | 0 | RTCリセット回数 | タイマ/カウンタ 揮発で正しい |
+| 235 | `disp_buf` | 12482 | Core/Inc/Lcd.h:36 | 6 | 3 | 3 | (cmd + adr + 50バイト) x 240ライン + dummyx2=12482バイト | UI状態 揮発で正しい |
+| 236 | `TR_Mode_CF` | 840 | Core/Src/IM_110.c:204 | 1 | 1 | 0 | TR 相関式テーブル ([] と No. の対応は MLSS_Mode_CF と同じ規則) | UI状態 揮発で正しい |
+| 237 | `guide_disp_flag` | 5 | Core/Inc/mainSub.h:51 | 7 | 7 | 0 | ガイダンス表示フラグ（0:表示 1:非表示） | UI状態 揮発で正しい |
+| 238 | `cal_sel_raw_full` | 4 | Core/Src/Normal.c:67 | 3 | 2 | 0 | 選択したフルスパン点 raw mV (ゼロ校正前) | UI状態 揮発で正しい |
+| 239 | `cal_sel_raw_mid` | 4 | Core/Src/Normal.c:68 | 2 | 1 | 0 | 選択した中間点 raw mV (ゼロ校正前) | UI状態 揮発で正しい |
+| 240 | `DISP_CYCLE` | 4 | Core/Inc/mainSub.h:206 | 1 | 56 | 0 | 測定中LCD表示間隔 Nx50mS = 2s | UI状態 揮発で正しい |
+| 241 | `adjust_mode` | 2 | Core/Inc/mainSub.h:198 | 28 | 2 | 0 | 基板自動調整時の設定モード (内容はAllDef.h参照(operation_mode準拠))	2019/12/17追加　三浦 | UI状態 揮発で正しい |
+| 242 | `operation_mode` | 2 | Core/Inc/mainSub.h:53 | 326 | 50 | 0 | 操作表示モード（内容はAllDef.h参照） | UI状態 揮発で正しい |
+| 243 | `ret_mode` | 2 | Core/Inc/Normal.h:52 | 16 | 6 | 0 | エラー解除後表示モード | UI状態 揮発で正しい |
+| 244 | `adj_buf_mode` | 1 | Core/Src/IM_110.c:1646 | 3 | 5 | 0 | Mode_CF 捕捉のモード (混在検出用) | UI状態 揮発で正しい |
+| 245 | `adj_tc_mode` | 1 | Core/Src/IM_110.c:1650 | 3 | 3 | 0 | 温度補正 捕捉のモード | UI状態 揮発で正しい |
+| 246 | `App_DL_disp_flag` | 1 | Core/Inc/mainSub.h:163 | 2 | 0 | 0 | アプリDL表示フラグ（0:表示 1:表示無し） | UI状態 揮発で正しい |
+| 247 | `batt_flash_flag` | 1 | Core/Src/Normal.c:34 | 5 | 1 | 0 | 変数 | UI状態 揮発で正しい |
+| 248 | `cal_setting_sel` | 1 | Core/Src/Normal.c:766 | 13 | 8 | 0 | 校正モード選択: 0=ZCAL, 1=ADCAL(2点), 2=MCAL(3点) | UI状態 揮発で正しい |
+| 249 | `corr_sel` | 1 | Core/Src/Normal.c:35 | 3 | 7 | 0 | 相関式選択: 0〜9 | UI状態 揮発で正しい |
+| 250 | `cur_sel_item` | 1 | Core/Src/Setting.c:23 | 3 | 3 | 0 | W:(ファイルスコープ),set_menu / R:set_menu | UI状態 揮発で正しい |
+| 251 | `disp_colon_flag` | 1 | Core/Inc/mainSub.h:191 | 1 | 1 | 0 | 時計：表示フラグ | UI状態 揮発で正しい |
+| 252 | `disp_lr_yajirushi` | 1 | Core/Inc/Display.h:37 | 13 | 12 | 0 | 矢印アイコン（左右） | UI状態 揮発で正しい |
+| 253 | `DISP_sw_mem` | 1 | Core/Inc/mainSub.h:189 | 41 | 10 | 0 | DISP短押し判別のための記憶 | UI状態 揮発で正しい |
+| 254 | `DISP_sw_step` | 1 | Core/Inc/mainSub.h:183 | 65 | 3 | 0 | DISP SWの判定用 | UI状態 揮発で正しい |
+| 255 | `lcd_extcomin` | 1 | Core/Inc/mainSub.h:171 | 3 | 2 | 0 | LCD交流化信号用フラグ | UI状態 揮発で正しい |
+| 256 | `lcd_off_cmd` | 1 | Core/Inc/mainSub.h:213 | 1 | 0 | 0 | LCD電源OFF処理フラグ | UI状態 揮発で正しい |
+| 257 | `lcd_on_cmd` | 1 | Core/Inc/mainSub.h:212 | 2 | 0 | 0 | LCD電源ON処理フラグ | UI状態 揮発で正しい |
+| 258 | `lcd_on_flag` | 1 | Core/Inc/mainSub.h:208 | 3 | 4 | 0 | LCD電源 ONフラグ | UI状態 揮発で正しい |
+| 259 | `logger_sw_stop_flag` | 1 | Core/Inc/mainSub.h:216 | 1 | 0 | 0 | SW操作でのロガー測定終了フラグ 0:2000点終了 1:SW終了 | UI状態 揮発で正しい |
+| 260 | `meas_flash_flag` | 1 | Core/Inc/mainSub.h:244 | 6 | 3 | 0 | センサー名称表示フラグ（0:表示無し, 表示有り） | UI状態 揮発で正しい |
+| 261 | `MEM_sw_mem` | 1 | Core/Inc/mainSub.h:188 | 22 | 9 | 0 | MEM短押し判別のための記憶 | UI状態 揮発で正しい |
+| 262 | `MEM_sw_step` | 1 | Core/Inc/mainSub.h:182 | 63 | 3 | 0 | MEM SWの判定用 | UI状態 揮発で正しい |
+| 263 | `POW_sw_step` | 1 | Core/Inc/mainSub.h:184 | 10 | 3 | 0 | POW SWの判定用 | UI状態 揮発で正しい |
+| 264 | `qr_update_flag` | 1 | Core/Inc/mainSub.h:166 | 2 | 1 | 0 | LCD表示更新用フラグ（2sec） | UI状態 揮発で正しい |
+| 265 | `tansui_sw_flag` | 1 | Core/Inc/mainSub.h:47 | 2 | 4 | 0 | 淡水／海水設定（0:淡水 1:海水） | UI状態 揮発で正しい |
+| 266 | `data_stable` | 1020 | Core/Src/AutoStable.c:30 | 2 | 14 | 4 | 安定判断サンプル ("MAX: 60秒×2(件／秒)" ×2倍 ＋15件) | 通信バッファ/状態 揮発で正しい |
+| 267 | `Probe_RecvData` | 128 | Core/Src/IM_110.c:306 | 3 | 10 | 0 | Probe communication variables | 通信バッファ/状態 揮発で正しい |
+| 268 | `RecvData` | 128 | Core/Inc/LinkSerial.h:17 | 6 | 85 | 1 | 受信バッファ | 通信バッファ/状態 揮発で正しい |
+| 269 | `CalTimeStable` | 4 | Core/Inc/AutoStable.h:19 | 3 | 0 | 0 | 安定までかかった時間 | 通信バッファ/状態 揮発で正しい |
+| 270 | `stable_now` | 4 | Core/Src/AutoStable.c:35 | 3 | 2 | 0 | 安定状態カウント用 | 通信バッファ/状態 揮発で正しい |
+| 271 | `stable_old` | 4 | Core/Src/AutoStable.c:34 | 4 | 1 | 0 | 安定状態カウント用 | 通信バッファ/状態 揮発で正しい |
+| 272 | `TimeStable` | 4 | Core/Inc/AutoStable.h:19 | 2 | 1 | 0 | 安定までかかった時間 | 通信バッファ/状態 揮発で正しい |
+| 273 | `UART1_BPS` | 4 | Core/Inc/mainSub.h:201 | 2 | 1 | 0 | UART通信速度 | 通信バッファ/状態 揮発で正しい |
+| 274 | `chk_stable` | 1 | Core/Inc/AutoStable.h:16 | 2 | 0 | 0 | 安定データの有無 | 通信バッファ/状態 揮発で正しい |
+| 275 | `f_stable` | 1 | Core/Inc/AutoStable.h:15 | 5 | 4 | 0 | 安定状態の指示 (0/1： 不安定／安定） | 通信バッファ/状態 揮発で正しい |
+| 276 | `Probe_Conn_Status` | 1 | Core/Src/IM_110.c:315 | 4 | 2 | 0 | 0=unknown / 1=connected / 2=NG(未応答) | 通信バッファ/状態 揮発で正しい |
+| 277 | `Probe_Data_Valid` | 1 | Core/Src/IM_110.c:316 | 2 | 1 | 0 | 1=測定値有効 / 0=未受信 or 鮮度切れ(→ "----" 表示) | 通信バッファ/状態 揮発で正しい |
+| 278 | `Probe_RecvDataP` | 1 | Core/Src/IM_110.c:307 | 2 | 2 | 0 | W:Probe_clear_RecvData,Probe_RxCallback / R:Probe_RxCallback | 通信バッファ/状態 揮発で正しい |
+| 279 | `Probe_uart_end` | 1 | Core/Src/IM_110.c:309 | 4 | 3 | 0 | W:(ファイルスコープ),Probe_clear_RecvData,Probe_RxCallback / R:Probe_WaitLine,Probe_… | 通信バッファ/状態 揮発で正しい |
+| 280 | `RecvDataP` | 1 | Core/Inc/LinkSerial.h:18 | 3 | 5 | 0 | W:clear_RecvData,HAL_UART_RxCpltCallback / R:HAL_UART_RxCpltCallback | 通信バッファ/状態 揮発で正しい |
+| 281 | `uart_end` | 1 | Core/Inc/LinkSerial.h:20 | 4 | 1 | 0 | UART文字列受信フラグ | 通信バッファ/状態 揮発で正しい |
+| 282 | `use_UART_flag` | 1 | Core/Inc/mainSub.h:195 | 3 | 6 | 0 | UART使用可能フラグ | 通信バッファ/状態 揮発で正しい |
+| 283 | `num.0` | 5 | Core/Src/Display.c:475 | 24 | 75 | 0 | 表示中の数値(整数部5桁) | 関数内static 揮発で正しい |
+| 284 | `num.14` | 5 | Core/Src/Normal.c:612 | 56 | 110 | 0 | 表示中の数値(整数部5桁) | 関数内static 揮発で正しい |
+| 285 | `num.18` | 5 | Core/Src/Normal.c:401 | 56 | 110 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 286 | `num.22` | 5 | Core/Src/Normal.c:220 | 56 | 110 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 287 | `num.4` | 5 | Core/Src/Display.c:278 | 24 | 75 | 0 | TR: 4桁 + 小数点 (100/10/1/0.1 の位、num[1..4] 使用、x=29/32/35/41 に配置し x=38 に "." アイコン) | 関数内static 揮発で正しい |
+| 288 | `Cal_SetVal_1_tmp.23` | 4 | Core/Src/Normal.c:221 | 8 | 17 | 0 | W:nrm_span_setting / R:nrm_span_setting | 関数内static 揮発で正しい |
+| 289 | `Cal_SetVal_2_tmp.19` | 4 | Core/Src/Normal.c:402 | 2 | 7 | 0 | W:nrm_span_setting_mid / R:nrm_span_setting_mid | 関数内static 揮発で正しい |
+| 290 | `calexec_time.9` | 4 | Core/Src/Normal.c:1111 | 5 | 5 | 0 | W:nrm_adjust_zero,nrm_adjust_span_m,nrm_adjust_span / R:nrm_adjust_zero,nrm_… | 関数内static 揮発で正しい |
+| 291 | `Interface_Threshold_tmp.15` | 4 | Core/Src/Normal.c:613 | 2 | 7 | 0 | W:nrm_depth_setting / R:nrm_depth_setting | 関数内static 揮発で正しい |
+| 292 | `EEP_Tadrs.5` | 2 | Core/Src/Adjust.c:562 | 24 | 32 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
+| 293 | `EEP_Tadrs.7` | 2 | Core/Src/Adjust.c:197 | 24 | 32 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
+| 294 | `index.6` | 2 | Core/Src/Normal.c:2393 | 4 | 4 | 0 | W:set_disp_his / R:set_disp_his | 関数内static 揮発で正しい |
+| 295 | `last_idx.3` | 2 | Core/Src/Adjust.c:843 | 2 | 1 | 0 | W:adb_apply_adc_mask / R:adb_apply_adc_mask | 関数内static 揮発で正しい |
+| 296 | `num.5` | 2 | Core/Src/Normal.c:1882 | 56 | 110 | 0 | 確定時 00 → 01 にクランプ、表示値 (1..30) - 1 で内部値 (0..29) に変換して MODE へ保存。 | 関数内static 揮発で正しい |
+| 297 | `tim1_counter.0` | 2 | Core/Src/Timer.c:81 | 3 | 4 | 0 | W:HAL_TIM_PeriodElapsedCallback / R:HAL_TIM_PeriodElapsedCallback | 関数内static 揮発で正しい |
+| 298 | `cal_menu_sel.12` | 1 | Core/Src/Normal.c:826 | 8 | 9 | 0 | W:nrm_cal_menu / R:nrm_cal_menu | 関数内static 揮発で正しい |
+| 299 | `corr_num_sel.4` | 1 | Core/Src/Normal.c:1883 | 2 | 3 | 0 | W:nrm_corr_setting / R:nrm_corr_setting | 関数内static 揮発で正しい |
+| 300 | `cur_sel_item2.0` | 1 | Core/Src/Setting.c:330 | 4 | 3 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
+| 301 | `cur_sel_item2.0` | 1 | Core/Src/Adjust.c:1430 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
+| 302 | `cur_sel_item2.1` | 1 | Core/Src/Adjust.c:1218 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
+| 303 | `cur_sel_item2.2` | 1 | Core/Src/Adjust.c:1080 | 12 | 9 | 0 | 選択中のアイテム 0...[+], 1...[-], 2...[セット] | 関数内static 揮発で正しい |
+| 304 | `disp_sw_mem.1` | 1 | Core/Src/Setting.c:230 | 4 | 1 | 0 | W:set_menu / R:set_menu | 関数内static 揮発で正しい |
+| 305 | `disp_sw_mem.11` | 1 | Core/Src/Normal.c:827 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 306 | `disp_sw_mem.13` | 1 | Core/Src/Normal.c:614 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 307 | `disp_sw_mem.17` | 1 | Core/Src/Normal.c:403 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 308 | `disp_sw_mem.21` | 1 | Core/Src/Normal.c:222 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 309 | `disp_sw_mem.3` | 1 | Core/Src/Normal.c:1884 | 20 | 5 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 310 | `empty_bat.0` | 1 | Core/Src/Normal.c:2929 | 2 | 2 | 0 | 電池点滅用 | 関数内static 揮発で正しい |
+| 311 | `first_check.1` | 1 | Core/Src/Normal.c:2899 | 2 | 1 | 0 | W:battery_check / R:battery_check | 関数内static 揮発で正しい |
+| 312 | `fl_flag.10` | 1 | Core/Src/Normal.c:1112 | 43 | 24 | 0 | W:nrm_span_setting,nrm_span_setting_mid,set_cal_his_select / R:nrm_span_sett… | 関数内static 揮発で正しい |
+| 313 | `initialized.1` | 1 | Core/Src/IM_110.c:1115 | 2 | 1 | 0 | W:Update_Interface_Hold / R:Update_Interface_Hold | 関数内static 揮発で正しい |
+| 314 | `meas_menu_sel.2` | 1 | Core/Src/Normal.c:2005 | 4 | 4 | 0 | W:nrm_meas_menu / R:nrm_meas_menu | 関数内static 揮発で正しい |
+| 315 | `prev_above.0` | 1 | Core/Src/IM_110.c:1114 | 3 | 1 | 0 | W:Update_Interface_Hold / R:Update_Interface_Hold | 関数内static 揮発で正しい |
+| 316 | `result.4` | 1 | Core/Src/Adjust.c:563 | 16 | 2 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
+| 317 | `result.6` | 1 | Core/Src/Adjust.c:198 | 16 | 2 | 0 | W:adj_eep_test,adj_eep_test_serial / R:adj_eep_test,adj_eep_test_serial | 関数内static 揮発で正しい |
+| 318 | `span_num_sel.16` | 1 | Core/Src/Normal.c:611 | 6 | 23 | 0 | W:nrm_span_setting,nrm_span_setting_mid,nrm_depth_setting / R:nrm_span_setti… | 関数内static 揮発で正しい |
+| 319 | `span_num_sel.20` | 1 | Core/Src/Normal.c:400 | 6 | 23 | 0 | MLSS: 5桁 (10000/1000/100/10/1)、num[0..4] 全使用、span_num_sel 0..4 (5 で確定) | 関数内static 揮発で正しい |
+| 320 | `span_num_sel.24` | 1 | Core/Src/Normal.c:219 | 6 | 23 | 0 | "." は固定表示 (x=38) で num_sel は飛ばす、value = num[1]*100 + num[2]*10 + num[3] + nu… | 関数内static 揮発で正しい |
+| 321 | `__global_locale` | 364 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 322 | `__sf` | 312 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 323 | `hlpuart1` | 136 | Core/Src/main.c:66 | 15 | 10 | 11 | W:ProbeRelay_Run,ProbeFupBridge_Run,MX_LPUART1_UART_Init / R:(ファイルスコープ),Prob… | HAL/libc 対象外 |
+| 324 | `huart1` | 136 | Core/Src/main.c:67 | 65 | 13 | 21 | W:Change_uart_bps,ProbeRelay_Run,ProbeFupBridge_Run / R:(ファイルスコープ),ProbeRela… | HAL/libc 対象外 |
+| 325 | `hadc1` | 104 | Core/Src/main.c:61 | 15 | 3 | 6 | Private variables --------------------------------------------------------- | HAL/libc 対象外 |
+| 326 | `hspi1` | 100 | Core/Src/main.c:71 | 14 | 3 | 4 | W:MX_SPI1_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 327 | `hspi2` | 100 | Core/Src/main.c:72 | 42 | 4 | 23 | W:eep_SPI_Configuration,rtc_SPI_Configuration,MX_SPI2_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 328 | `tzinfo` | 88 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 329 | `_impure_data` | 76 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 330 | `htim1` | 76 | Core/Src/main.c:75 | 28 | 4 | 16 | W:MX_TIM1_Init,SystemClock_SLEEP,SystemClock_4MHz / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 331 | `hdma_adc1` | 72 | Core/Src/main.c:62 | 9 | 4 | 2 | W:HAL_ADC_MspInit / R:(ファイルスコープ),HAL_ADC_MspInit | HAL/libc 対象外 |
+| 332 | `hdma_lpuart_rx` | 72 | Core/Src/main.c:68 | 9 | 4 | 2 | W:HAL_UART_MspInit / R:(ファイルスコープ),HAL_UART_MspInit | HAL/libc 対象外 |
+| 333 | `hdma_spi1_tx` | 72 | Core/Src/main.c:73 | 9 | 4 | 2 | W:HAL_SPI_MspInit / R:(ファイルスコープ),HAL_SPI_MspInit | HAL/libc 対象外 |
+| 334 | `hdma_usart1_rx` | 72 | Core/Src/main.c:69 | 9 | 4 | 2 | W:HAL_UART_MspInit / R:(ファイルスコープ),HAL_UART_MspInit | HAL/libc 対象外 |
+| 335 | `hiwdg` | 16 | Core/Src/main.c:64 | 4 | 2 | 2 | W:MX_IWDG_Init / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 336 | `__sglue` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 337 | `__tzname_dst` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 338 | `__tzname_std` | 12 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 339 | `_tzname` | 8 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 340 | `__env` | 4 | Core/Src/syscalls.c:39 | 1 | 1 | 0 | W:(ファイルスコープ) / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 341 | `__malloc_free_list` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 342 | `__malloc_sbrk_start` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 343 | `__sbrk_heap_end` | 4 | Core/Src/sysmem.c:31 | 3 | 3 | 0 | / | HAL/libc 対象外 |
+| 344 | `__stdio_exit_handler` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 345 | `_daylight` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 346 | `_impure_ptr` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 347 | `_timezone` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 348 | `environ` | 4 | Core/Src/syscalls.c:40 | 1 | 0 | 0 | W:(ファイルスコープ) / R:- | HAL/libc 対象外 |
+| 349 | `errno` | 4 | (libc) | 45 | 9 | 0 | W:_kill,_wait,_unlink / R:(ファイルスコープ) | HAL/libc 対象外 |
+| 350 | `prev_tzenv` | 4 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 351 | `SystemCoreClock` | 4 | Core/Src/system_stm32l4xx.c:172 | 7 | 0 | 0 | / | HAL/libc 対象外 |
+| 352 | `uwTick` | 4 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:90 | 0 | 0 | 0 | / | HAL/libc 対象外 |
+| 353 | `uwTickPrio` | 4 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:91 | 0 | 0 | 0 | Invalid priority | HAL/libc 対象外 |
+| 354 | `__lock___env_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 355 | `__lock___malloc_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 356 | `__lock___sfp_recursive_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 357 | `__lock___tz_mutex` | 1 | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 358 | `uwTickFreq` | 1 | Drivers/STM32L4xx_HAL_Driver/Src/stm32l4xx_hal.c:92 | 0 | 0 | 0 | 1KHz | HAL/libc 対象外 |
+| 359 | `completed.1` | - | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
+| 360 | `object.0` | - | (libc) | 0 | 0 | 0 | W:- / R:- | HAL/libc 対象外 |
 
 ## 7. プローブ IM-110_Probe — 全 52 件 一覧
 
