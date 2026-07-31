@@ -483,23 +483,31 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 - **k_No（No.1-20 ゲイン）は全プローブ共通の固定 progression ＝ flash 非保存**（FW 定数表）。保存は「選択中 No.」のみ。
 - **MLSSZR 等ゼロ基準は「出荷時」＋「現場」の 2 枠**（初期化で出荷時へ復帰）。No.21-30 は各スロットに独立2次式（初期値=出荷時ベース P4 のコピー）。
 
-| Page | 機能 | 内容（float/32B, 特記なき限り float） |
-|---|---|---|
-| 0 | ヘッダ | magic(4B)＋ver(1)＋rsv(1)＋**Probe_ID**(4B)＋**最終更新日**(4B)＋Product_Name(7B)＋checksum(4B) |
-| 1 | プローブ共通調整 | ADC_Span[ch1-5](空中1700傾き), LED_Out=1, k_depth=1 |
-| 2 | プローブ設定 | SADA, SADC, 選択中相関式No.(MLSS), Meas_Mode …（int/設定） |
-| 3 | MLSS ゼロ/温度 | MLSSZR_出荷時, MLSSZR_現場, refZR, B, B2 |
-| 4 | MLSS ベース/校正 | 出荷時2次(c0,c1,c2), SP_A,SP_B,SP_C, SetVal1,SetVal2 |
-| 5–9 | MLSS No.21-30 | 独立2次式×10（(c0,c1,c2)を2式/ページ）＝5ページ。初期値=P4ベースのコピー |
-| 10 | SS ゼロ/温度 | SSZR_出荷時, SSZR_現場, refZR, B, B2 |
-| 11 | SS ベース/校正 | 出荷時2次(c0,c1,c2), SP_A,B,C, SetVal1,2 |
-| 12 | SS No.21 | 独立2次式×1 (c0,c1,c2) ＋予備 |
-| 13 | TR ゼロ/ベース/校正 | TRZR, 累乗a,b, SP_A,B,C, SetVal1,2（温度補正=SS参照） |
-| 14 | TR No.21 ＋予備 | 累乗a,b(校正後) ＋予備 |
+| Page | 機能 | 内容（float/32B, 特記なき限り float） | 使用/31B |
+|---|---|---|---|
+| 0 | ヘッダ | magic(4B)＋**Probe_ID**(4B)＋**最終更新日**(4B)＋Product_Name(7B)＋checksum(4B) | 23 |
+| 1 | ADC span 正規化 | ADC_Span[ch1-5]（空中1700 傾き基準） | 20 |
+| 2 | **LED PWM duty** | **LED_Out[0..4]**。`[0]`=MLSS系(ch1,2, adboad.md 4) / `[1]`=SS系(ch3,4, adboad.md 7) / `[2..4]`予備 | 20 |
+| 3 | 水深係数 + プローブ設定 | k_depth ＋ SADA, SADC, 選択中相関式No.(MLSS), Meas_Mode（各1B） | 8 |
+| 4 | MLSS ゼロ/温度 | MLSSZR_出荷時, MLSSZR_現場, refZR, B, B2 | 20 |
+| 5 | MLSS ベース/校正 | 出荷時2次(c0,c1,c2), SP_A,SP_B,SP_C | 24 |
+| 6–10 | MLSS No.21-30 | 独立2次式×10（(c0,c1,c2)を2式/ページ）＝5ページ。初期値=P5ベースのコピー | 24 |
+| 11 | SS ゼロ/温度 | SSZR_出荷時, SSZR_現場, refZR, B, B2 | 20 |
+| 12 | SS ベース/校正 | 出荷時2次(c0,c1,c2), SP_A,B,C | 24 |
+| 13 | SS No.21 | 独立2次式×1 (c0,c1,c2) | 12 |
+| 14 | TR ゼロ/ベース/校正 | TRZR, 出荷時累乗a,b, SP_A,B,C（温度補正=SS参照） | 24 |
+| 15 | TR 校正後累乗 | 累乗a,b(校正後)。0,0 = 未校正マーカー | 8 |
+| 16 | 校正点設定値 SetVal | MLSS/SS/TR × (SetVal1, SetVal2) | 24 |
 
-- 合計 ~15 ページ ≈ 480B → プローブ統合ストア 2KB / 本体EEPROM（M95256 32KB=1024×32Bページ）に余裕。
-- **相関式初期化 / ゼロ初期化** = P4/P11 の出荷時ベース・P3/P10 の MLSSZR_出荷時 を、対応する現場枠・No.21-30 スロットへコピー。
-- **要詰め（実装時）**: Page2 の int パラメータの正確なバイト割付、TR の No.21 と 出荷時累乗 の関係（同一枠 or 別枠）、SS 余剰スロットの扱い。
+- **合計 17 ページ = 544B**（`STORE_NPAGE`=17）→ プローブ flash Page63(2KB) / 本体EEPROM ミラー **page61-77**（予備 page78-80 が残る）。
+- **2026-07-31 改訂**: 機能ごとに 1 ページを割り当てる方針へ変更。旧 Page1 が ADC_Span+LED_Out+k_depth の混載で、
+  LED duty を 2 系統に増やした際に `LED_Out[]` がページをまたぐ配置になったため。Page1=ADC / Page2=LED / Page3=水深+設定
+  に分離し、Page4 以降は旧 Page3 以降が +1 ずれた形。**旧レイアウトとバイト互換は無い（要 `RPF`）**。
+- **相関式初期化 / ゼロ初期化** = P5/P12 の出荷時ベース・P4/P11 の ZR_出荷時 を、対応する現場枠・No.21-30 スロットへコピー。
+- **LED duty は 2 系統**: adboad.md 4(MLSS LED PWM, ch1,2) が `LED_Out[0]`、7(SS LED PWM, ch3,4) が `LED_Out[1]`。
+  プローブ LED 駆動は TIM3 CH1 の 1 本なので、`SADC` マスクで有効化された系統の duty を PWM へ適用する。
+  `LED_Out[0..4]` は Page2 に連続配置する（ページをまたがせない）。
+- **要詰め（実装時）**: Page2 の残り int パラメータの正確なバイト割付、TR の No.21 と 出荷時累乗 の関係（同一枠 or 別枠）、SS 余剰スロットの扱い。
 
 ### 12.1 新品（工場出荷前）既定値 — **単一ソース = `probe_store.h store_set_new_probe_defaults()`**
 
@@ -510,7 +518,7 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 
 | ページ | フィールド | 新品既定 | 由来（本体 live INI と同値） |
 |---|---|---|---|
-| 0 ヘッダ | magic/ver / probe_id / last_update / product_name | `IM2S`/1 / `0xFFFFFFFF` / 0 / `"IM-110 "` | 新品＝ID未割当・日付未設定 |
+| 0 ヘッダ | magic / probe_id / last_update / product_name | `IM2S` / `0xFFFFFFFF` / 0 / `"IM-110 "` | 新品＝ID未割当・日付未設定（旧 ver バイトは 0 固定・判定に使わない） |
 | 1 共通 | adc_span[5] / led_out / k_depth | 1700.0 / 0.36 / 1.0 | `ADC_SPAN_INI`/`LED_OUT_INI` |
 | 2 設定 | SADA/SADC/選択No./Meas_Mode | 0（現状 unpack/apply 非配線・中立） | — |
 | 3/10 MLSS/SS ゼロ温度 | zr_ship / zr_field | **1700.0 / 1700.0** | `INI_MLSS_ZR`/`INI_SS_ZR`（`i0=0` 回避の要） |
@@ -518,8 +526,8 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 | 4/11 MLSS/SS ベース校正 | c0,c1,c2 / sp_a,sp_b,sp_c | **0,21315.0,0 / 0,1.0,0** | `*_Mode_CF[0]`(No.1傾き) / `*_SP_*`(恒等) |
 | 5-9 MLSS No.21-30 (×10) | 各 (c0,c1,c2) | **0,21315.0,0** | 初期＝No.1 傾き（校正で上書き） |
 | 12 SS No.21 | (c0,c1,c2) | **0,21315.0,0** | 同上 |
-| 13 TR | trzr / pow_a,pow_b / sp_a,b,c | **1700.0** / 0,0 / 0,1.0,0 | ZR で `log10(0)` 回避。pow_a=0 は本体で旧多項式へフォールバック |
-| 14 TR No.21 | pow_a_cal,pow_b_cal | 0,0 | 未校正 |
+| 14 TR | trzr / pow_a,pow_b / sp_a,b,c | **1700.0** / 0,0 / 0,1.0,0 | ZR で `log10(0)` 回避。pow_a=0 は本体で旧多項式へフォールバック |
+| 15 TR 校正後 | pow_a_cal,pow_b_cal | 0,0 | 未校正 |
 | 15 SetVal | mlss 8000/5000, ss 1000/500, tr 100/50 | 上記 | `INI_*_SP_1/2`（校正時のみ使用） |
 
 - **バイト一致契約**: プローブ flash（`store_set_defaults` → `store_set_new_probe_defaults`）と本体 EEPROM ミラー seed（`mirror_ensure_valid` → 同関数）は**同一ビルダー**で同一 512B を組む（§A-2）。値の変更は `probe_store.h` の `STORE_DEF_*` 一箇所のみ。

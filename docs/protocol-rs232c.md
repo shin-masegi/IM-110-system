@@ -145,7 +145,7 @@ ASCII テキスト前提のためエンディアン概念は適用されない�
 | # | コマンド | パラメータ | 応答 | 機能 | 実装 (プローブ側) |
 |---|---|---|---|---|---|
 | 1 | `VR` | なし | 値応答 1 行 | 製品名・FW バージョン取得 | `IM_110.c:315,388-393` |
-| 2 | `SP` | `X.XX` (float, 0.0〜1.0) | `OK`/`NG` | LED_REFV PWM duty 設定 | `IM_110.c:319,412-445` |
+| 2 | `SP` / `SP,<idx>,<duty>` | `X.XX` (float, 0.0〜1.0)、または `idx`(0〜4)+`duty` | `OK`/`NG` | LED_REFV PWM duty 設定。**引数1個 = `LED_Out[0]` を設定し即時 PWM 反映（従来互換）**。**引数2個 = `LED_Out[idx]` を設定**し、`idx` が現在の `SADC` マスクに対応する系統なら即時 PWM 反映。`LED_Out[5]` は `WPP` で全 5 個がフラッシュへ保存される。系統の割当は **`LED_Out[0]`=MLSS系(ch1,2) / `LED_Out[1]`=SS系(ch3,4)**、`[2..4]` は予約 (adboad.md 4/7) | `IM_110.c` `uart_Set_PWM_Duty` |
 | 3 | `SEL` | `N` (0,1,2) | `OK`/`NG` | `SEL` (PA6) 出力モード (0:OFF / 1:ON / 2:PWM) | `IM_110.c:323,448-471` |
 | 4 | `SS` | `N` (0,1) | ~~`OK`~~/**`NG`** | `SEL3` (PA7) 出力 (0:OFF / 1:ON)。ADC ch3 (物理 CH3) の読取先を `AD_AVE_mV[2]` (SEL3 LOW / PGA x1) または `AD_AVE_mV[4]` (SEL3 HIGH / PGA x2) に切り替える (§3.2.2)。**【2026-07-26 無効化】ch5(`[4]`) 廃止に伴い常に `NG` を返し SEL3 は LOW 固定**。透視度は `[2]` 直読みへ統一 (`mlss-calc-reference §0`)。プローブ `PROBE_CH5_ENABLED` を 1 に戻すと復活 | `IM_110.c:327,474-499` |
 | 5 | `MS` / `MS,N` | `N` (0,1) または省略 | `OK` | 測定データ自動送信の制御。**`MS,1` = 開始 / `MS,0` = 停止（冪等、新規コード推奨）**。引数省略時 `MS` はトグル (レガシー互換、プローブ単体試験用途) | `IM_110.c:335,387` |
@@ -310,7 +310,7 @@ SADC,0000 に戻す:          1.234,    -0.567,   2.100,    3.456,    5.678,    
 
 ```
 → RPG\r\n                              (全 16 ページ一括ダンプ)
-← PGV,<magic8hex>,<ver>\r\n            (ストア有効。例: PGV,494D3253,1  = 'IM2S',ver1)
+← PGV,<magic8hex>\r\n                  (ストア有効。例: PGV,494D3253  = 'IM2S')
 ← PG,0,<64hex>\r\n                     (Page0 ヘッダ 32B)
 ← PG,1,<64hex>\r\n
 ←  …(Page2..14)…
@@ -357,7 +357,7 @@ SADC,0000 に戻す:          1.234,    -0.567,   2.100,    3.456,    5.678,    
 | 14 | TR No.21 | 校正後累乗a,b |
 | 15 | SetVal | MLSS/SS/TR × (SetVal1,SetVal2) |
 
-- `store_hdr_t.ver`（= `PGV` の `<ver>`）でレイアウト版を判定。ページ構成を変える場合は ver を上げ、両側同時更新（§3.1）。
+- ストアの正当性は `magic` + 各ページ XOR + checksum で判定する。ページ構成を変える場合は両側同時更新のうえ、実機を `RPF`（新品化）してから再調整する（§3.1）。
 - 相関式初期化・ゼロ初期化は Page4/11 の出荷時ベース・Page3/10 の ZR_出荷時 を対応枠へコピー（本体側処理、§12）。旧 `RCF` の `CM/CK/CZ/CT`（Mode_CF/機差補正/ADZR/温度）は本モデルでは Page3-15 の 2 次式・ゼロ・温度枠へ吸収（`kiza` は廃止, §8）。
 
 #### 3.2.7 `MDR` / `RPF` — 調整・デバッグ用コマンド（プローブ Ver.0.18〜）
@@ -430,7 +430,7 @@ MS 自律送信が ON の状態でコマンドを発行すると、測定値行�
 | `NG` 応答 | `N` | `NG\r\n` |
 | `VR` 応答 / 起動バナー | `I` | `IM-110 Probe Ver.0.11\r\n` |
 | `RPP` Product Name / Probe ID / RPI / WPP 成功 | `P` | `Product Name: IM-110\r\n`, `Probe ID: 1234567890\r\n`, `Parameters saved to flash.\r\n`, `Parameters reset to initial values.\r\n` |
-| `RPG` 応答（統合ストア転送、§3.2.6） | `P` | `PGV,494D3253,1\r\n`, `PG,0,49...\r\n` |
+| `RPG` 応答（統合ストア転送、§3.2.6） | `P` | `PGV,494D3253\r\n`, `PG,0,49...\r\n` |
 | `RPP` ADC Zero/Span/Span_S | `A` | `ADC Zero[0]: 0.000000\r\n` |
 | `RPP` LED Out | `L` | `LED Out[0]: 0.458000\r\n` |
 | `WPP` 失敗 | `F` | `Failed to write parameters to flash.\r\n` |
@@ -507,7 +507,7 @@ MS 自律送信が ON の状態でコマンドを発行すると、測定値行�
 |---|---|---|
 | パラメータ欠落（カンマの後に値が無い） | `SP`, `SEL`, `SS`, `SID`, `SADZ`, `SADS`, `SADA`, `SADC` | 各コマンドの `strtok` 後 NULL チェック |
 | パラメータ形式不正（`strtof`/`strtol`/`strtoul` の失敗） | 同上 | `endptr` チェック |
-| パラメータ範囲外 | `SP` (0.0〜1.0)、`SEL` (0〜2)、`SS` (0〜1)、`SADZ`/`SADS` (0〜4)、`SADA` (0〜255) | 各レンジ比較 |
+| パラメータ範囲外 | `SP` (duty 0.0〜1.0 / idx 0〜4)、`SEL` (0〜2)、`SS` (0〜1)、`SADZ`/`SADS` (0〜4)、`SADA` (0〜255) | 各レンジ比較 |
 | `SADC` の書式不正 | 4 文字の `'0'`/`'1'` 以外を含む | `IM_110.c:543-550` |
 | 14 コマンドのどれにもマッチしない | 全未知コマンド | `IM_110.c:386` |
 
