@@ -64,8 +64,8 @@ AMIR / AMV / AMODE / AEQ / ALDA / AAD0 / ALD / AZRI / AZR / AWD6 / ACRI / AZCS /
 | `AMV` | なし | 受光/Ref mV・ABS・最終値の生値表示 | `AMV,%d,J:%.2f,R:%.2f,ABS:%.5f,F:%.4f,V:%.3f\n` | 1956 |
 | `AMODE` | `,<0/1/2>` | 測定モード設定（0:MLSS / 1:SS / 2:TR透視度） | `OK\n`/`NG\n` | 1966 |
 | `AEQ` | `,<21-30>` | 相関式 No. 選択（MLSSのみ） | `OK\n`/`NG\n` | 1974 |
-| `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（1700mV 収束 + WPP 保存, 2026-07-21 旧1750）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=1700。**開始 duty はプローブ現値を `RPP` から読む**（`6ca22ee` で開始duty引数を廃止。旧記載 `,<start_duty>` は誤り） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
-| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1700mV** にする span傾き記録（空中で実行）。**電圧範囲ゲートは撤廃**（2026-07-25。旧 生mV1400-2048。ch毎に空中生mVが大きく異なり ch1 以外が調整不能だったため。プローブ側は 0以下のみ NG）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
+| `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（1450mV 収束 + WPP 保存。2026-08-03 1700→1450: 清水中2048mV飽和対策。旧1700/1750）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=1450。**開始 duty はプローブ現値を `RPP` から読む**（`6ca22ee` で開始duty引数を廃止。旧記載 `,<start_duty>` は誤り） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
+| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1450mV** にする span傾き記録（空中で実行。2026-08-03 1700→1450）。**電圧範囲ゲートは撤廃**（2026-07-25。旧 生mV1400-2048。ch毎に空中生mVが大きく異なり ch1 以外が調整不能だったため。プローブ側は 0以下のみ NG）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
 | `ALD` | `,<duty>` | LED duty 手動設定（揮発） | `OK\n`/`NG\n` | 1997 |
 | `AZR` | なし | ADZR 捕捉（遮光ダーク → 統合ストア CZ） | `OK\n`/`NG\n` | 2005 |
 | `ATCF` | なし | 保存済み温度捕捉点 3 点から手動再フィット+確定（通常は ATC の自動再フィットで足りる） | `OK\n`/`NG\n` | 2011 |
