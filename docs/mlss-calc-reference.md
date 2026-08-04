@@ -588,13 +588,20 @@ MLSS = MLSS_SP_A × FABSS² + MLSS_SP_B × FABSS + MLSS_SP_C
 | 2 設定 | SADA/SADC/選択No./Meas_Mode | 0（現状 unpack/apply 非配線・中立） | — |
 | 3/10 MLSS/SS ゼロ温度 | zr_ship / zr_field | **1750.0 / 1750.0** | `INI_MLSS_ZR`/`INI_SS_ZR`（`i0=0` 回避の要） |
 | | refzr / b / b2 | 0 / 0 / 0 | 温度補正 中立 |
-| 4/11 MLSS/SS ベース校正 | c0,c1,c2 / sp_a,sp_b,sp_c | **0,21315.0,0 / 0,1.0,0** | `*_Mode_CF[0]`(No.1傾き) / `*_SP_*`(恒等) |
+| 4 MLSS ベース校正 | c0,c1,c2 / sp_a,sp_b,sp_c | **0,21315.0,0 / 0,1.0,0** | `MLSS_Mode_CF[0]`(No.1傾き) / `MLSS_SP_*`(恒等) |
+| 11 SS ベース校正 | c0,c1,c2 / sp_a,sp_b,sp_c | **0,2908.532,0 / 0,1.0,0** | SS実特性の1次傾き（下記「SS傾きの由来」）/ `SS_SP_*`(恒等) |
 | 5-9 MLSS No.21-30 (×10) | 各 (c0,c1,c2) | **0,21315.0,0** | 初期＝No.1 傾き（校正で上書き） |
-| 12 SS No.21 | (c0,c1,c2) | **0,21315.0,0** | 同上 |
+| 12 SS No.21 | (c0,c1,c2) | **0,2908.532,0** | 初期＝SS黒絵具1次式傾き（校正で上書き） |
 | 14 TR | trzr / pow_a,pow_b / sp_a,b,c | **1750.0** / 0,0 / 0,1.0,0 | ZR で `log10(0)` 回避。pow_a=0 は本体で旧多項式へフォールバック |
 | 15 TR 校正後 | pow_a_cal,pow_b_cal | 0,0 | 未校正 |
 | 15 SetVal | mlss 8000/5000, ss 1000/500, tr 100/50 | 上記 | `INI_*_SP_1/2`（校正時のみ使用） |
 
+- **SS 傾きの由来（2026-08-04 訂正）**: 従来は MLSS No.1 の `STORE_DEF_SLOPE`(21315) を SS にも流用していたが、
+  SS の実特性は約 1/7 の傾きであり、新品状態で空中表示が 1000mg/L フルスケールに張り付く（実測 空中1455mV で
+  計算値 ≈1711mg/L）。真実源 `docs/specs/IM補正式作成手順.xlsx`「SS黒絵具1次演算式」のフィット結果
+  **`y = 2.908532E+03·x`** に従い、SS 用既定傾きを **`STORE_DEF_SLOPE_SS = 2908.532`** として分離した
+  （検証: 890mg/L = 2908.532×log10(1761.26/869.83)）。出荷時3点調整の SS 常設既定係数
+  `STORE_DEF_ADJ3_SS_*_MV` も同傾きからの逆算（span 800mg/L→928.9mV / mid 400mg/L→1275.0mV）に更新。
 - **バイト一致契約**: プローブ flash（`store_set_defaults` → `store_set_new_probe_defaults`）と本体 EEPROM ミラー seed（`mirror_ensure_valid` → 同関数）は**同一ビルダー**で同一 512B を組む（§A-2）。値の変更は `probe_store.h` の `STORE_DEF_*` 一箇所のみ。
 - **本体 live との関係**: 本体 live 計算グローバルは起動時ハードコード INI（同値）で立ち上がるため、`RPG` 前でも測定は健全。ミラー seed は「プローブ断／本体単体交換」時の 3 層フォールバック（§A-2 層2）を健全に保つための土台。
 
