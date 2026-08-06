@@ -51,7 +51,7 @@
 接頭辞衝突回避のため長い接頭辞から判定する。実際の判定順（`LinkSerial.c:1951`〜`2124`）:
 
 ```
-AMIR / AMV / AMODE / AEQ / ALDA / AAD0 / ALD / AZRI / AZR / AWD6 / ACRI / AZCS / AZC
+AMIR / RAD / AMV / AMODE / AEQ / ALDA / AAD0 / ALD / AZRI / AZR / AWD6 / ACRI / AZCS / AZC
      / ATCF / ATC / AMCF / AMCU / AMCP / AMD / AMC / AWC / AMR / AST
 ```
 
@@ -60,16 +60,17 @@ AMIR / AMV / AMODE / AEQ / ALDA / AAD0 / ALD / AZRI / AZR / AWD6 / ACRI / AZCS /
 | コマンド | 引数 | 機能 | 応答例 | 根拠 |
 |---|---|---|---|---|
 | `AST` | なし | ステータス表示 | `AST,mode:%d,eq:%d,cf_pts:%d,tc:0x%X\n` | 2124 |
-| `AMIR` | なし | **統合ストア/ミラー/起動時3層ロード結果 ダンプ**（2026-07-25 追加, T1検証用）。`BOOT` 0:プローブ採用 1:ミラー維持+再同期 2:読取失敗→ミラー継続 3:実行中 255:未実行 ／ `L2` 層2(ミラー)を live へ適用したか ／ `MIR`/`PRB` の valid・probe_id・last_update | `AMIR,BOOT:%u,L2:%u,CONN:%u\n` ほか計4行 | `Probe_Store_DebugStatus` |
+| `AMIR` | なし | **統合ストア/EEP控え/起動時3層ロード結果 ダンプ**（2026-07-25 追加, T1検証用）。`BOOT` 0:プローブ採用 2:読取失敗→層2継続 3:実行中 255:未実行 ／ `L2` 層2(EEP控え)を live へ適用したか。**2026-08-06 診断行を追加**: `DIAG` = ORE(オーバーラン)/UERR(UARTエラー計)/DISC(行バッファ満杯破棄) カウンタ、`RPG` = 最後に失敗した RPG 試行の内訳 (R:結果 N:受理ページ BAD:hex不正 JUNK:未知断片 TO:タイムアウト種別 CHK:checksum TRY/FAIL:累計)、`RPGLINE` = 壊れ行の現物 (失敗時のみ) | `AMIR,BOOT:%u,...` 計5〜6行 | `Probe_Store_DebugStatus` |
+| `RAD` | なし | **全調整パラメータ読出**（2026-08-06 追加、ID-200T RAD 相当）。統合ストア25ページに記録される変数・設定値の RAM live/staging 一括ダンプ（読み取り専用・状態変更なし）。ヘッダ/SPAN/LED/水深/MLSS/SS/TR 係数/出荷時3点/現場校正点/**温度捕捉点 (`RAD,TC` 行 = %補正の6パラメータ、flash 確定前の値も見える)** | `RAD,ID:...` 〜 `RAD,END` 約30行 | `Probe_Store_DebugDumpAll` |
 | `AMV` | なし | 受光/Ref mV・ABS・最終値の生値表示 | `AMV,%d,J:%.2f,R:%.2f,ABS:%.5f,F:%.4f,V:%.3f\n` | 1956 |
 | `AMODE` | `,<0/1/2>` | 測定モード設定（0:MLSS / 1:SS / 2:TR透視度） | `OK\n`/`NG\n` | 1966 |
 | `AEQ` | `,<21-30>` | 相関式 No. 選択（MLSSのみ） | `OK\n`/`NG\n` | 1974 |
-| `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（1450mV 収束 + WPP 保存。2026-08-03 1700→1450: 清水中2048mV飽和対策。旧1700/1750）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=1450。**開始 duty はプローブ現値を `RPP` から読む**（`6ca22ee` で開始duty引数を廃止。旧記載 `,<start_duty>` は誤り） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
-| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..4`+`WPP` を発行し空中出力を **1450mV** にする span傾き記録（空中で実行。2026-08-03 1700→1450）。**電圧範囲ゲートは撤廃**（2026-07-25。旧 生mV1400-2048。ch毎に空中生mVが大きく異なり ch1 以外が調整不能だったため。プローブ側は 0以下のみ NG）。ADBOAD画面の代替（画面が無反応のためUART追加, 2026-07-21） | `OK\n`/`NG\n` | 2007 |
+| `ALDA` | `,<target_mV>`（省略可） | LED duty 自動調整（収束 + WPP 保存）。**引数は目標mV**。省略時 `LED_ADJ_TARGET_MV`=**1750**（2026-08-06 空中1450→**20℃清水1750** へ変更 — SADS 廃止・%温度補正化 §8-T。旧1450/1700/1750）。**開始 duty はプローブ現値を `RPP` から読む**（バルク受信 Probe_BulkCmd 経由、2026-08-06） | `ALDA,OK/NOCONV/ERR,duty:%.4f,max:%.1f,it:%d\n` | 1985 |
+| `AAD0` | なし | **MLSS AD0**: プローブ空中AD調整。`SADS,0..3`+`WPP` を発行し空中出力を 1450mV にする span傾き記録。**【2026-08-06 調整フローから廃止】** SADS は実施しない運用（span=既定1450→出力=生mV、mlss-calc-reference §8-T）。コマンドはデバッグ用に残置 | `OK\n`/`NG\n` | 2007 |
 | `ALD` | `,<duty>` | LED duty 手動設定（揮発） | `OK\n`/`NG\n` | 1997 |
 | `AZR` | なし | ADZR 捕捉（遮光ダーク → 統合ストア CZ） | `OK\n`/`NG\n` | 2005 |
-| `ATCF` | なし | 保存済み温度捕捉点 3 点から手動再フィット+確定（通常は ATC の自動再フィットで足りる） | `OK\n`/`NG\n` | 2011 |
-| `ATC` | `,<temp>` | 温度補正点捕捉（5/20/35℃ の最寄りスロット）。**捕捉のたびにストア Page23/24 へ永続化+flash確定し、3点揃っていれば B/B2/refZR を都度再フィット**（2026-08-02, protocol 0.6.1。単一温度点の後日取り直し可） | `OK\n`/`NG\n` | 2017 |
+| `ATCF` | なし | 温度捕捉点を含む係数一式の明示 flash 確定（=Adj_Commit）。**フィット処理は全廃**（2026-08-06 %補正化 — mlss-calc-reference §8-T。旧: 3点再フィット+確定） | `OK\n`/`NG\n` | 2011 |
+| `ATC` | `,<temp>` | 温度補正点捕捉（5/20/35℃ の最寄りスロット）。ストア Page23/24 staging へ上書きするのみ（永続化は電源OFF一括、明示確定は ATCF/AWC）。**捕捉点そのものがランタイム係数**（2026-08-06 %補正・フィット無し — §8-T。単一温度点の後日取り直し可） | `OK\n`/`NG\n` | 2017 |
 | `AMCF` | `,<degree>` | Mode_CF 多項式フィット | `AMCF,OK,R2:%.5f\n`/`NG\n` | 2025 |
 | `AMCP` | なし | Mode_CF 累乗フィット（透視度） | `AMCP,OK,R2:%.5f\n`/`NG\n` | 2036 |
 | `AMD` | なし | 捕捉点ダンプ | `AMD,%d,ABS:%.5f,Y:%.3f\n` … `AMD,END,%d\n` | 2045 |
