@@ -15,3 +15,4 @@ Thumbs.db
 # Generated Word docs (keep md as source of truth; regenerate docx as needed)
 *.docx
 !docs/templates/*.docx
+__pycache__/
