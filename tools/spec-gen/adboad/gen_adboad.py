@@ -8,7 +8,7 @@ OUT = sys.argv[1] if len(sys.argv) > 1 else '.'
 TITLE = ['t_MLSS_LED_PWM','t_MLSS_A','t_MLSS_Ref_A','t_SS_LED_PWM','t_SS_A','t_SS_Ref_A',
          't_MLSS_Ref_05','t_MLSS_Ref_20','t_MLSS_Ref_35','t_SS_Ref_05','t_SS_Ref_20','t_SS_Ref_35',
          't_MLSS_0','t_MLSS_8000','t_MLSS_4000','t_SS_0','t_SS_1000','t_SS_500',
-         't_TR_100','t_TR_60','t_TR_30','t_Depth_000','t_Depth_600']   # scr 4..26
+         't_TR_100','t_TR_90','t_TR_60','t_TR_30','t_Depth_000','t_Depth_600']   # scr 4..27 (90cm=23 挿入)
 
 def sw(s, l18, l23):                       # 左列スイッチ凡例 (DISP/MEM)
     s.icon(0,18,'icon_DISP'); s.icon(0,23,'icon_MEM')
@@ -40,7 +40,7 @@ def ship(scr, mode, live, setval, over=0): # disp_ADBOAD_SHIP (ライブ値+設�
 
 SCR = {}
 # 1-3: プログラムVer / EEPROMテスト / 電池電圧
-s = Screen(); s.icon(0,0,'t_prog_Ver'); s.number(36,9,0,0.41,2)
+s = Screen(); s.icon(0,0,'t_prog_Ver'); s.number(36,9,0,0.42,2)
 s.icon(0,17,'icon_DISP'); s.icon(5,17,'icon_next'); s.icon(0,22,'icon_MEM'); s.icon(5,22,'icon_l_erase')
 SCR['01'] = s
 s = Screen(); s.icon(0,1,'t_EEP'); s.icon(0,18,'icon_DISP'); s.icon(5,18,'icon_next')
@@ -54,27 +54,31 @@ SCR['08'] = probe(8, 1433.0, 0, 'mv');  SCR['09'] = probe(9, 1362.0, 0, 'mv')
 for i, (scr, j, r) in enumerate([(10,1802.0,1421.0),(11,1750.0,1362.0),(12,1698.0,1305.0),
                                  (13,1795.0,1418.0),(14,1750.0,1361.0),(15,1704.0,1303.0)]):
     SCR[f'{scr:02d}'] = probe2(scr, j, r)
-# 16-26: 出荷時3点調整 / 水深
+# 16-27: 出荷時3点/4点調整 / 水深 (2026-08-11 透視度 90cm=23 挿入で以降繰下げ)
 SCR['16'] = probe(16, 0.0, 0, 'mgl');        SCR['17'] = ship(17,'mlss', 8000.0, 8000.0)
 SCR['18'] = ship(18,'mlss', 4000.0, 4000.0); SCR['19'] = probe(19, 0.0, 0, 'mgl')
 SCR['20'] = ship(20,'ss', 1000.0, 1000.0);   SCR['21'] = ship(21,'ss', 500.0, 500.0)
 SCR['22'] = probe(22, 100.0, 1, 'cm', over=1)
-SCR['23'] = ship(23,'tr', 60.0, 60.0);       SCR['24'] = ship(24,'tr', 30.0, 30.0)
-SCR['25'] = probe(25, 0.0, 2, 'm');          SCR['26'] = probe(26, 6.0, 2, 'm')
-# 27-29: 日時調整
+SCR['23'] = ship(23,'tr', 90.0, 90.0)
+SCR['24'] = ship(24,'tr', 60.0, 60.0);       SCR['25'] = ship(25,'tr', 30.0, 30.0)
+SCR['26'] = probe(26, 0.0, 2, 'm');          SCR['27'] = probe(27, 6.0, 2, 'm')
+# 28-30: 日時調整 (disp_SETYEAR / disp_SETDAYS / disp_SETHOUR 準拠。図は編集前状態 = 次へ/開始 凡例)
 def dt(title, sel_icons, nums):
     s = Screen(); s.icon(0,1,title)
     s.icon(0,18,'icon_DISP'); s.icon(0,23,'icon_MEM')
-    s.icon(5,18,'icon_select'); s.icon(5,23,'icon_decision')
+    s.icon(5,18,'icon_next'); s.icon(5,23,'icon_start')
     for x,y,ic in sel_icons: s.icon(x,y,ic)
     for x,y,v in nums: s.number(x,y,0,v,0)
     return s
-SCR['27'] = dt('t_set_year', [(44,10,'w_plus'),(44,16,'w_minus'),(28,21,'w_cancel'),(39,21,'w_set')],
+#桁ごとの +/- は 4 桁分 (x=16/22/32/38, y=2/18)、中止/セット は y=22 (年画面のみ y=21)
+PM4 = [(16,2,'w_plus'),(16,18,'w_minus'),(22,2,'w_plus'),(22,18,'w_minus'),
+       (32,2,'w_plus'),(32,18,'w_minus'),(38,2,'w_plus'),(38,18,'w_minus')]
+SCR['28'] = dt('t_set_year', [(44,10,'w_plus'),(44,16,'w_minus'),(28,21,'w_cancel'),(39,21,'w_set')],
                [(37,9,2026.0)])
-SCR['28'] = dt('t_set_days', [(16,2,'w_plus'),(16,18,'w_minus'),(22,2,'w_plus'),(22,18,'w_minus'),
-                              (32,2,'w_plus'),(32,18,'w_minus'),(28,21,'w_cancel'),(39,21,'w_set')], [])
-SCR['29'] = dt('t_set_time', [(16,2,'w_plus'),(16,18,'w_minus'),(22,2,'w_plus'),(22,18,'w_minus'),
-                              (32,2,'w_plus'),(32,18,'w_minus'),(28,21,'w_cancel'),(39,21,'w_set')], [])
+SCR['29'] = dt('t_set_days', PM4 + [(28,22,'w_cancel'),(39,22,'w_set'),(28,6,'l_slash')],
+               [(16,6,0.0),(22,6,8.0),(32,6,1.0),(38,6,1.0)])          # 08/11
+SCR['30'] = dt('t_set_time', PM4 + [(28,22,'w_cancel'),(39,22,'w_set'),(28,6,'l_colon')],
+               [(16,6,1.0),(22,6,0.0),(32,6,3.0),(38,6,0.0)])          # 10:30
 for k, s in sorted(SCR.items()):
     s.save_png(f'{OUT}/adboad_{k}.png'); s.save_bmp(f'{OUT}/adboad_{k}.bmp')
 print('generated:', len(SCR))
