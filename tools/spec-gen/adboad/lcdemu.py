@@ -9,11 +9,11 @@ INC = '/Users/masegi/workspace/IM-110/Core/Inc/'
 
 def _parse(path, icons, tables):
     s = open(path, encoding='utf-8', errors='replace').read()
-    # 単体配列  static const uint8_t name [] = { ... };
-    for m in re.finditer(r'static const uint8_t (\w+)\s*\[\]\s*=\s*\{(.*?)\};', s, re.S):
+    # 単体配列  static const uint8_t|unsigned char name [] = { ... };
+    for m in re.finditer(r'static const (?:uint8_t|unsigned char) (\w+)\s*\[\]\s*=\s*\{(.*?)\};', s, re.S):
         icons[m.group(1)] = [int(x, 16) for x in re.findall(r'0x([0-9A-Fa-f]{2})', m.group(2))]
-    # 2次元配列 static const uint8_t name[N][M] = { {..},{..} };
-    for m in re.finditer(r'static const uint8_t (\w+)\[(\d+)\]\[(\d+)\]\s*=\s*\{(.*?)\n\};', s, re.S):
+    # 2次元配列 static const uint8_t|unsigned char name[N][M] = { {..},{..} };
+    for m in re.finditer(r'static const (?:uint8_t|unsigned char) (\w+)\[(\d+)\]\[(\d+)\]\s*=\s*\{(.*?)\n\};', s, re.S):
         name, n, per = m.group(1), int(m.group(2)), int(m.group(3))
         vals = [int(x, 16) for x in re.findall(r'0x([0-9A-Fa-f]{2})', m.group(4))]
         tables[name] = [vals[i*per:(i+1)*per] for i in range(n)]

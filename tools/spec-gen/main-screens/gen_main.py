@@ -257,6 +257,11 @@ nav(s, [(18, 'icon_DISP', 'icon_return'), (23, 'icon_MEM', 'icon_decision')])
 s.icon(18, 6, 'msg_reset')
 SCR['sys_reset'] = s
 
+s = base('t_reset')                                              # 初期化完了 (disp_RESET msg=1)
+nav(s, [(18, 'icon_DISP', 'icon_return')])
+s.icon(18, 6, 'msg_reset_comp')
+SCR['sys_reset_comp'] = s
+
 s = base('t_QR')                                                 # 製品情報 (disp_QR qr_flg=0)
 nav(s, [(18, 'icon_DISP', 'icon_return')])
 s.icon(18, 24, 'icon_info_err'); s.number(46, 24, 2, 0, 0); s.icon(18, 27, 'icon_line')
@@ -269,12 +274,87 @@ s.icon(0, 19, 'icon_DISP'); s.icon(5, 19, 'icon_hidden')
 s.icon(0, 24, 'icon_MEM');  s.icon(5, 24, 'icon_finish')
 SCR['guide_store'] = s
 
-s = Screen(); battery(s)                                         # エラー画面 例: No.3 (disp_error_page1)
-s.icon(0, 1, 'err_title3'); s.icon(0, 6, 'err_message3')
-s.icon(29, 7, 'err_QR'); s.icon(16, 20, 'err_icon3')             # QR は枠のみ (中身省略)
-s.icon(0, 19, 'icon_DISP'); s.icon(5, 19, 'icon_procedure')
-s.icon(0, 24, 'icon_MEM');  s.icon(5, 24, 'icon_release')
-SCR['error_p1'] = s
+# エラー画面は Display.c の error1_table / error2_table をそのまま写し、
+# common/LS027_Display.c の disp_error_page1 / disp_error_page2 の配置で描画する。
+# QR コード (qrcode_err_disp) の中身は省略し err_QR 枠のみ。
+
+SYS_ERRNO = 90                     # ERROR6 併記の本体エラー番号 代表値 (90=EEPROM異常)
+
+def err6_1_extra(s):                                             # Display.c error6_1_extra
+    s.icon(15, 13, 'm_No'); s.number(24, 13, 1, SYS_ERRNO, 0)
+
+def err6_2_extra(s):                                             # Display.c error6_2_extra
+    s.icon(14, 14, 'm_No')
+
+def error_page1(title, message, icon, show_proc, show_rel, extra=None):
+    s = Screen(); battery(s)
+    s.icon(0, 1, title); s.icon(0, 6, message)
+    s.icon(29, 7, 'err_QR'); s.icon(16, 20, icon)
+    if show_proc:
+        s.icon(0, 19, 'icon_DISP'); s.icon(5, 19, 'icon_procedure')
+    if show_rel:
+        s.icon(0, 24, 'icon_MEM');  s.icon(5, 24, 'icon_release')
+    if extra:
+        extra(s)
+    return s
+
+def error_page2(title, guide, show_qr, show_rel, extra=None):
+    s = Screen(); battery(s)
+    s.icon(0, 1, title); s.icon(16, 6, guide)
+    if show_qr:
+        s.icon(0, 19, 'icon_DISP'); s.icon(5, 19, 'icon_QR_disp')
+    if show_rel:
+        s.icon(0, 24, 'icon_MEM');  s.icon(5, 24, 'icon_release')
+    if extra:
+        extra(s)
+    return s
+
+# Display.c error1_table: (key, title, message, icon, show_procedure, show_release, extra)
+ERR1_TABLE = [
+    ('e01', 'err_title3',  'err_message3',  'err_icon3', 1, 1, None),   # ERROR1 (暫定 ERROR3 と同一文面)
+    ('e02', 'err_title3',  'err_message3',  'err_icon3', 1, 1, None),   # ERROR2 (同上)
+    ('e03', 'err_title3',  'err_message3',  'err_icon3', 1, 1, None),   # ERROR3
+    ('e04', 'err_title4',  'err_message4',  'err_icon3', 1, 1, None),   # ERROR4 (No.4-6 共用)
+    ('e05', 'err_title5',  'err_message5',  'err_icon5', 1, 1, None),   # ERROR5 (未到達)
+    ('e06', 'err_title6',  'err_message6',  'err_icon6', 0, 1, err6_1_extra),  # ERROR6 手順表示なし
+    ('e07', 'err_title7',  'err_message7',  'err_icon6', 1, 0, None),   # ERROR7 解除なし
+    ('e08', 'err_title8',  'err_message8',  'err_icon5', 1, 1, None),   # ERROR8
+    ('e09', 'err_title9',  'err_message9',  'err_icon5', 1, 0, None),   # ERROR9 解除なし
+    ('e17', 'err_title17', 'err_message3',  'err_icon3', 1, 1, None),   # ERROR17 (未到達)
+    ('e19', 'err_title19', 'err_message19', 'err_icon6', 0, 1, None),   # ERROR19 (未到達)
+]
+
+# Display.c error2_table: (key, title, guide, show_qr_disp, show_release, extra)
+ERR2_TABLE = [
+    ('e01', 'err_title3',  'err_guide3',  1, 1, None),
+    ('e02', 'err_title3',  'err_guide3',  1, 1, None),
+    ('e03', 'err_title3',  'err_guide3',  1, 1, None),
+    ('e04', 'err_title4',  'err_guide4',  1, 1, None),
+    ('e05', 'err_title5',  'err_guide4',  1, 1, None),
+    ('e06', 'err_title6',  'err_guide6',  0, 1, err6_2_extra),          # page1 に DISP 無し = 未到達
+    ('e07', 'err_title7',  'err_guide7',  1, 0, None),
+    ('e08', 'err_title8',  'err_guide4',  1, 1, None),
+    ('e09', 'err_title9',  'err_guide4',  1, 0, None),
+    ('e17', 'err_title17', 'err_guide17', 1, 1, None),
+    ('e19', 'err_title19', 'err_guide3',  1, 1, None),                  # 同上 未到達
+]
+
+# ページ2 は ERRWAIT1 の DISP でのみ到達する。page1 の show_procedure=0 の画面
+# (ERROR6 / ERROR19) はページ2 が定義だけで到達不能なため生成しない。
+P1_HAS_PROC = {k: p for k, _, _, _, p, _, _ in ERR1_TABLE}
+
+# ERRDSP1 (Normal.c) の switch から呼ばれる = 実機で表示できる画面のみ生成する。
+# ERROR5 は disp_ERROR5_1/_2 が存在するが switch に case が無く、ERROR17 / ERROR19 は
+# 描画関数すら無い (テーブル行と素材だけが ID-200T から残った残骸)。
+REACHABLE = {'e01', 'e02', 'e03', 'e04', 'e06', 'e07', 'e08', 'e09'}
+
+for k, title, message, icon, sp, sr, ex in ERR1_TABLE:
+    if k not in REACHABLE:
+        continue
+    SCR['err_%s_p1' % k] = error_page1(title, message, icon, sp, sr, ex)
+for k, title, guide, sq, sr, ex in ERR2_TABLE:
+    if k in REACHABLE and P1_HAS_PROC[k]:
+        SCR['err_%s_p2' % k] = error_page2(title, guide, sq, sr, ex)
 
 # ---- 出力 -------------------------------------------------------------------
 os.makedirs(OUT, exist_ok=True)
