@@ -36,11 +36,25 @@ def ship(scr, mode, live, setval, over=0): # disp_ADBOAD_SHIP (ライブ値+設�
         s.number(38,5,0,live,1); s.icon(44,11,'m_cm');  s.number(41,18,1,setval,1)
     else:
         s.number(38,5,0,live,0); s.icon(44,11,'l_mgl'); s.number(41,18,1,setval,0)
+    s.icon(0,13,'icon_DISP'); s.icon(5,13,'icon_l_setting')   # 長押しで設定 (2026-09-03 追加)
     sw(s,'icon_next','icon_start'); return s
+
+def setval(scr, kind, num, sel):           # disp_ADBOAD_SETVAL (基準器設定値 入力画面)
+    s = Screen(); s.icon(0,1,TITLE[scr-4])
+    xs = {0: (29,32,35,38,41), 1: (0,32,35,38,41), 2: (0,30,33,36,41)}[kind]
+    for i in range(0 if kind == 0 else 1, 5):
+        s.number(xs[i], 18, 1, num[i], 0)
+    if kind == 2: s.icon(39,18,'m_dot')
+    from lcdemu import TABLE
+    s.icon(xs[sel], 18, TABLE['b_m_num'][num[sel]])
+    s.icon(0,13,'icon_DISP'); s.icon(5,13,'icon_l_return')
+    s.icon(0,18,'icon_DISP'); s.icon(5,18,'icon_change')
+    s.icon(0,23,'icon_MEM');  s.icon(5,23,'icon_next')
+    return s
 
 SCR = {}
 # 1-3: プログラムVer / EEPROMテスト / 電池電圧
-s = Screen(); s.icon(0,0,'t_prog_Ver'); s.number(36,9,0,0.42,2)
+s = Screen(); s.icon(0,0,'t_prog_Ver'); s.number(36,9,0,0.43,2)
 s.icon(0,17,'icon_DISP'); s.icon(5,17,'icon_next'); s.icon(0,22,'icon_MEM'); s.icon(5,22,'icon_l_erase')
 SCR['01'] = s
 s = Screen(); s.icon(0,1,'t_EEP'); s.icon(0,18,'icon_DISP'); s.icon(5,18,'icon_next')
@@ -62,6 +76,8 @@ SCR['22'] = probe(22, 100.0, 1, 'cm', over=1)
 SCR['23'] = ship(23,'tr', 90.0, 90.0)
 SCR['24'] = ship(24,'tr', 60.0, 60.0);       SCR['25'] = ship(25,'tr', 30.0, 30.0)
 SCR['26'] = probe(26, 0.0, 2, 'm');          SCR['27'] = probe(27, 6.0, 2, 'm')
+SCR['setval_17'] = setval(17, 0, (0,8,0,0,0), 0)   # MLSS 5桁 (先頭桁 編集中)
+SCR['setval_23'] = setval(23, 2, (0,0,9,0,0), 1)   # 透視度 4桁+小数点 (090.0、先頭桁 編集中)
 # 28-30: 日時調整 (disp_SETYEAR / disp_SETDAYS / disp_SETHOUR 準拠。図は編集前状態 = 次へ/開始 凡例)
 def dt(title, sel_icons, nums):
     s = Screen(); s.icon(0,1,title)
