@@ -92,48 +92,41 @@ SCR['strt_help'] = s
 s = base('t_MLSS')                                               # MLSS 測定中 (disp_MLSS_Meas_2)
 s.icon(3, 8, 'icon_wait1'); mlss_main(s, 2340); mlss_ifc(s)
 s.number(39, 25, 2, 1, 0); mode30(s, 28, 41, 45)
-progbar(s, 40); nav(s, [(18, 'icon_DISP', 'icon_history')])
+progbar(s, 40); nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_DISP', 'icon_history')])
 SCR['meas_mlss_wait'] = s
 
 s = base('t_MLSS')                                               # MLSS ホールド (disp_MLSS_Meas_3 save=0)
 mlss_main(s, 2340); mlss_ifc(s)
 s.number(39, 25, 2, 1, 0); mode30(s, 28, 41, 45)
-nav(s, [(13, 'icon_DISP', 'icon_history'), (18, 'icon_MEM', 'icon_save'), (23, 'icon_MEM', 'icon_l_calmemory')])
+nav(s, [(13, 'icon_DISP', 'icon_l_change'), (18, 'icon_DISP', 'icon_history'), (23, 'icon_MEM', 'icon_save')])
 SCR['meas_mlss_hold'] = s
 
 s = base('t_MLSS')                                               # MLSS 記録完了 (disp_MLSS_Meas_3 save=1)
 mlss_main(s, 2340); mlss_ifc(s)
 s.number(39, 25, 2, 1, 0); mode30(s, 28, 41, 45)
-nav(s, [(13, 'icon_DISP', 'icon_history'), (23, 'icon_MEM', 'icon_l_calmemory')])
-s.icon(0, 18, 'icon_save'); s.icon(10, 18, 'icon_complete')
-SCR['meas_mlss_saved'] = s
-
-s = base('t_MLSS')                                               # MLSS 後校正記録完了 (disp_MLSS_Meas_3 save=3)
-mlss_main(s, 2340); mlss_ifc(s)
-s.number(39, 25, 2, 1, 0); mode30(s, 28, 41, 45)
-nav(s, [(13, 'icon_DISP', 'icon_history'), (18, 'icon_MEM', 'icon_save')])
+nav(s, [(13, 'icon_DISP', 'icon_l_change'), (18, 'icon_DISP', 'icon_history')])
 s.icon(0, 23, 'icon_save'); s.icon(10, 23, 'icon_complete')
-SCR['meas_mlss_pcal'] = s
+SCR['meas_mlss_saved'] = s
 
 s = base('t_SS')                                                 # SS 測定中
 s.icon(3, 8, 'icon_wait1'); s.number(38, 11, 0, 245, 0); s.icon(44, 17, 'l_mgl')
-progbar(s, 55); nav(s, [(18, 'icon_DISP', 'icon_history')])
+progbar(s, 55); nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_DISP', 'icon_history')])
 SCR['meas_ss_wait'] = s
 
 s = base('t_Transparency')                                       # 透視度 測定中
 s.icon(3, 8, 'icon_wait1'); s.number(38, 11, 0, 65.3, 1); s.icon(44, 17, 'm_cm')
-progbar(s, 70); nav(s, [(18, 'icon_DISP', 'icon_history')])
+progbar(s, 70); nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_DISP', 'icon_history')])
 SCR['meas_tr_wait'] = s
 
 s = base('t_Transparency')                                       # 透視度 100cm 超 (100.0+OVER)
 s.icon(3, 8, 'icon_over'); s.number(38, 11, 0, 100.0, 1); s.icon(44, 17, 'm_cm')
-progbar(s, 100); nav(s, [(18, 'icon_DISP', 'icon_history')])
+progbar(s, 100); nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_DISP', 'icon_history')])
 SCR['meas_tr_over'] = s
 
 s = base('t_Transparency')                                       # 透視度 0cm 以下 ("-.-")
 s.icon(3, 8, 'icon_wait1')
 s.icon(28, 11, 'l_minus'); s.icon(34, 11, 'l_dot'); s.icon(38, 11, 'l_minus')
-s.icon(44, 17, 'm_cm'); progbar(s, 0); nav(s, [(18, 'icon_DISP', 'icon_history')])
+s.icon(44, 17, 'm_cm'); progbar(s, 0); nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_DISP', 'icon_history')])
 SCR['meas_tr_minus'] = s
 
 s = base('t_measure')                                            # モード切替 (disp_M_CHANGE flg=0)
@@ -204,12 +197,12 @@ SCR['zcal_run'] = s
 s = base('t_zero_cal')                                           # ゼロ校正 待機 (disp_MLSS_ZCal_3 msg=0)
 s.number(38, 5, 0, 10, 0); s.icon(44, 11, 'l_mgl')
 s.number(36, 25, 2, 1, 0); mode30(s, 25, 38, 42)
-nav(s, [(23, 'icon_MEM', 'icon_l_cal_start')])
+nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_MEM', 'icon_l_cal_start')])
 SCR['zcal_wait'] = s
 
 s = base('t_zero_cal')                                           # 校正完了 (disp_MLSS_ZCal_3 msg=1)
 s.icon(20, 11, 'msg_cal_comp')
-nav(s, [(23, 'icon_MEM', 'icon_l_cal_start')])
+nav(s, [(18, 'icon_DISP', 'icon_l_change'), (23, 'icon_MEM', 'icon_l_cal_start')])
 SCR['zcal_comp'] = s
 
 s = base('t_2p_cal')                                             # 2点校正 設定値入力 MLSS (disp_MLSS_SCal_1)
@@ -235,12 +228,12 @@ def cal_wait(title, val, setval):                                # disp_MLSS_SCa
     s.number(38, 5, 0, val, 0); s.icon(44, 11, 'l_mgl')
     s.number(41, 18, 1, setval, 0)
     s.number(36, 25, 2, 1, 0); mode30(s, 25, 38, 42)
-    nav(s, [(13, 'icon_DISP', 'icon_setting'), (18, 'icon_MEM', 'icon_cal_start'), (23, 'icon_MEM', 'icon_l_postcal')])
+    nav(s, [(13, 'icon_DISP', 'icon_l_change'), (18, 'icon_DISP', 'icon_setting'), (23, 'icon_MEM', 'icon_l_cal_start')])
     return s
 
 def cal_comp(title):                                             # disp_MLSS_SCal_3 / MCal_3 (msg_flag=1) 校正完了
     s = base(title); s.icon(20, 11, 'msg_cal_comp')
-    nav(s, [(13, 'icon_DISP', 'icon_setting'), (18, 'icon_MEM', 'icon_cal_start'), (23, 'icon_MEM', 'icon_l_postcal')])
+    nav(s, [(13, 'icon_DISP', 'icon_l_change'), (18, 'icon_DISP', 'icon_setting'), (23, 'icon_MEM', 'icon_l_cal_start')])
     return s
 
 SCR['scal_wait'] = cal_wait('t_2p_cal', 7990, 8000)
@@ -248,33 +241,19 @@ SCR['scal_comp'] = cal_comp('t_2p_cal')
 SCR['mcal_wait'] = cal_wait('t_3p_cal', 4010, 4000)
 SCR['mcal_comp'] = cal_comp('t_3p_cal')
 
-s = base('t_2p_cal')                                             # 2点校正 校正中 MLSS (disp_MLSS_SCal_2)
-s.icon(3, 8, 'icon_wait1'); s.number(38, 5, 0, 7990, 0); s.icon(44, 11, 'l_mgl')
-s.number(41, 18, 1, 8000, 0)
-s.number(36, 25, 2, 1, 0); mode30(s, 25, 38, 42)
-nav(s, [(23, 'icon_MEM', 'icon_abort')]); progbar(s, 45)
-SCR['scal_run'] = s
-
-s = base('t_3p_cal')                                             # 3点校正 校正中 MLSS (disp_MLSS_MCal_2)
-s.icon(3, 8, 'icon_wait1'); s.number(38, 5, 0, 4010, 0); s.icon(44, 11, 'l_mgl')
-s.number(41, 18, 1, 4000, 0)
-s.number(36, 25, 2, 1, 0); mode30(s, 25, 38, 42)
-nav(s, [(23, 'icon_MEM', 'icon_abort')]); progbar(s, 45)
-SCR['mcal_run'] = s
-
 s = base('t_reset')                                              # 校正リセット確認 MLSS No.21 (disp_C_RESET)
 s.icon(18, 6, 'msg_corr_No'); s.number(36, 6, 2, 21, 0)
 s.icon(18, 10, 'msg_corr_reset')
 nav(s, [(18, 'icon_DISP', 'icon_return'), (23, 'icon_MEM', 'icon_decision')])
 SCR['cal_reset'] = s
 
-s = base('t_pcal_select')                                        # 後校正値選択 (disp_CAL_HSEL、行 = disp_cal_hsel_row)
+s = base('t_disp_meas_history')                                  # 後校正 記録選択 (disp_CAL_HSEL、行 = disp_cal_hsel_row、測定履歴参照)
 nav(s, [(18, 'icon_DISP', 'icon_decision'), (23, 'icon_MEM', 'icon_next')])
-hist_row(s, 16, 6, 1, 10, 21, 8, 11, 2340, 0.0)                   # 後校正記録は水深を保存しない (0 固定)
+hist_row(s, 16, 6, 1, 10, 21, 8, 11, 2340, 0.1)
 s.icon(16, 13, 'icon_line')
-hist_row(s, 16, 14, 2, 9, 45, 8, 11, 1980, 0.0)
+hist_row(s, 16, 14, 2, 9, 45, 8, 11, 1980, 0.1)
 s.icon(16, 21, 'icon_line')
-hist_row(s, 16, 22, 3, 15, 2, 8, 10, 2100, 0.0)
+hist_row(s, 16, 22, 3, 15, 2, 8, 10, 2100, 0.2)
 SCR['cal_hsel'] = s
 
 # ---- 4章 設定 ---------------------------------------------------------------
