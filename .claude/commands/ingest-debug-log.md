@@ -16,7 +16,7 @@ description: デバッグログのインボックスを読み、仕様書やCLAU
    a. `事実` と `検証した結果` から、**確定した知見** を抽出
    b. `仕様への反映候補` セクションがあればそれを叩き台にする
    c. 反映先候補を以下から選ぶ（複数可）:
-      - `docs/protocol-rs232c.md` ← プロトコル仕様に関わる場合
+      - `docs/specs/protocol-rs232c.md` ← プロトコル仕様に関わる場合
       - `IM-110-system/CLAUDE.md` ← システム横断のルール・知見
       - `../IM-110/CLAUDE.md` ← 本体固有の知見（`/add-dir ../IM-110` が必要）
       - `../IM-110_Probe/CLAUDE.md` ← プローブ固有の知見
@@ -56,7 +56,7 @@ description: デバッグログのインボックスを読み、仕様書やCLAU
   確定した知見:
     - (箇条書き)
   反映先案:
-    - docs/protocol-rs232c.md §4 タイミング: MS 自律送信周期に ±50ms のジッタ実測 → 注記追加
+    - docs/specs/protocol-rs232c.md §4 タイミング: MS 自律送信周期に ±50ms のジッタ実測 → 注記追加
     - ../IM-110_Probe/CLAUDE.md §6: ADC 移動平均の推奨値を実測値で更新
   反映しますか? (y / n / e=編集)
 ```

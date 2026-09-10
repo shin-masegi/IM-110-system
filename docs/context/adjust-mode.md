@@ -2,13 +2,13 @@
 
 > 出所: Claude auto-memory `project_adjust_mode.md`（type: project / originSession 6598803f…）を 2026-07-22 にリポへ移設。
 > メモリ側は本ファイルへのポインタのみ。編集はここを真実源とする。
-> **設計の一次真実源は `docs/adjust-mode-design.md`**（本ファイルは進捗スナップショット）。
+> **設計の一次真実源は `docs/specs/adjust-mode-design.md`**（本ファイルは進捗スナップショット）。
 > **注記(2026-07-22)**: 本ログ中の 係数ストア(cf[7]/modecf[7]/kiza 系, Page63) は旧モデル。係数保存の現行目標は
 > `mlss-calc-reference.md §12` の 512B 統合ストア。移行未完の状況は `handoff.md` §4 参照。
 
 プローブの補正式作成・校正（現状 Excel `docs/specs/IM補正式作成手順.xlsx` の手作業）を、本体の**基板調整モード ADBOAD** 上で実行できるようにする。作った係数は係数ストア（Page63。保存レイアウトは `mlss-calc-reference.md §12` 統合ストア）へ書く。
 
-**★次セッション起点(2026-07-14 合意)**: 補正式①②③・係数ストア ver2・算出コア・MLSS/SS/透視度 校正フローは実装+push 済。次は **A(シリアル調整インターフェース=LinkSerial.c にコマンド追加)を実装→A で実機検証→B(ADBOAD LCD 6画面)を実装** の順。A を先にする理由=ADBOAD 入口が無効化中(main.c~264 PC4_nTEST 誤起動対策でコメントアウト)＋既存ADBOADは ID-200T DOレガシー、一方 LinkSerial は PC 直結コマンド基盤あり算出コア+係数ストア書込を直接叩ける。**A のコマンド設計スケッチと全体の完了/残は `docs/adjust-mode-design.md` 冒頭「★次セッション引き継ぎ」に記載**。検証順=FUP→係数ストア→調整/校正。
+**★次セッション起点(2026-07-14 合意)**: 補正式①②③・係数ストア ver2・算出コア・MLSS/SS/透視度 校正フローは実装+push 済。次は **A(シリアル調整インターフェース=LinkSerial.c にコマンド追加)を実装→A で実機検証→B(ADBOAD LCD 6画面)を実装** の順。A を先にする理由=ADBOAD 入口が無効化中(main.c~264 PC4_nTEST 誤起動対策でコメントアウト)＋既存ADBOADは ID-200T DOレガシー、一方 LinkSerial は PC 直結コマンド基盤あり算出コア+係数ストア書込を直接叩ける。**A のコマンド設計スケッチと全体の完了/残は `docs/specs/adjust-mode-design.md` 冒頭「★次セッション引き継ぎ」に記載**。検証順=FUP→係数ストア→調整/校正。
 
 **A シリアル調整インターフェース 実装済(2026-07-15, 未push, 本体ビルドOK)**: LinkSerial.c `Handle_Adjust_CMD()`(先頭'A'委譲・未該当は既存AD/AAS/ATPへフォールスルー)+IM_110.c `Adj_*` オーケストレーション層。コマンド: AMV(生値表示) / ALD,<duty>(LED揮発) / ALDA,<start>(1750±30自動+WPP保存,MD一発測定同期反復) / AZR(遮光受光ダーク→CZ) / ATC,<temp>+ATCF(温度3点→CT/CZ) / AMC,<mgL>+AMCF,<次数>(多項式CM,MLSS/SS) / AMCP(累乗CM,透視度) / AKZ,<mgL>(機差CK) / AWC(WCFC確定) / AMR(リセット) / AST(状態)。捕捉=ADC_mV_ave(MS稼働前提)、書込=staging更新→Apply_Coef_To_Live→WCM/WCK/WCZ/WCT(MS一時停止)。**プローブFW変更なし・protocol変更なし**(新cmdは本体↔PC/USART1、SP/MD/WPP/WCxは既存)。**設計精査修正: AZR は受光ダーク adzr[0]のみ、adzr[1]=refZR(20℃清水Ref)は ATCF が設定**(E'再定義に整合)。詳細=adjust-mode-design.md「A:シリアル調整インターフェース」。**次=A で実機検証(FUP→係数ストア→調整)→ B(ADBOAD LCD)**。
 
@@ -16,7 +16,7 @@
 
 **実機デバッグ ハーネス 準備済(2026-07-16, IM-110-system/tools/adjust-debug/, 未push)**: ユーザ合意=Claude が OpenOCD/GDB とシリアル(A)両方を駆動、Mac から USB-シリアルで本体届く。`openocd_l452.cfg`(ST-Link+stm32l4x)/`adj.gdb`(マクロ adcs/mlssv/ssv/trv/caps + armfit=fit/adjustブレーク + stepmlss=ホットパス1サイクル)/`adjctl.py`(依存なしtermios、115200 8N1 LF、A cmd送受、-i対話)/`README.md`(手順1-9→Aコマンド列)。接続=ST-Link→CN1,USBシリアル→CN2(USART1 115200 8N1),プローブ→CN4。ツール類はarm-none-eabi-gdb/openocd/st-util/st-flash がMac導入済(pyserialは無=termiosで回避)。**シリアル完全駆動用に AMODE,<0/1/2>(モード切替)/AEQ,<21-30>(MLSS相関式選択) を追加**(ボタン不要化)。次セッションで実機接続→openocd起動→gdb attach→adjctl で手順実行しながらデバッグ。
 
-**設計の真実源 = `docs/adjust-mode-design.md`**（口頭質問を1トピックずつ相談→決定を積む作業ログ）。元資料 xlsx 2つも docs/specs に commit 済(push 済 f715940)。
+**設計の真実源 = `docs/specs/adjust-mode-design.md`**（口頭質問を1トピックずつ相談→決定を積む作業ログ）。元資料 xlsx 2つも docs/specs に commit 済(push 済 f715940)。
 
 **決定済み(2026-07-13, A〜G):**
 - A 入口: 現状のまま。

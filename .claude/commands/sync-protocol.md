@@ -4,7 +4,7 @@ description: protocol-rs232c.md と本体・プローブ両実装の整合性を
 
 # /sync-protocol
 
-`docs/protocol-rs232c.md` の定義と、本体 (`../IM-110/`) ・プローブ (`../IM-110_Probe/`)
+`docs/specs/protocol-rs232c.md` の定義と、本体 (`../IM-110/`) ・プローブ (`../IM-110_Probe/`)
 両実装との食い違いを検出します。本プロトコルは **ASCII テキスト・行指向**（バイナリフレームではない）。
 
 ## 前提
@@ -15,7 +15,7 @@ description: protocol-rs232c.md と本体・プローブ両実装の整合性を
 
 ## 手順
 
-### 1. 仕様の抽出 (`docs/protocol-rs232c.md`)
+### 1. 仕様の抽出 (`docs/specs/protocol-rs232c.md`)
 
 以下を読み取る:
 - §3.1 コマンド一覧表: ASCII コマンド名 (例: `VR`, `SP`, `SEL`...)、引数書式、応答種別、プローブ側実装の参照先 (`IM_110.c:行番号`)

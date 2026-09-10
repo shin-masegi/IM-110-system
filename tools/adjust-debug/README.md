@@ -6,7 +6,7 @@ Claude Code が OpenOCD/GDB とシリアル(A コマンド)の**両方を駆動*
 - `openocd_l452.cfg` — STM32L452 + ST-Link の OpenOCD 設定
 - `adj.gdb` — GDB 初期化（観測マクロ + fit/adjust ブレーク）
 - `adjctl.py` — 依存なしシリアルドライバ（A コマンド送受、115200 8N1 LF）
-- 設計の真実源: `../../docs/adjust-mode-design.md`（★A 節にコマンド表）
+- 設計の真実源: `../../docs/specs/adjust-mode-design.md`（★A 節にコマンド表）
 
 ## 接続
 - **ST-Link** → 本体 **CN1**（SWD/JTAG, CON8）

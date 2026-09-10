@@ -70,7 +70,7 @@ def main() -> int:
          "**セクションA=本体、セクションB=プローブ。**\n",
          "> **作成方法**: 本体(A)は 77サーバーの Devstral(24B) が本体FW `IM-110/Core/Src/Display.c` の"
          "各画面関数のソースを読み、その実装から画面仕様を執筆したもの。"
-         "プローブ(B)は通信仕様 `docs/protocol-rs232c.md` から生成。Claude Code が真実源と突き合わせ検証。\n",
+         "プローブ(B)は通信仕様 `docs/specs/protocol-rs232c.md` から生成。Claude Code が真実源と突き合わせ検証。\n",
          "> `(要確認: 呼出側FW)` は、画面遷移やスイッチ処理が本コード(描画)ではなく"
          "呼出側 `Normal.c` / `Setting.c` / `Adjust.c` にあり、本ラウンドでは未解析であることを示す。\n",
          "> 画面図はモノクロLCD(400×240)モックアップ。全図は `docs/specs/assets/im-110/`。\n",
@@ -89,7 +89,7 @@ def main() -> int:
 
     L.append("\n---\n\n# セクションB：プローブ\n")
     L.append("> プローブは画面を持たない。本体からRS-232Cで制御されるアナログ計測モジュール。"
-             "記述は `docs/protocol-rs232c.md` に基づく。\n")
+             "記述は `docs/specs/protocol-rs232c.md` に基づく。\n")
     for num, title, fid in PROBE:
         L.append(f"\n## B-{num} {title}\n")
         f = V1OUT / f"final_{fid}.md"

@@ -2,7 +2,7 @@
 
 > 出所: Claude auto-memory `project_probe_fup_bridge.md`（type: project / originSession 6598803f…）を 2026-07-22 にリポへ移設。
 > メモリ側は本ファイルへのポインタのみ。編集はここを真実源とする。
-> 手順の真実源は `docs/fup-procedure.md`、protocol は `docs/protocol-rs232c.md` §3.2.5。
+> 手順の真実源は `docs/specs/fup-procedure.md`、protocol は `docs/specs/protocol-rs232c.md` §3.2.5。
 
 IM-110_Probe (STM32G070) はケース内に接着固定され SWD(J4) が触れなくなるため、UART経由の FW 書き換え経路 (方式A) を用意する。設計合意:
 

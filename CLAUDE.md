@@ -16,7 +16,7 @@ IM-110 は 2 基板構成の計測器です。
 | IM-110T プローブ基板 | 水質計測用アナログ信号取得 (MLSS / 透視度 等) | `../IM-110_Probe/` | STM32G070KBT6 (Cortex-M0+) |
 
 両者は **RS-232C ケーブルで接続**され、本体側がマスターとしてプローブを制御します。
-物理レイヤの変換は両端の MAX3232 (本体 U16 / プローブ IC21) で行い、ケーブル区間は ±12V level、両 MCU の UART ピン〜各基板 MAX3232 手前までが TTL 3.3V（詳細は §4 / §7 / `docs/protocol-rs232c.md` §1）。
+物理レイヤの変換は両端の MAX3232 (本体 U16 / プローブ IC21) で行い、ケーブル区間は ±12V level、両 MCU の UART ピン〜各基板 MAX3232 手前までが TTL 3.3V（詳細は §4 / §7 / `docs/specs/protocol-rs232c.md` §1）。
 
 ---
 
@@ -32,7 +32,9 @@ Claude Code はこの `IM-110-system/` ディレクトリから起動してく�
 └── IM-110-system/             ← ★このリポ
     ├── CLAUDE.md              ← 横断コンテキスト（本ファイル）
     ├── docs/
-    │   ├── protocol-rs232c.md ← 通信仕様の唯一の真実源
+    │   ├── handoff.md         ← 現状スナップショット (作業の入口)
+    │   ├── specs/             ← 仕様・設計・監査文書 (protocol-rs232c.md = 通信仕様の唯一の真実源、プログラム仕様書 等。2026-09-10 集約)
+    │   ├── context/           ← 横断コンテキスト
     │   └── debug-log/         ← Claude.ai からのデバッグ記録インボックス
     └── .claude/commands/      ← カスタムスラッシュコマンド
 ```
@@ -44,10 +46,10 @@ Claude Code はこの `IM-110-system/` ディレクトリから起動してく�
 以下は例外なく守ってください。違反しそうな操作の前には必ずユーザーに確認すること。
 
 ### 3.1 プロトコル仕様の単一真実源
-- RS-232C 通信のコマンド・応答・タイムアウトの定義は `docs/protocol-rs232c.md` のみが真実源。
+- RS-232C 通信のコマンド・応答・タイムアウトの定義は `docs/specs/protocol-rs232c.md` のみが真実源。
 - `IM-110/` または `IM-110_Probe/` 内のコードで通信処理を修正する場合、
-  まず `docs/protocol-rs232c.md` を読んで整合を確認する。
-- 仕様そのものを変える場合は `docs/protocol-rs232c.md` を先に更新し、
+  まず `docs/specs/protocol-rs232c.md` を読んで整合を確認する。
+- 仕様そのものを変える場合は `docs/specs/protocol-rs232c.md` を先に更新し、
   その差分に従って両側のコードを修正する（順序が逆になってはいけない）。
 
 ### 3.2 両側同時修正のルール
@@ -62,7 +64,7 @@ Claude Code はこの `IM-110-system/` ディレクトリから起動してく�
 ### 3.3 バージョン管理の独立性
 - 本体とプローブの GitHub リポジトリは独立。バージョン番号も独立。
 - 片側だけ Ver. UP するのは自由だが、その際必ず:
-  1. `docs/protocol-rs232c.md` のプロトコルバージョンを据え置きか上げるか判定
+  1. `docs/specs/protocol-rs232c.md` のプロトコルバージョンを据え置きか上げるか判定
   2. 反対側の互換性を確認（後方互換を切る場合は反対側も同時リリース計画を立てる）
   3. このリポジトリの `docs/debug-log/` または `docs/release-notes.md` に「本体 vX × プローブ vY で検証」の組み合わせ履歴を残す
 
@@ -196,7 +198,7 @@ Claude Code で作業を始める前に、以下を暗黙に実行してくだ�
 
 1. **`docs/handoff.md` を最初に読む** — 現状スナップショット＋索引。今どこまで進んでいて何が残っているか（特に T1=512B統合ストア移行）はここが起点。**これを読まずに作業方針を判断しない。**
 2. **`docs/context/README.md` を読む** — 横断コンテキスト（旧 auto-memory の移設先）。真実源はリポ内の `docs/context/`。machine-local な memory に依存せず、どのPC・どのクローン先でも同じ文脈に入るための正本。
-3. `docs/protocol-rs232c.md` を読む
+3. `docs/specs/protocol-rs232c.md` を読む
 4. 作業対象が本体かプローブか確認し、該当する `CLAUDE.md`（各サブリポジトリのルート）を読む
 5. `docs/debug-log/` の未処理エントリがあれば通知する
 
@@ -241,4 +243,4 @@ cd ../IM-110_Probe && make clean
 
 - **RS-232C**: 本資料では本体⇔プローブ間シリアル通信の総称として使う。物理レベルはケーブル伝送区間が両端 MAX3232 通過後の ±12V level、両 MCU の UART ピン〜各基板 MAX3232 手前までが TTL 3.3V（本体 = MAX3232 U16、プローブ = MAX3232 IC21）。
 - **インボックス方式**: Claude.ai でのデバッグ記録を `docs/debug-log/` にコピペで蓄積し、Claude Code が後で本体仕様書に統合する運用のこと。
-- **真実源 (single source of truth)**: 同じ情報が複数箇所にあると矛盾の原因になるため、プロトコル仕様は `docs/protocol-rs232c.md` 一箇所のみに記述する方針。
+- **真実源 (single source of truth)**: 同じ情報が複数箇所にあると矛盾の原因になるため、プロトコル仕様は `docs/specs/protocol-rs232c.md` 一箇所のみに記述する方針。

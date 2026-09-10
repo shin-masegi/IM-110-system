@@ -35,4 +35,4 @@ _processed/YYYY-MM-DD-短いタイトル.md  ← 取り込み済みは _processe
 
 - ここは **議論の一次記録** であって、仕様書ではありません。
 - ここにプロトコル定義や API 仕様を書かないこと。
-  確定した仕様は `docs/protocol-rs232c.md` や各リポジトリの `CLAUDE.md` に反映する。
+  確定した仕様は `docs/specs/protocol-rs232c.md` や各リポジトリの `CLAUDE.md` に反映する。

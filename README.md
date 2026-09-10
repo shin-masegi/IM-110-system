@@ -7,7 +7,7 @@ IM-110 製品の本体基板・プローブ基板を横断管理するための�
 
 ## このリポジトリの役割
 
-- **プロトコル仕様の一元管理** (`docs/protocol-rs232c.md`)
+- **プロトコル仕様の一元管理** (`docs/specs/protocol-rs232c.md`)
 - **デバッグログのインボックス** (`docs/debug-log/` — Claude.ai での議論をここに集約)
 - **Claude Code 用の横断ルール** (`CLAUDE.md`)
 - **カスタムスラッシュコマンド** (`.claude/commands/`)
@@ -31,7 +31,7 @@ claude
 
 ## 日常運用
 
-- 通信に関わる変更: 必ず `docs/protocol-rs232c.md` を先に更新 → 両側コード修正
+- 通信に関わる変更: 必ず `docs/specs/protocol-rs232c.md` を先に更新 → 両側コード修正
 - Claude.ai でデバッグ: まとめを `docs/debug-log/YYYY-MM-DD-title.md` として保存
 - 溜まったインボックスの取り込み: Claude Code で `/ingest-debug-log` を実行
 - プロトコル整合性チェック: `/sync-protocol` で両側の実装が仕様と合っているか確認

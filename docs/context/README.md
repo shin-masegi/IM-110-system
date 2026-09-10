@@ -11,7 +11,7 @@ Claude の auto-memory（`~/.claude/projects/.../memory/`）に溜めていた�
 | [fw-version-policy.md](fw-version-policy.md) | feedback | FW 採番は push の節目で 1 つだけ。修正ごとに +1 しない（2026-08-05 指示） |
 | [probe-fup-bridge.md](probe-fup-bridge.md) | project | プローブ UART FW 更新（FUP+本体8E1パススルー）。リリース前に治具専用FW化 |
 | [probe-coefficient-store.md](probe-coefficient-store.md) | project | 係数の統合ストア化仕様（§12, 512B/32Bページ, Page63）。本体EEPROMバイト同一ミラー。**移行完了（T1, 2026-07-25 実機検証済）** |
-| [adjust-mode.md](adjust-mode.md) | project | 調整機能(ADBOAD)設計・進捗。設計真実源は docs/adjust-mode-design.md |
+| [adjust-mode.md](adjust-mode.md) | project | 調整機能(ADBOAD)設計・進捗。設計真実源は docs/specs/adjust-mode-design.md |
 | [local-llm-server.md](local-llm-server.md) | project | 社内 LLM 推論サーバー導入検討（社長打診予定） |
 
 ## 注意 — 係数モデルの移行（未完）

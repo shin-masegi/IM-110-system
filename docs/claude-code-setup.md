@@ -24,7 +24,7 @@ git clone https://github.com/shin-masegi/IM-110_Probe.git
 1. `IM-110-system/` から起動する
 2. `/add-dir ../IM-110` と `/add-dir ../IM-110_Probe` で両コードツリーを追加
 3. 初回セッションは `CLAUDE.md §5` のチェックリスト（`docs/handoff.md` → `docs/context/README.md` →
-   `docs/protocol-rs232c.md`）を読めば現状に追いつける。**ローカルメモリの移行作業は不要**
+   `docs/specs/protocol-rs232c.md`）を読めば現状に追いつける。**ローカルメモリの移行作業は不要**
    （メモリはリポ md へのポインタのみで、内容はすべてリポ側にある）
 
 ## 3. 手動コピーが必要なファイル（リポ外・個人設定）
@@ -53,7 +53,7 @@ git clone https://github.com/shin-masegi/IM-110_Probe.git
   - 許可: `st-flash --format ihex write build/IM-110.hex`（最後に run で終わる）
   - 禁止: `st-info` 等の「接続だけして走らせ直さない」操作全部（本体電源が落ちる）
   - 書込系操作（st-flash / FUP）は毎回、実行前に宣言してユーザーの合図を待つ
-- **プローブ書き込み**: SWD 不要、本体経由 FUP ブリッジ → `docs/fup-procedure.md`
+- **プローブ書き込み**: SWD 不要、本体経由 FUP ブリッジ → `docs/specs/fup-procedure.md`
   （`FUP,45063` 送信 → `stm32flash -b 9600 -w IM-110_Probe.bin -v -S 0x08000000 <port>`）
 
 ## 6. 絶対ルールの所在（新環境で最初に読むもの）
@@ -61,7 +61,7 @@ git clone https://github.com/shin-masegi/IM-110_Probe.git
 1. `IM-110-system/CLAUDE.md` — §3 絶対ルール（protocol 真実源・両側同時修正・ハード真実源・commit/push 運用）
 2. `docs/handoff.md` — 現状スナップショット（FWバージョン・直近の変更・残件）
 3. `docs/context/README.md` — 横断コンテキスト索引（ST-Link 禁止事項・FUP 方針・ストア仕様等）
-4. `docs/protocol-rs232c.md` — 通信仕様の唯一の真実源
+4. `docs/specs/protocol-rs232c.md` — 通信仕様の唯一の真実源
 
 ## 7. 検証（環境が正しく引き継げたかの確認）
 

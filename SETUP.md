@@ -5,9 +5,9 @@
 
 > **現在の進捗 (2026-04-22)**
 > - ステップ 1-5: ✓ 完了（git push 済）
-> - ステップ 6: 🟡 部分的。`/ingest-debug-log` / `/sync-protocol` 動作確認済、`docs/protocol-rs232c.md` §1-§9 を実装から逆抽出確定。実デバッグログの投入はまだ無し
+> - ステップ 6: 🟡 部分的。`/ingest-debug-log` / `/sync-protocol` 動作確認済、`docs/specs/protocol-rs232c.md` §1-§9 を実装から逆抽出確定。実デバッグログの投入はまだ無し
 > - ステップ 7 (Word 生成): ⬜ 未着手（任意）
-> - 残タスクは `docs/protocol-rs232c.md` §9 TODO、および本体側 `Core/Src/main.c` の PC4 試験ジャンパ対応コミット（ユーザー作業分）
+> - 残タスクは `docs/specs/protocol-rs232c.md` §9 TODO、および本体側 `Core/Src/main.c` の PC4 試験ジャンパ対応コミット（ユーザー作業分）
 
 ---
 
@@ -107,7 +107,7 @@ IM-110-system から Claude Code を起動し:
 
 その後プロンプト:
 
-  docs/protocol-rs232c.md を実装から埋めてください。
+  docs/specs/protocol-rs232c.md を実装から埋めてください。
   本体・プローブ両方のコードを読み、以下を抽出して TODO 欄を埋めてほしい:
   - 実際のボーレート等のシリアルパラメータ
   - 実際のフレームフォーマット（STX/CRC/ETXの値など）
@@ -122,7 +122,7 @@ IM-110-system から Claude Code を起動し:
 出てきた差分をレビューし、問題なければコミット:
 
 ```bash
-git add docs/protocol-rs232c.md
+git add docs/specs/protocol-rs232c.md
 git commit -m "docs: populate protocol spec from implementation (v0.1)"
 ```
 
@@ -138,7 +138,7 @@ git commit -m "docs: populate protocol spec from implementation (v0.1)"
    - `IM-110/Materials/IM-110T_本体基板.NET`
    - `IM-110_Probe/Materials/230925_id160t_rev8_1.pdf`
    - `IM-110_Probe/Materials/230925_ID-160T_REV8_1.NET`
-   - `IM-110-system/docs/protocol-rs232c.md`（現時点版のコピー）
+   - `IM-110-system/docs/specs/protocol-rs232c.md`（現時点版のコピー）
 3. 回路で迷ったらこのプロジェクトでチャット
 4. セッション終わりに `docs/debug-log/TEMPLATE.md` の形式でまとめてもらう
 5. 返ってきた md を `IM-110-system/docs/debug-log/` に保存 → commit & push
@@ -162,7 +162,7 @@ git commit -m "docs: populate protocol spec from implementation (v0.1)"
 # Word で体裁整えた空 docx を docs/templates/reference.docx として保存
 
 # 生成
-pandoc docs/protocol-rs232c.md \
+pandoc docs/specs/protocol-rs232c.md \
   -o build/protocol-rs232c.docx \
   --reference-doc=docs/templates/reference.docx
 ```
@@ -195,7 +195,7 @@ Claude Code は起動時のルートディレクトリより**上**には行け�
 
 ### プロトコル仕様を破壊的変更したくなった
 
-1. `docs/protocol-rs232c.md` の MAJOR を上げる
+1. `docs/specs/protocol-rs232c.md` の MAJOR を上げる
 2. `docs/debug-log/` か `docs/release-notes.md` に「本体 vX と プローブ vY から互換」と書く
 3. 両リポの該当箇所を同一のタイミングでリリースする計画を立てる
 4. 片側だけ先にマージしないこと
