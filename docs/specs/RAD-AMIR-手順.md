@@ -45,6 +45,7 @@ RAD       → 全係数を約 30 行で出力
 | `RAD,SS,C:c0,c1,c2,SP:a,b,c,SV:sv1,sv2` | SS ベース式・スパン校正・校正設定値（既定 1000／500） |
 | `RAD,SEQ,21:q0,q1,q2` | SS No.21 の 2 次係数 |
 | `RAD,TR,ZRS:z1,ZRF:z2,Q:Q0,Q1,Q2,Q3` | 透視度ゼロ mV（出荷時／現場）と 4 点 3 次式係数 cm = Q0 + Q1·ABS + Q2·ABS² + Q3·ABS³（捕捉点から再計算した値） |
+| `RAD,TR,PW,ABS:d,Y:y,B:b` | 透視度 累乗延長の境界（最暗フィット点の ABS と設定値 cm）と指数 B（−0.8636 固定）。ABS > d では cm = y·(ABS/d)^B（本体 Ver.0.47 以降） |
 | `RAD,TR,SP:a,b,c,SV:sv1,sv2` | 透視度スパン校正（k 1 点方式では SP_B = k）、校正設定値 |
 | `RAD,TR,P90,X:mV,Y:cm` | 透視度 出荷時 90cm 点（受光 mV、設定値 cm） |
 | `RAD,SHIP,<M\|S\|T>,X:x0,x1,x2,Y:y0,y1,y2` | 出荷時 3 点調整。x=受光 mV、y=設定値。[0]=ゼロ（MLSS／SS は未使用、透視度は清水）、[1]=スパン、[2]=中間 |
